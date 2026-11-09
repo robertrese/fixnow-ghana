@@ -1,0 +1,67 @@
+plugins {
+    id "com.android.application"
+}
+
+dependencies {
+    implementation "androidx.activity:activity:1.13.0"
+    // 1.16.0 requires API 24; 1.15.0 keeps the inclusive Android 6 minimum.
+    //noinspection GradleDependency
+    implementation "androidx.webkit:webkit:1.15.0"
+}
+
+def webOutputDir = file("../../../outputs")
+def generatedWebAssets = layout.buildDirectory.dir("generated/webAssets")
+
+tasks.register("syncWebAssets", Sync) {
+    from(webOutputDir) {
+        include "fixnow-ghana.html"
+        include "emergency-contacts.js"
+        include "map-foundation.js"
+        include "vendor/**"
+        include "manifest.webmanifest"
+        include "service-worker.js"
+        include "privacy.html"
+        include "terms.html"
+        include "support.html"
+        include "icon.svg"
+        include "illustrations/**"
+        include "fonts/**"
+    }
+    into(generatedWebAssets)
+}
+
+android {
+    namespace "com.fixnowghana.command"
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.fixnowghana.command"
+        minSdk 23
+        targetSdk 36
+        versionCode 1
+        versionName "1.0.0"
+        manifestPlaceholders = [usesCleartextTraffic: "false"]
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        debug {
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
+        }
+        release {
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
+        }
+    }
+
+    sourceSets {
+        main {
+            assets.srcDir(generatedWebAssets)
+        }
+    }
+}
+
+preBuild.dependsOn("syncWebAssets")

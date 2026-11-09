@@ -1,0 +1,21 @@
+[Unit]
+Description=FixNow Ghana Backend API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fixnow
+Group=fixnow
+WorkingDirectory=/opt/fixnow-backend
+EnvironmentFile=/etc/fixnow-backend.env
+ExecStart=/usr/bin/node /opt/fixnow-backend/server.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/fixnow-backend
+
+[Install]
+WantedBy=multi-user.target

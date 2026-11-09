@@ -1,0 +1,72 @@
+# Secrets and local environment configuration
+work/fixnow-secrets/
+*.p12
+*.jks
+*.keystore
+*.key
+*.pem
+*.crt
+*.cer
+*.pfx
+*.password
+*.secret
+*password*.txt
+*secret*.txt
+.env
+.env.*
+!.env.example
+
+# Runtime data, databases, logs, and test fixtures
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-wal
+*.sqlite-shm
+*-wal
+*-shm
+work/fixnow-backend/data/
+work/fixnow-backend/test-data/
+work/fixnow-backend/ps-test-data/
+work/release-update/
+*.log
+logs/
+coverage/
+
+# Android and Gradle outputs
+.gradle/
+**/.gradle/
+local.properties
+build/
+**/build/
+*.apk
+*.aab
+*.apks
+*.aar
+*.dex
+
+# Release artifacts and temporary archives
+outputs/*-release.*
+outputs/*.zip
+outputs/*.tar
+outputs/*.tar.gz
+outputs/*.tgz
+*.tmp
+*.temp
+*.bak
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local tools, dependencies and test runs (not source)
+node_modules/
+outputs/oracleJdk-27/
+work/fixnow-android/.gradle-user/
+work/fixnow-backend/data-sources/
+work/fixnow-backend/*-data/
+work/fixnow-backend/test-data-browser/
+design/backup-before-v2/
+design/backup-before-v3/
+work/qa/screenshots/

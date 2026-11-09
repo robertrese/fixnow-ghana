@@ -1,0 +1,39 @@
+{
+  "name": "fixnow-ghana",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test:api": "node work/fixnow-backend/test-api.js",
+    "test:offline": "node outputs/offline-queue.test.js",
+    "test:responder": "node outputs/responder-phase0.test.js",
+    "test:phase1": "node outputs/phase1-navigation.test.js",
+    "test:phase2": "node outputs/phase2-location.test.js",
+    "test:phase3": "node outputs/phase3-maps.test.js",
+    "test:phase4": "node outputs/phase4-public-map.test.js",
+    "test:phase5": "node outputs/phase5-report-wizard.test.js",
+    "test:phase6": "node outputs/phase6-citizen-accounts.test.js",
+    "test:phase7": "node outputs/phase7-trustworthy-feed.test.js",
+    "test:phase8": "node outputs/phase8-my-reports.test.js",
+    "test:phase9": "node outputs/phase9-responder-portal.test.js",
+    "test:phase10": "node outputs/phase10-administration-routing.test.js",
+    "test:phase11": "node outputs/phase11-production-security.test.js",
+    "test:phase12": "node outputs/phase12-accessibility-android.test.js",
+    "test:emergency": "node outputs/emergency-contacts.test.js",
+    "test:v2": "node outputs/v2-design.test.js",
+    "check:api": "node --check work/fixnow-backend/server.js",
+    "check:frontend": "node outputs/responder-phase0.test.js",
+    "check:sw": "node --check outputs/service-worker.js",
+    "check": "npm run check:api && npm run check:frontend && npm run check:sw && npm run test:offline && npm run test:phase1 && npm run test:phase2 && npm run test:phase3 && npm run test:phase4 && npm run test:phase5 && npm run test:phase6 && npm run test:phase7 && npm run test:phase8 && npm run test:phase9 && npm run test:phase10 && npm run test:phase11 && npm run test:phase12 && npm run test:emergency && npm run test:v2 && npm run test:api",
+    "start:api": "node work/qa/start-local-api.js",
+    "start:web": "node work/serve-outputs.js 4173",
+    "build:css": "node work/design/build-style-layer.js",
+    "qa:seed": "node work/qa/seed-demo.js",
+    "qa:overflow": "node work/qa/overflow-check.js",
+    "qa:a11y": "node work/qa/a11y-scan.js",
+    "qa:walkthrough": "node work/qa/walkthrough.js",
+    "qa": "npm run qa:overflow && npm run qa:a11y && npm run qa:walkthrough"
+  },
+  "dependencies": {
+    "@googlemaps/markerclusterer": "2.6.2"
+  }
+}

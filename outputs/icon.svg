@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FixNow Ghana icon">
+  <rect width="512" height="512" rx="96" fill="#0d2a22"/>
+  <rect x="84" y="98" width="344" height="316" rx="48" fill="#ffffff"/>
+  <path d="M84 122h344v94H84z" fill="#ce1126"/>
+  <path d="M84 216h344v94H84z" fill="#fcd116"/>
+  <path d="M84 310h344v104H84z" fill="#006b3f"/>
+  <circle cx="256" cy="256" r="80" fill="#ffffff" opacity=".9"/>
+  <path d="M256 176l22 50 54 5-41 36 12 53-47-28-47 28 12-53-41-36 54-5z" fill="#111111"/>
+  <text x="256" y="394" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="900" fill="#111111">FN</text>
+</svg>

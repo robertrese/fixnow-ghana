@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: ../fixnow-backend
+      dockerfile: deploy/docker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./templates/production.env.example
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4180
+      DATA_DIR: /data
+      DB_FILE: /data/fixnow.sqlite
+    ports:
+      - "127.0.0.1:4180:4180"
+    volumes:
+      - fixnow-data:/data
+
+volumes:
+  fixnow-data:

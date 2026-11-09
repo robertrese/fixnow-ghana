@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fixnow-api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["work/qa/start-local-api.js"],
+      "port": 4180
+    },
+    {
+      "name": "fixnow-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["work/serve-outputs.js", "4173"],
+      "port": 4173
+    }
+  ]
+}

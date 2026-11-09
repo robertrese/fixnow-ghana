@@ -1,0 +1,94 @@
+# FixNow Ghana: guide for Claude Code
+
+FixNow Ghana is an offline-first civic reporting app for Ghana. Residents report community problems (flooding, roads, waste, water, electricity, safety) and follow what happens. Moderators verify reports before anything is public. Authorised responders see exact locations only for cases in their own area. It is not deployed and not pilot-ready.
+
+The owner is Tyrese Saint-Acquaye (GIMPA BSc Computer Science, Accra). He uses this project in his master's applications, so polish, correctness and honesty about what is real all matter. Explain changes in plain language; he is a student, not a reviewer of diffs.
+
+Read `design/v2-handoff/CLAUDE-CODE-HANDOFF.md` for the full history, decisions and the current task list.
+
+## Repository map
+
+- `outputs/fixnow-ghana.html`: the whole web app. It is a single-page PWA (HTML, CSS and JS in one file, about 0.5 MB) with a `body[data-view]` view system.
+- `outputs/service-worker.js`: the offline cache. Bump `CACHE_NAME` whenever a cached file changes.
+- `outputs/map-foundation.js`, `outputs/emergency-contacts.js`: the map layer, and the emergency numbers (single source of truth).
+- `outputs/fonts/`: bundled typefaces with their OFL licences. `outputs/illustrations/`: SVG artwork.
+- `outputs/*.test.js`: front-end policy and phase tests (mostly static guards on the HTML).
+- `work/fixnow-backend/server.js`: Node 22 API on `node:sqlite`; its integration test is `test-api.js`.
+- `work/fixnow-android/`: the Android WebView wrapper (`com.fixnowghana.command`). The `syncWebAssets` include list in `app/build.gradle` decides which web files ship.
+- `work/design/fixnow-v3.css`: the readable source of the design layer. **Never edit the minified `<style id="fixnow-v3">` block by hand.** Edit this file, then run `npm run build:css`.
+- `work/qa/`: local QA tools (launcher, demo seeding, walkthrough screenshots, accessibility scan, layout check). See `work/qa/README.md`.
+- `design/v2-handoff/`: the design brief, Figma reference frames, screenshots and build notes.
+
+## Commands (Windows PowerShell, from the project root)
+
+```powershell
+npm run check            # all 17 test suites: syntax, 16 front-end guards, backend integration test
+npm run build:css        # compile work/design/fixnow-v3.css into the app
+npm run start:api        # local API on http://localhost:4180 with demo accounts (data in work/fixnow-backend/local-data)
+npm run start:web        # serves outputs/ on http://localhost:4173
+npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo photos) through the real API
+npm run qa               # layout check + WCAG scan + walkthrough screenshots (needs Playwright, see work/qa/README.md)
+```
+
+Open the app at `http://localhost:4173/fixnow-ghana.html?api=http%3A%2F%2Flocalhost%3A4180`.
+
+Demo staff logins on the local server are `assembly/assembly123`, `nadmo/nadmo123`, `utility/utility123` and `moderator/moderator123`. The local admin password is generated into `work/fixnow-backend/local-data/local-dev-settings.json`.
+
+To build the Android debug app, run this from `work\fixnow-android`:
+
+```powershell
+$env:ANDROID_HOME="C:\Users\tyres\AppData\Local\Android\Sdk"
+$env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+.\gradlew.bat :app:assembleDebug
+```
+
+## Working rules
+
+1. Run `npm run check` before and after every change. Do not finish with anything failing. When you add a product rule, add a guard for it, usually in `outputs/v2-design.test.js`.
+2. For UI changes, also run `npm run qa` and look at the screenshots. Check 320 px phones and the Large text setting.
+3. Make a Git commit after each verified step, with a clear message. Never rewrite history. Before the first push anywhere, confirm that `.gitignore` keeps out secrets, `node_modules`, `outputs/oracleJdk-27/`, build output and local data.
+4. **Never read, print, copy, stage or commit anything in `work/fixnow-secrets/`.** It holds the Android signing key. Never put secrets, keys or passwords in code or docs.
+5. Do not deploy, create accounts, buy services, or change external systems without the owner's explicit go-ahead.
+6. Ask before deleting files. Prefer moving them to a clearly named folder.
+7. Keep everything offline-capable. Do not load fonts, scripts or styles from the network at runtime. New web files must be added to the service worker `ASSETS` list and the Gradle `syncWebAssets` include list.
+
+## Product rules (guarded by tests; do not weaken them)
+
+- **Emergency numbers:** general emergency 112; Police 191 (also 112); Fire 192 (also 112); Ambulance 112 (also 193). They come from `emergency-contacts.js`. Every call goes through the confirmation dialog: no raw `tel:` links anywhere. Android uses `ACTION_DIAL`, never `ACTION_CALL`. Hotlines stay visible on Home at every screen size.
+- **Honesty:**
+  - No invented statistics, response times or authority outcomes.
+  - No defaults that fake an answer: "people affected" starts empty, and severity must be chosen.
+  - "Report submitted" (shows the reference and private secret) is a different screen from "Saved and waiting to send" (shows no reference or secret until the server confirms).
+  - Unsent reports are labelled "Not sent yet".
+  - Languages other than English are labelled as planned.
+  - Copy that says something is encrypted, anonymous or "sent to authorities" must be true of the system.
+- **Privacy:**
+  - Exact GPS, GhanaPostGPS, contact details and tracking secrets never appear publicly.
+  - The public feed shows only moderator-verified reports, at MMDA-safe approximate points.
+  - Public photos appear only after a moderator marks the photo clean and confirms that no faces, number plates or house numbers are visible. The server re-writes each published photo without metadata.
+  - Rejecting a photo withdraws it.
+- **Accessibility:**
+  - Keep 0 axe WCAG 2.1 A/AA violations.
+  - Touch targets are at least 44 px.
+  - Focus moves to the step heading on each wizard step and to the page title when a view changes.
+  - Dialogs focus their title.
+  - Respect reduced motion.
+- **Page size:** the page must stay under 120 KiB gzipped and 600 KiB raw (Phase 12 test).
+
+## Design system (V3, November 2026)
+
+- **Colour:**
+  - deep green `#0d2a22` for dark surfaces and text;
+  - canopy green `#0a7a52` for verified states and links;
+  - Ghana gold `#fcd116` for the main action on dark surfaces (never gold text on cream);
+  - flag red `#ce1126` only for 112;
+  - burgundy `#72262e` for emergency on light surfaces;
+  - cotton cream `#f3eee1` as the background, with paper `#fffdf8` surfaces.
+- **Type:** Bricolage Grotesque (bold) for headings and the large emergency numbers; Atkinson Hyperlegible Next for everything else.
+- **Signature:** a woven kente-style strip (the `--kente` token) appears only on the Home hero, the welcome screen and the top of the laptop sidebar. Do not scatter it elsewhere.
+- **Do not use:**
+  - ALL-CAPS labels;
+  - dot-joined meta text ("A · B");
+  - arrows on buttons;
+  - hover effects on touch screens (wrap them in `@media (hover: hover)`).
+- **Focused flows:** on phones the tab bar is hidden during the report wizard. The `.topbar-exit` button must stay.

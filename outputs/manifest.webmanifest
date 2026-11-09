@@ -1,0 +1,22 @@
+{
+  "name": "FixNow Ghana",
+  "short_name": "FixNow GH",
+  "id": "fixnow-ghana-command",
+  "start_url": "./fixnow-ghana.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f7f4",
+  "theme_color": "#0d2a22",
+  "description": "Report, track, and route community problems safely across Ghana.",
+  "categories": ["utilities", "productivity"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

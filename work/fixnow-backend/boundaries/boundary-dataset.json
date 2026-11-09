@@ -1,0 +1,18 @@
+{
+  "id": "gss-2021-phc-mmda-261",
+  "version": "2021-phc-statsbank-2023-10-05",
+  "title": "Ghana Statistical Service 2021 PHC - 261 administrative MMDAs",
+  "publisher": "Ghana Statistical Service",
+  "sourcePage": "https://statsbank.statsghana.gov.gh/censusatlas/",
+  "downloadUrl": "https://statsbank.statsghana.gov.gh/assets/geofiles.zip",
+  "sourceArchiveSha256": "A37F1F556283F825194B5A4251F17526E98A2797B273D604E0022A35F67518BB",
+  "runtimeFile": "gss-2021-phc-mmda-261.topo.json",
+  "runtimeFileSha256": "EE3A8BF615AE52457BA500E814E495222D6902BFF4B618FA5DD99414971BDFA4",
+  "coordinateReferenceSystem": "WGS 84 longitude/latitude",
+  "featureCount": 261,
+  "sourceFileDate": "2023-10-05",
+  "officialReferenceDate": "2021-06-27",
+  "licence": "Ghana Statistical Service data terms; owner must confirm production redistribution and use rights with GSS",
+  "licenceStatus": "production-review-required",
+  "mmdaIdPolicy": "Version-qualified SHA-256 identifier derived from the official Region and District labels because the source file has no numeric MMDA code field"
+}
