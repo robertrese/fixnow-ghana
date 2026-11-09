@@ -96,4 +96,11 @@ assert(v2Css.includes(".wizard-progress::before{content:none}"), "the old progre
 assert(/\.wizard-step-count\{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect\(0 0 0 0\)/.test(v2Css) && html.includes('<span class="wizard-step-count">Step 1 of 6</span>'), "the step count is shown once in the page header and stays in the step heading for screen readers");
 assert(/\.secret-line strong\{grid-column:1 \/ -1;/.test(v2Css), "the reference gets the full row so it does not break in the middle on phones");
 
+// The bell shows a real count: official updates on reports saved on this device, honouring each report's preferences.
+assert(!html.includes("You have no unread public-report updates"), "the bell must not always claim there is nothing unread");
+assert(html.includes("`Notifications, ${count} unread`") && html.includes('document.querySelector("#nearbyUnreadCount").textContent = String(count)'), "the bell's visible and spoken counts must come from real data");
+assert(html.includes("report.updatesSeenAt") && html.includes("preference.publicUpdates !== false") && html.includes("preference.resolution !== false"), "unread updates must track what was seen and honour notification preferences");
+assert(html.includes("Phone alerts are not set up yet."), "the bell must not imply that push notifications exist");
+assert(/Object\.assign\(report, \{ status: result\.report\.status, updates: result\.report\.updates, updatedAt: result\.report\.updatedAt, createdAt: result\.report\.createdAt \}\)/.test(html), "a background update check must not overwrite what the reporter wrote");
+
 console.log("V2 design and safety guard test passed");

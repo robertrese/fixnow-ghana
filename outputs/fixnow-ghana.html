@@ -3066,6 +3066,9 @@ details[open] > summary{margin-bottom:8px}
 .secret-line .mini{grid-column:2;grid-row:1}
 .secret-card p{margin:0;color:var(--muted);font-size:.875rem}
 .result-route{margin:0;color:var(--muted);font-size:.875rem}
+.notification-list{display:grid;gap:14px;margin:0 0 14px;padding:0;list-style:none}
+.notification-list li{display:grid;gap:4px;min-width:0;padding-bottom:14px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.notification-list small{color:var(--muted);font-size:.875rem}
 .my-report-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .my-report-tools .search-field, .my-report-tools .my-report-count{grid-column:1 / -1}
 .search-field{position:relative;display:block;margin:0}
@@ -4475,6 +4478,8 @@ body.map-unavailable [data-focus-public]{display:none}
     ];
 
     let reports = loadReports();
+    const UPDATE_CHECK_INTERVAL_MS = 60000;
+    let lastUpdateCheck = 0;
     let responderReports = loadResponderReports();
     let filter = "All";
     let deferredInstall = null;
@@ -4568,6 +4573,7 @@ body.map-unavailable [data-focus-public]{display:none}
         }
       });
       if (safeView === "report") setWizardStep(wizardStep);
+      if (safeView === "nearby") checkForReportUpdates().catch(() => {});
       if (safeView === "nearby" && window.FixNowMaps) {
         window.FixNowMaps.initializeNearby({ apiBase: validateSyncServer(DEFAULT_SYNC_SERVER) });
         loadNearbyReports();
@@ -7297,6 +7303,60 @@ body.map-unavailable [data-focus-public]{display:none}
       }
     }
 
+    // A real unread count: official updates on reports saved on this device, since the person last opened the bell.
+    function unreadReportUpdates() {
+      return reports.flatMap((report) => {
+        const preference = report.notificationPreference || {};
+        const seenAfter = Date.parse(report.updatesSeenAt || report.createdAt || "");
+        return (Array.isArray(report.updates) ? report.updates : [])
+          .filter((update) => Date.parse(update.createdAt) > seenAfter)
+          .filter((update) => (update.status === "Resolved" ? preference.resolution !== false : preference.publicUpdates !== false))
+          .map((update) => ({ report, update }));
+      });
+    }
+
+    function renderNotificationBell() {
+      const count = unreadReportUpdates().length;
+      document.querySelector("#nearbyUnreadCount").textContent = String(count);
+      document.querySelector("#nearbyNotificationsBtn").setAttribute("aria-label", `Notifications, ${count} unread`);
+    }
+
+    async function checkForReportUpdates() {
+      if (IS_DEMO_MODE || !navigator.onLine || Date.now() - lastUpdateCheck < UPDATE_CHECK_INTERVAL_MS) return;
+      lastUpdateCheck = Date.now();
+      await loadCitizenAccountReports();
+      const tracked = reports.filter((report) => report.syncStatus === "submitted" && report.trackingSecret && !report.accountLinked).slice(0, 20);
+      for (const report of tracked) {
+        try {
+          const result = await publicRequest("/api/public/reports/track", {
+            method: "POST", citizenAuth: false,
+            body: JSON.stringify({ reference: report.id, secret: report.trackingSecret })
+          });
+          // Only the progress fields: a background check must not replace what the person wrote.
+          Object.assign(report, { status: result.report.status, updates: result.report.updates, updatedAt: result.report.updatedAt, createdAt: result.report.createdAt });
+        } catch {
+          // One report that cannot be checked must not stop the others.
+        }
+      }
+      save();
+      renderMyReports();
+    }
+
+    function openNotifications() {
+      const unread = unreadReportUpdates();
+      const items = unread.map(({ report, update }) => `
+        <li><b>${escapeHtml(report.title || report.type || report.id)}</b><span>${escapeHtml(update.status || "Update")}${update.note ? `: ${escapeHtml(update.note)}` : ""}</span><small>${escapeHtml(formatPublicTime(update.createdAt))}</small></li>`).join("");
+      unread.forEach(({ report }) => {
+        report.updatesSeenAt = (report.updates || []).reduce((latest, update) => (Date.parse(update.createdAt) > Date.parse(latest) ? update.createdAt : latest), report.createdAt);
+      });
+      if (unread.length) save();
+      renderNotificationBell();
+      openModal("Notifications", `
+        ${unread.length ? `<ul class="notification-list">${items}</ul>` : "<p>You have no unread updates on reports saved on this device.</p>"}
+        <p class="hint">FixNow checks for updates when you open Nearby with a connection. Phone alerts are not set up yet.</p>
+      `, [{ label: "Close", className: "primary", action: closeModal }]);
+    }
+
     function mergeTrackedReport(source, existing = {}) {
       return {
         ...existing,
@@ -7449,6 +7509,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function renderMyReports() {
+      renderNotificationBell();
       const list = document.querySelector("#myReportList");
       const query = document.querySelector("#myReportSearch").value.trim().toLowerCase();
       const category = document.querySelector("#myReportCategoryFilter").value;
@@ -8559,9 +8620,7 @@ body.map-unavailable [data-focus-public]{display:none}
     });
     document.querySelector("#nearbyDateFilter").addEventListener("change", renderNearbyReports);
     document.querySelector("#nearbyDistanceFilter").addEventListener("change", renderNearbyReports);
-    document.querySelector("#nearbyNotificationsBtn").addEventListener("click", () => {
-      openModal("Notifications", "<p>You have no unread public-report updates on this device.</p>", [{ label: "Close", className: "primary", action: closeModal }]);
-    });
+    document.querySelector("#nearbyNotificationsBtn").addEventListener("click", openNotifications);
     document.querySelector("#nearbyFiltersBtn").addEventListener("click", (event) => {
       const filters = document.querySelector("#nearbyFilters");
       const open = filters.classList.toggle("open");
