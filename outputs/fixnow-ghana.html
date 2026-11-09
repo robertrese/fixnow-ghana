@@ -2936,13 +2936,14 @@ body[data-view="report"] .panel#intake{padding:0;border:0;background:transparent
 .intake-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px;padding:10px 14px;border-radius:14px;background:#fbe9ea;border:1px solid #efc6c9;color:#5f1a20;font-size:.9375rem}
 .intake-notice .link-button{color:#8c1f26;min-height:40px;white-space:nowrap}
 .wizard-progress{display:grid;grid-template-columns:repeat(6, 1fr);gap:5px;margin:0 0 4px;padding:0;border:0;background:transparent}
+.wizard-progress::before{content:none}
 .wizard-progress span{position:relative;height:6px;min-height:0;padding:0;border:0;border-radius:999px;background:#d8cfba}
 .wizard-progress span.active{background:var(--deep)}
 .wizard-progress span b, .wizard-progress span small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .wizard-step{min-width:0;margin:0;padding:0;border:0}
 .wizard-step legend{display:block;width:100%;margin:14px 0 6px;padding:0;font-size:2rem;font-weight:800;line-height:1.06;letter-spacing:-.025em;color:var(--ink)}
 .wizard-step legend small{font-family:var(--font-body);font-size:1rem;font-weight:400;letter-spacing:0;color:var(--muted)}
-.wizard-step-count{display:block;margin-bottom:6px;font-family:var(--font-body);color:var(--green-2);font-size:.875rem;font-weight:700;letter-spacing:0}
+.wizard-step-count{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .wizard-step .step-help{margin:0 0 18px;color:var(--muted);font-size:1rem;max-width:42ch}
 .wizard-step label{display:grid;gap:6px;margin-bottom:16px;font-size:.9375rem;font-weight:700;color:var(--ink)}
 .wizard-step label small, .field-label small{color:var(--muted);font-weight:400;font-size:.875rem}
@@ -3058,11 +3059,11 @@ details[open] > summary{margin-bottom:8px}
 .result-icon.wait{background:#8f5b00}
 .result-lead{margin:0;color:var(--muted);font-size:1rem}
 .secret-card{display:grid;gap:10px;width:100%;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--panel);text-align:left}
-.secret-line{display:grid;grid-template-columns:minmax(0, 1fr) auto;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
-.secret-line span{grid-column:1;color:var(--muted);font-size:.875rem;font-weight:700;letter-spacing:0;text-transform:none}
-.secret-line strong{grid-column:1;font-size:1.125rem;word-break:break-all;font-family:ui-monospace, Menlo, Consolas, monospace}
+.secret-line{display:grid;grid-template-columns:minmax(0, 1fr) auto;grid-template-rows:auto auto;column-gap:10px;row-gap:6px;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.secret-line span{grid-column:1;grid-row:1;color:var(--muted);font-size:.875rem;font-weight:700;letter-spacing:0;text-transform:none}
+.secret-line strong{grid-column:1 / -1;grid-row:2;font-size:.9375rem;word-break:break-all;font-family:ui-monospace, Menlo, Consolas, monospace}
 .secret-line strong.secret{color:var(--brand-emergency);font-size:1rem}
-.secret-line .mini{grid-column:2;grid-row:1 / 3}
+.secret-line .mini{grid-column:2;grid-row:1}
 .secret-card p{margin:0;color:var(--muted);font-size:.875rem}
 .result-route{margin:0;color:var(--muted);font-size:.875rem}
 .my-report-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -3436,7 +3437,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
       <div class="rail-box">
         <b id="syncState">Offline-ready</b>
-        <p id="syncDetail">Cases are saved on this device and can be exported when data is available.</p>
+        <p id="syncDetail">If you have no signal, your report waits on this device and sends when the connection returns.</p>
       </div>
 
       <div role="group" class="rail-links" aria-label="Legal and support">
@@ -5357,7 +5358,7 @@ body.map-unavailable [data-focus-public]{display:none}
       document.querySelector("#syncState").textContent = IS_DEMO_MODE ? "Demo data only" : "Offline-ready";
       document.querySelector("#syncDetail").textContent = IS_DEMO_MODE
         ? "Demo reports are isolated in this browser and cannot sync to production."
-        : "Citizen reports stay on this device and retry when connection returns.";
+        : "If you have no signal, your report waits on this device and sends when the connection returns.";
       return;
 
       if (IS_DEMO_MODE) {
@@ -8607,7 +8608,7 @@ body.map-unavailable [data-focus-public]{display:none}
       document.body.classList.toggle("is-offline", !online);
       document.querySelector("#offlineBanner").hidden = online;
       document.querySelector("#syncState").textContent = online ? "Online sync-ready" : "Offline mode";
-      document.querySelector("#syncDetail").textContent = online ? "Share briefs, export data, and continue collecting cases." : "Cases stay on this device until connection returns.";
+      document.querySelector("#syncDetail").textContent = online ? "If you have no signal, your report waits on this device and sends when the connection returns." : "Cases stay on this device until connection returns.";
     }
 
     window.addEventListener("beforeinstallprompt", (event) => {

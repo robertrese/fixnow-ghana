@@ -90,4 +90,10 @@ assert(/body\[data-view="report"\] \.nav\{display:none\}/.test(v2Css) && /body\[
 assert(backend.includes("function stripJpegMetadata") && backend.includes('"Cross-Origin-Resource-Policy": "cross-origin"'), "approved public photos are re-written without metadata and served for the app");
 assert(html.includes("Approve photo for public view") && html.includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
 
+// Screen polish found in the November QA pass.
+assert(!html.includes("Citizen reports stay on this device"), "sent reports go to the server, so the sidebar must not say reports stay on the device");
+assert(v2Css.includes(".wizard-progress::before{content:none}"), "the old progress track must stay switched off so the wizard shows one progress bar");
+assert(/\.wizard-step-count\{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect\(0 0 0 0\)/.test(v2Css) && html.includes('<span class="wizard-step-count">Step 1 of 6</span>'), "the step count is shown once in the page header and stays in the step heading for screen readers");
+assert(/\.secret-line strong\{grid-column:1 \/ -1;/.test(v2Css), "the reference gets the full row so it does not break in the middle on phones");
+
 console.log("V2 design and safety guard test passed");
