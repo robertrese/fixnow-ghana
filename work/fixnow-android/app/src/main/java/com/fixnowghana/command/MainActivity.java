@@ -62,13 +62,14 @@ public class MainActivity extends ComponentActivity {
         settings.setTextZoom(Math.max(100, Math.round(getResources().getConfiguration().fontScale * 100)));
         settings.setMediaPlaybackRequiresUserGesture(true);
 
-        assetLoader = new WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
-                .build();
+        WebViewAssetLoader.Builder assetLoaderBuilder = new WebViewAssetLoader.Builder()
+                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this));
+        LocalServerAccess.configure(assetLoaderBuilder);
+        assetLoader = assetLoaderBuilder.build();
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.setWebViewClient(new AppWebViewClient());
         webView.setWebChromeClient(new AppWebChromeClient());
-        webView.loadUrl("https://appassets.androidplatform.net/assets/fixnow-ghana.html");
+        webView.loadUrl(LocalServerAccess.startUrl("https://appassets.androidplatform.net/assets/fixnow-ghana.html"));
 
         backCallback = new OnBackPressedCallback(true) {
             @Override
@@ -151,7 +152,7 @@ public class MainActivity extends ComponentActivity {
 
         private boolean handleUrl(Uri uri) {
             String scheme = uri.getScheme() == null ? "" : uri.getScheme();
-            if ("https".equals(scheme) && "appassets.androidplatform.net".equals(uri.getHost())) {
+            if (("https".equals(scheme) && "appassets.androidplatform.net".equals(uri.getHost())) || LocalServerAccess.isAppPage(uri)) {
                 return false;
             }
             if ("tel".equals(scheme)) {

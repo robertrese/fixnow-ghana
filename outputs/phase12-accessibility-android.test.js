@@ -37,4 +37,23 @@ const compressedBytes = coreFiles.reduce((total, file) => total + zlib.gzipSync(
 assert(compressedBytes < 120 * 1024, `core static assets exceed the 120 KiB compressed low-bandwidth budget: ${compressedBytes} bytes`);
 assert(rawBytes < 600 * 1024, `core static assets exceed the 600 KiB on-device budget: ${rawBytes} bytes`);
 
+// The local-server route is for the debug build only. The release build must refuse plain HTTP.
+const androidSource = path.join(root, "work", "fixnow-android", "app", "src");
+const javaPackage = path.join("java", "com", "fixnowghana", "command");
+const releaseAccess = fs.readFileSync(path.join(androidSource, "release", javaPackage, "LocalServerAccess.java"), "utf8");
+const debugAccess = fs.readFileSync(path.join(androidSource, "debug", javaPackage, "LocalServerAccess.java"), "utf8");
+const mainNetworkConfig = fs.readFileSync(path.join(androidSource, "main", "res", "xml", "network_security_config.xml"), "utf8");
+const debugNetworkConfig = fs.readFileSync(path.join(androidSource, "debug", "res", "xml", "network_security_config.xml"), "utf8");
+const gradleBuildType = (name) => gradle.match(new RegExp(`\\b${name}\\s*\\{[^}]*\\}`))[0];
+assert(!/localhost|127\.0\.0\.1|10\.0\.2\.2|http:|setHttpAllowed|setDomain/.test(releaseAccess), "the release build must have no route to a local or plain-HTTP server");
+assert(releaseAccess.includes("return standardUrl;") && /isAppPage\(Uri uri\) \{\s*return false;/.test(releaseAccess), "the release build must start on the secure app origin and treat no other page as the app");
+assert(!/localhost|setHttpAllowed|http:\/\//.test(activity), "code shared with the release build must not mention a local or plain-HTTP server");
+assert(!fs.existsSync(path.join(androidSource, "main", javaPackage, "LocalServerAccess.java")), "the local-server class must live in the build-specific folders, never in shared code");
+assert(!fs.existsSync(path.join(androidSource, "release", "res")), "the release build must not override the locked-down network settings");
+assert(mainNetworkConfig.includes('<base-config cleartextTrafficPermitted="false"') && !mainNetworkConfig.includes('cleartextTrafficPermitted="true"') && !mainNetworkConfig.includes("<domain"), "release network settings must refuse plain HTTP everywhere");
+assert(/cleartextTrafficPermitted="true"/.test(debugNetworkConfig) && !debugNetworkConfig.includes("<base-config") && /<domain[^>]*>localhost<\/domain>/.test(debugNetworkConfig), "debug plain HTTP must be limited to named local addresses");
+assert(/usesCleartextTraffic: "false"/.test(gradleBuildType("release")) && /usesCleartextTraffic: "false"/.test(gradleBuildType("defaultConfig")) && /usesCleartextTraffic: "true"/.test(gradleBuildType("debug")), "only the debug build may allow plain HTTP");
+assert(!/debuggable\s+true/.test(gradle), "the release build must not be debuggable");
+assert(debugAccess.includes('"http".equals(uri.getScheme()) && "localhost".equals(uri.getHost()) && uri.getPort() == -1'), "the debug build must treat only its own bundled pages as the app");
+
 console.log(`Phase 12 accessibility and Android release gate passed (${compressedBytes} compressed / ${rawBytes} raw bytes)`);
