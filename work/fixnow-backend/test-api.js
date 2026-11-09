@@ -47,7 +47,7 @@ const otpProvider = http.createServer((req, res) => {
 });
 otpProvider.listen(4198, "127.0.0.1");
 
-const { startServer } = require("./server");
+const { startServer, REPORT_TYPES } = require("./server");
 const server = startServer();
 
 function assert(condition, message) {
@@ -380,7 +380,8 @@ async function apiFailure(pathname, options = {}) {
         reports: [
           {
             id: "FN-CASE-1",
-            type: "Blocked drain",
+            type: "Flooding or drainage",
+            subcategory: "Blocked drain",
             severity: "High",
             status: "Open",
             region: "Greater Accra",
@@ -393,6 +394,38 @@ async function apiFailure(pathname, options = {}) {
       }
     });
     assert(sync.created === 1, "report sync should create one report");
+
+    // Report types: the server's list must match the app's list exactly.
+    const appHtml = fs.readFileSync(path.join(root, "..", "..", "outputs", "fixnow-ghana.html"), "utf8");
+    const appTypeOptions = appHtml.match(/<select id="type" required>([\s\S]*?)<\/select>/)[1];
+    const appTypes = [...appTypeOptions.matchAll(/<option>([^<]+)<\/option>/g)].map((match) => match[1]);
+    assert(appTypes.length === 11 && [...appTypes].sort().join("|") === [...REPORT_TYPES].sort().join("|"), "server report types must match the app's problem type list");
+    const quickTypes = [...appHtml.matchAll(/data-quick-type="([^"]+)"/g)].map((match) => match[1]);
+    assert(quickTypes.length > 0 && quickTypes.every((type) => REPORT_TYPES.includes(type)), "every Home and wizard shortcut must use a listed report type");
+
+    // A bad type anywhere in a sync batch must reject the whole batch, leaving nothing half saved.
+    const fieldCase = { severity: "High", status: "Open", region: "Greater Accra", district: "Accra Metropolitan", community: "Osu", description: "Field case", source: "field-app" };
+    const mixedSync = await apiFailure("/api/reports/sync", {
+      method: "POST",
+      token: responderLogin.token,
+      body: { reports: [{ ...fieldCase, id: "FN-CASE-GOOD", type: "Road or bridge" }, { ...fieldCase, id: "FN-CASE-BAD", type: "Not a real type" }] }
+    });
+    assert(mixedSync.status === 400 && mixedSync.data.error === "Choose one of the listed problem types", "sync must reject a report type that is not on the list");
+    const missingTypeSync = await apiFailure("/api/reports/sync", {
+      method: "POST",
+      token: responderLogin.token,
+      body: { reports: [{ ...fieldCase, id: "FN-CASE-NO-TYPE" }] }
+    });
+    assert(missingTypeSync.status === 400, "sync must reject a new report with no type");
+    const afterRejectedSync = await api("/api/reports", { token: responderLogin.token });
+    assert(afterRejectedSync.reports.some((report) => report.id === "FN-CASE-1"), "a listed type must still sync");
+    assert(!afterRejectedSync.reports.some((report) => report.id === "FN-CASE-GOOD"), "a rejected batch must not save any of its reports");
+
+    // Reports saved before the list existed can hold other labels. The steps further down must still work on one.
+    const { DatabaseSync } = require("node:sqlite");
+    const testDb = new DatabaseSync(dbFile);
+    testDb.prepare("UPDATE reports SET type = 'Blocked drain' WHERE id = 'FN-CASE-1'").run();
+    testDb.close();
 
     const publicPayload = {
       submissionKey: crypto.randomUUID(),
@@ -411,6 +444,16 @@ async function apiFailure(pathname, options = {}) {
       contactConsent: true,
       consentConfirmed: true
     };
+    const unlistedTypeSubmission = await apiFailure("/api/public/reports", {
+      method: "POST",
+      body: { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), type: "Not a real type" }
+    });
+    assert(unlistedTypeSubmission.status === 400 && unlistedTypeSubmission.data.error === "Choose one of the listed problem types", "public reports must use a listed type");
+    const listedTypeSubmission = await api("/api/public/reports", {
+      method: "POST",
+      body: { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), type: "Clinic access", details: "The clinic road is cut off by standing water." }
+    });
+    assert(listedTypeSubmission.reference, "every listed type must be accepted, including ones without a Home shortcut");
     const clientAttachmentId = crypto.randomUUID();
     const plainPng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z4qQAAAAASUVORK5CYII=", "base64");
     const pngChunk = (type, data) => {
@@ -909,6 +952,9 @@ async function apiFailure(pathname, options = {}) {
     assert(audit.events.some((event) => event.action === "report_accept" && event.entityId === publicSubmission.reference), "audit should include responder acceptance");
     assert(audit.events.some((event) => event.action === "responder_evidence_clean" && event.entityId === publicSubmission.reference), "audit should include evidence review outcome");
     assert(!JSON.stringify(audit.events).includes("Crew lead contacted"), "audit payload must record private-note presence without private-note content");
+
+    const olderTypeCases = await api("/api/reports", { token: adminLogin.token });
+    assert(olderTypeCases.reports.find((report) => report.id === "FN-CASE-1")?.type === "Blocked drain", "reports saved with an older type must stay listed and keep their type after moderation and field actions");
 
     const retentionDryRun = await api("/api/admin/maintenance/retention", {
       method: "POST", token: adminLogin.token, body: { execute: false }

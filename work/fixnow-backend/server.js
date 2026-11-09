@@ -825,6 +825,23 @@ function claimReportAttachments(reportId, attachmentIds, uploadSessionKey, uploa
   return ids.length;
 }
 
+// The problem types a new report may use. Must match <select id="type"> in the app; test-api.js checks this.
+// Only new reports are checked, so reports already saved with an older label keep working.
+const REPORT_TYPES = Object.freeze([
+  "Flooding or drainage",
+  "Waste or sanitation",
+  "Water supply",
+  "Electricity",
+  "Road or bridge",
+  "Fire risk",
+  "Clinic access",
+  "Public safety",
+  "Food or market price",
+  "School facility",
+  "Other"
+]);
+const UNLISTED_REPORT_TYPE_MESSAGE = "Choose one of the listed problem types";
+
 function createPublicReport(input, req, citizen = null) {
   const report = input && typeof input === "object" ? input : {};
   if (isDemoPayload(report)) {
@@ -850,6 +867,11 @@ function createPublicReport(input, req, citizen = null) {
   const attachmentIds = Array.isArray(report.attachmentIds) ? report.attachmentIds.slice(0, 6) : [];
   if (!type || !severity || !declaredCommunity || !details) {
     const error = new Error("Type, severity, community, and details are required");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!REPORT_TYPES.includes(type)) {
+    const error = new Error(UNLISTED_REPORT_TYPE_MESSAGE);
     error.statusCode = 400;
     throw error;
   }
@@ -4245,10 +4267,16 @@ async function handler(req, res) {
       const body = await readBody(req);
       const reports = Array.isArray(body.reports) ? body.reports : [];
       let created = 0;
+      // Check the whole batch first, so one bad report cannot leave half a batch saved.
       for (const report of reports) {
         if (isDemoPayload(report)) return send(req, res, 400, { ok: false, error: "Demo reports cannot sync" });
         const existing = db.prepare("SELECT * FROM reports WHERE id = ?").get(sanitizeText(report.id, 120));
         if (existing) return send(req, res, 409, { ok: false, error: "Existing reports must be updated through the scoped report endpoint" });
+        if (!REPORT_TYPES.includes(sanitizeText(report.type || report.problemType || report.category, 100))) {
+          return send(req, res, 400, { ok: false, error: UNLISTED_REPORT_TYPE_MESSAGE });
+        }
+      }
+      for (const report of reports) {
         const result = upsertReport(report, actor, req);
         if (result.action === "created") created += 1;
       }
@@ -4405,4 +4433,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { startServer, handler };
+module.exports = { startServer, handler, REPORT_TYPES };
