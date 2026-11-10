@@ -952,6 +952,13 @@ async function apiFailure(pathname, options = {}) {
     assert(audit.events.some((event) => event.action === "report_accept" && event.entityId === publicSubmission.reference), "audit should include responder acceptance");
     assert(audit.events.some((event) => event.action === "responder_evidence_clean" && event.entityId === publicSubmission.reference), "audit should include evidence review outcome");
     assert(!JSON.stringify(audit.events).includes("Crew lead contacted"), "audit payload must record private-note presence without private-note content");
+    // Public actions never keep the sender's raw IP: only a keyed hash. Staff sign-ins keep it for security review.
+    const publicAudit = audit.events.filter((event) => ["public_report_created", "public_report_signal", "attachment_quarantined"].includes(event.action));
+    assert(audit.events.some((event) => event.action === "public_report_created" && event.entityId === publicSubmission.reference), "the public report should be audited");
+    assert(publicAudit.length >= 2 && publicAudit.every((event) => /^iphash:[a-f0-9]{64}$/.test(event.ip)), "public reports, signals and photo uploads must store a hashed IP, never the raw address");
+    assert(!/127.0.0.1|::1|::ffff/.test(JSON.stringify(publicAudit)), "no raw IP may appear in a public action's audit entry");
+    const staffSignIn = audit.events.find((event) => event.action === "login");
+    assert(staffSignIn && /127.0.0.1|::1/.test(staffSignIn.ip), "staff sign-ins keep the raw IP for security review");
 
     const olderTypeCases = await api("/api/reports", { token: adminLogin.token });
     assert(olderTypeCases.reports.find((report) => report.id === "FN-CASE-1")?.type === "Blocked drain", "reports saved with an older type must stay listed and keep their type after moderation and field actions");

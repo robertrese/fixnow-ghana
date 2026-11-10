@@ -2270,6 +2270,26 @@ function allowedRequestOrigin(req) {
   return allowed.has(origin);
 }
 
+// Raw IP addresses are kept only for staff sign-in attempts, so an administrator can spot or block a network that
+// attacks staff accounts. Every other entry (public reports, signals, photo uploads, onboarding requests and staff
+// actions) stores a keyed hash instead: it still links repeated actions from one network without revealing it.
+const RAW_IP_AUDIT_ACTIONS = new Set(["login", "login_failed"]);
+
+function auditIp(action, req) {
+  if (!req) return "";
+  const ip = getClientIp(req);
+  return RAW_IP_AUDIT_ACTIONS.has(action) ? ip : `iphash:${privateActorHash("ip", ip)}`;
+}
+
+// Hashes raw IPs saved before this rule existed. Safe to run on every start.
+function hashStoredAuditIps() {
+  const rows = db.prepare("SELECT id, action, ip FROM audit_log WHERE ip IS NOT NULL AND ip != '' AND ip NOT LIKE 'iphash:%'").all();
+  const update = db.prepare("UPDATE audit_log SET ip = ? WHERE id = ?");
+  for (const row of rows) {
+    if (!RAW_IP_AUDIT_ACTIONS.has(row.action)) update.run(`iphash:${privateActorHash("ip", row.ip)}`, row.id);
+  }
+}
+
 function logAudit(actor, action, entityType, entityId, details, req) {
   db.prepare(`
     INSERT INTO audit_log (id, actor_user_id, action, entity_type, entity_id, details_json, ip, created_at)
@@ -2281,7 +2301,7 @@ function logAudit(actor, action, entityType, entityId, details, req) {
     sanitizeText(entityType, 80),
     entityId ? String(entityId).slice(0, 120) : "",
     JSON.stringify(details || {}),
-    req ? getClientIp(req) : "",
+    auditIp(sanitizeText(action, 80), req),
     nowIso()
   );
 }
@@ -4408,6 +4428,7 @@ function startServer() {
   initDatabase();
   seedDatabase();
   migrateLegacyReports();
+  hashStoredAuditIps();
 
   const tlsOptions = loadTlsOptions();
   const server = tlsOptions ? https.createServer(tlsOptions, handler) : http.createServer(handler);

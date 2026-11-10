@@ -133,4 +133,10 @@ assert(html.includes('{ label: `Call ${number}`, className: "emergency-dial", ac
 assert(/\.modal-actions \.emergency-dial\{[^}]*background:var\(--red\);color:#fff/.test(v2Css), "the emergency Call button must be flag red with white text");
 assert(html.includes('label: `Use ${number}`, className: number === contact.primaryNumber ? "primary" : "secondary"'), "the number choice buttons stay as they are");
 
+// "Anonymous" is not true of the system (staff can see contact details people choose to give, and the server keeps
+// a hashed network address), so residents are told they don't have to give a name or number instead.
+// The only exception is the internal report-mode value "Anonymous public case", which sync depends on.
+assert(html.replace(/Anonymous public case/g, "").search(/anonym/i) === -1, "the word anonymous must not appear in the app");
+assert(html.includes("You don't have to give your name or number.") && html.includes('<option value="Anonymous public case">No name or number</option>'), "residents are told they don't have to give their name or number");
+
 console.log("V2 design and safety guard test passed");

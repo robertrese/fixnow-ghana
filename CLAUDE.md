@@ -75,6 +75,8 @@ Android notes:
   - The public feed shows only moderator-verified reports, at MMDA-safe approximate points.
   - Public photos appear only after a moderator marks the photo clean and confirms that no faces, number plates or house numbers are visible. The server re-writes each published photo without metadata.
   - Rejecting a photo withdraws it.
+  - Never call reports "anonymous": staff can see contact details people choose to give, and the server keeps a hashed network address. Say people don't have to give their name or number. (The internal report-mode value "Anonymous public case" stays, because sync depends on it.)
+  - The audit log stores a keyed hash of the IP address (`iphash:…`) for public reports, signals, photo uploads and every other action. Only staff sign-in attempts (`login`, `login_failed`) keep the raw IP, for security review.
 - **Accessibility:**
   - Keep 0 axe WCAG 2.1 A/AA violations.
   - Touch targets are at least 44 px.

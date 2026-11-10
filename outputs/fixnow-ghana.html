@@ -3817,7 +3817,7 @@ body.map-unavailable [data-focus-public]{display:none}
           <div>
             <span class="profile-avatar" aria-hidden="true">GH</span>
             <h2 id="profileHeading">Your FixNow profile</h2>
-            <p>Use FixNow as a guest or sign in for cross-device report tracking. Anonymous reporting always remains available.</p>
+            <p>Use FixNow as a guest or sign in for cross-device report tracking. You can always report without an account, and you never have to give your name or number.</p>
           </div>
         </div>
         <div class="profile-account-card" id="profileAccountCard">
@@ -3826,7 +3826,7 @@ body.map-unavailable [data-focus-public]{display:none}
           <button class="secondary" id="accountAccessBtn" type="button">Sign in or create account</button>
         </div>
         <div class="citizen-account-summary" id="citizenAccountStatus" role="status" aria-live="polite">
-          <div><strong>Not signed in</strong><span>Anonymous reporting and private reference tracking are ready.</span></div>
+          <div><strong>Not signed in</strong><span>You can report without an account and track it with a private reference.</span></div>
           <button class="secondary" type="button" data-open-citizen-account>Account options</button>
         </div>
 
@@ -4250,7 +4250,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
             <fieldset class="wizard-step" data-wizard-step="5" hidden>
               <legend><span class="wizard-step-count">Step 5 of 6</span>Your contact <small>Optional</small></legend>
-              <p class="step-help">You can stay anonymous. If you add a number, only authorised responders can see it. It is never shown publicly.</p>
+              <p class="step-help">You don't have to give your name or number. If you add a number, only authorised responders can see it. It is never shown publicly.</p>
               <label>Phone or WhatsApp number
                 <input id="contact" inputmode="tel" autocomplete="tel" placeholder="e.g. 024 123 4567, or leave blank" />
               </label>
@@ -4273,7 +4273,7 @@ body.map-unavailable [data-focus-public]{display:none}
                   </label>
                   <label>Report mode
                     <select id="reportMode">
-                      <option>Anonymous public case</option>
+                      <option value="Anonymous public case">No name or number</option>
                       <option id="accountAssociatedOption" disabled>Account-associated</option>
                       <option>Named contact</option>
                     </select>
@@ -4858,7 +4858,7 @@ body.map-unavailable [data-focus-public]{display:none}
         : "Not signed in";
       host.querySelector("span").textContent = signedIn
         ? `${citizenState.citizen.phone}. Account-linked reports can follow you across devices.`
-        : "Anonymous reporting and private reference tracking are ready.";
+        : "You can report without an account and track it with a private reference.";
       host.querySelector("button").textContent = signedIn ? "Manage account" : "Account options";
     }
 
@@ -5351,7 +5351,7 @@ body.map-unavailable [data-focus-public]{display:none}
       ].join("");
       const photos = evidenceItems.filter((item) => item.state === "ready");
       const thumbs = photos.length ? `<div class="review-thumbs">${photos.map((item) => `<img alt="" src="data:${escapeHtml(item.mimeType)};base64,${item.dataBase64}" />`).join("")}</div>` : "";
-      const contact = draft.contact ? escapeHtml(draft.contact) : "Anonymous. No contact details";
+      const contact = draft.contact ? escapeHtml(draft.contact) : "No name or number given";
       document.querySelector("#reviewSummary").innerHTML = [
         reviewCard("Problem", escapeHtml(draft.type), draft.subcategory ? `<small>${escapeHtml(draft.subcategory)}</small>` : "", 1, `<span class="review-art ${art.tint}"><img src="${art.src}" alt="" /></span>`),
         reviewCard("Location", escapeHtml(location), `<small>${draft.exactLocationConsent && (draft.coordinates || draft.digitalAddress) ? "Exact point shared only with authorised responders." : "Only this community description will be used."} The public sees an approximate area.</small>`, 2),
@@ -7073,7 +7073,7 @@ body.map-unavailable [data-focus-public]{display:none}
         const score = scoreReport(report);
         const clusterCount = clusters.get(getClusterKey(report)) || 1;
         const residentView = document.body.dataset.view !== "responder";
-        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "anonymous" : (report.contact || "no contact"));
+        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "no name or number given" : (report.contact || "no contact"));
         const address = report.digitalAddress ? ` · ${report.digitalAddress}` : "";
         const evidence = report.evidenceName ? `<span class="tag">Evidence: ${report.evidenceName}</span>` : "";
         const cluster = clusterCount > 1 ? `<span class="tag">Cluster x${clusterCount}</span>` : "";
@@ -7193,7 +7193,7 @@ body.map-unavailable [data-focus-public]{display:none}
         const clusterCount = clusters.get(getClusterKey(report)) || 1;
         const residentView = document.body.dataset.view !== "responder";
         const authorizedResponder = !residentView && Boolean(syncState.token && syncState.user) && report._responderAuthorized && Number(report._responderUserId) === Number(syncState.user.id);
-        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "anonymous" : (report.contact || "no contact"));
+        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "no name or number given" : (report.contact || "no contact"));
         const address = report.protectLocation !== false ? " - exact location protected" : (report.digitalAddress ? ` - ${escapeHtml(report.digitalAddress)}` : "");
         const evidence = report.evidenceName ? `<span class="tag">Evidence: ${escapeHtml(report.evidenceName)}</span>` : "";
         const cluster = clusterCount > 1 ? `<span class="tag">Cluster x${clusterCount}</span>` : "";
@@ -7395,7 +7395,7 @@ body.map-unavailable [data-focus-public]{display:none}
         (result.reports || []).forEach(mergeCitizenReport);
         save();
         renderMyReports();
-        if (status) status.textContent = `${result.count} account-linked report${result.count === 1 ? "" : "s"}; local anonymous reports remain on this device.`;
+        if (status) status.textContent = `${result.count} account-linked report${result.count === 1 ? "" : "s"}; reports made without an account remain on this device.`;
         if (announce) showToast("Account reports refreshed");
       } catch (error) {
         if (status) status.textContent = `Account reports could not refresh: ${error.message || "try again later"}. Local reports remain available.`;
@@ -8273,7 +8273,7 @@ body.map-unavailable [data-focus-public]{display:none}
             <label>Avatar image URL (optional HTTPS)<input id="citizenAvatarUrl" inputmode="url" value="${escapeHtml(citizen.avatarUrl || "")}" /></label>
             <button class="secondary" id="saveCitizenProfileBtn" type="button">Save profile</button>
           </details>
-          <details><summary>Link an anonymous report</summary>
+          <details><summary>Link a report made without an account</summary>
             <label>Tracking reference<input id="citizenLinkReference" autocomplete="off" /></label>
             <label>Private tracking secret<input id="citizenLinkSecret" type="password" autocomplete="off" /></label>
             <button class="secondary" id="linkCitizenReportBtn" type="button">Link report</button>
