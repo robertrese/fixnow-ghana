@@ -12,6 +12,9 @@ const settingsFile = path.join(localDataDir, "local-dev-settings.json");
 const API = process.env.FIXNOW_API || "http://localhost:4180";
 const APP = process.env.FIXNOW_APP || "http://localhost:4173/fixnow-ghana.html";
 const APP_URL = `${APP}?api=${encodeURIComponent(API)}`;
+// Pass --dark to any QA script to run it with the phone set to dark mode.
+const COLOR_SCHEME = process.argv.includes("--dark") ? "dark" : "light";
+const THEME_LABEL = COLOR_SCHEME === "dark" ? " (dark mode)" : " (light mode)";
 
 // Local-only admin password and signing secret, generated once and kept in an ignored folder.
 function localSettings() {
@@ -65,4 +68,4 @@ async function fillReportToReview(page) {
   await page.waitForTimeout(1200);
 }
 
-module.exports = { root, localDataDir, API, APP, APP_URL, localSettings, loadPlaywright, passWelcome, fillReportToReview };
+module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, THEME_LABEL, localSettings, loadPlaywright, passWelcome, fillReportToReview };

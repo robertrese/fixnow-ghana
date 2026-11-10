@@ -4,6 +4,9 @@ import android.net.Uri;
 
 import androidx.webkit.WebViewAssetLoader;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Release build: there is no route to a development server, and this class must stay empty of one.
  * phase12-accessibility-android.test.js fails if that changes.
@@ -21,5 +24,10 @@ final class LocalServerAccess {
 
     static boolean isAppPage(Uri uri) {
         return false;
+    }
+
+    /** The only origin allowed to send messages to the app. */
+    static Set<String> appOrigins() {
+        return Collections.singleton("https://appassets.androidplatform.net");
     }
 }

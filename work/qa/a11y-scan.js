@@ -3,7 +3,7 @@
 // Automated WCAG 2.1 A/AA check (axe-core) of the resident screens at 320, 390 and 1280 px.
 // Exits with 1 if any rule fails. Automated checks find many problems but not all of them;
 // keep testing with a screen reader and a keyboard too.
-const { passWelcome, fillReportToReview, loadPlaywright } = require("./common");
+const { passWelcome, fillReportToReview, loadPlaywright, COLOR_SCHEME, THEME_LABEL } = require("./common");
 
 let axeSource;
 try {
@@ -32,7 +32,7 @@ try {
   };
 
   for (const [width, height, tag] of [[390, 844, "phone"], [1280, 800, "laptop"], [320, 640, "small phone"]]) {
-    const page = await (await browser.newContext({ viewport: { width, height }, isMobile: width < 700, hasTouch: width < 700 })).newPage();
+    const page = await (await browser.newContext({ viewport: { width, height }, isMobile: width < 700, hasTouch: width < 700, colorScheme: COLOR_SCHEME })).newPage();
     await page.goto(require("./common").APP_URL, { waitUntil: "load" });
     await scan(page, `${tag} welcome`);
     await passWelcome(page);
@@ -55,7 +55,7 @@ try {
   await browser.close();
 
   if (!findings.size) {
-    console.log("0 WCAG 2.1 A/AA violations found by axe-core.");
+    console.log(`0 WCAG 2.1 A/AA violations found by axe-core${THEME_LABEL}.`);
     return;
   }
   for (const [id, entry] of findings) {

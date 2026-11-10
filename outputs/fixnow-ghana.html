@@ -3,7 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#32734a" />
+  <meta name="theme-color" content="#0d2a22" />
+  <meta name="color-scheme" content="light dark" />
+  <script id="theme-boot">
+    // Theme before the first paint, so there is no white flash: the saved Appearance choice, otherwise the phone setting.
+    // Printing always uses the light theme. The Android app listens on fixnowTheme to match its system bars.
+    (function () {
+      var root = document.documentElement, query = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null, choice = "system";
+      try { choice = JSON.parse(localStorage.getItem(new URLSearchParams(location.search).get("demo") === "1" ? "fixnow-gh-demo-v1-settings" : "fixnow-gh-v3-settings") || "{}").appearance || "system"; } catch (e) {}
+      function apply(printing) {
+        var dark = !printing && (choice === "dark" || (choice === "system" && !!query && query.matches));
+        root.setAttribute("data-theme", dark ? "dark" : "light");
+        try { if (window.fixnowTheme) window.fixnowTheme.postMessage(dark ? "dark" : "light"); } catch (e) {}
+      }
+      apply();
+      if (query && query.addEventListener) query.addEventListener("change", function () { apply(); });
+      addEventListener("beforeprint", function () { apply(true); });
+      addEventListener("afterprint", function () { apply(); });
+      window.fixnowApplyTheme = function (value) { choice = value === "light" || value === "dark" ? value : "system"; apply(); };
+    })();
+  </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <title>FixNow Ghana</title>
   <style>
@@ -3406,6 +3425,72 @@ body:not([data-view="responder"]) .examples-panel{display:none !important}
 .detail-ref b{display:block;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:.75rem;letter-spacing:.02em;overflow-wrap:anywhere}
 h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus, legend[tabindex="-1"]:focus{outline:none}
 .public-confirmations:empty{display:none}
+.appearance-field{display:grid;gap:10px;min-width:0;margin:0;padding:14px 16px;border:1px solid var(--line);border-radius:20px;background:var(--panel)}
+.appearance-field legend{float:left;width:100%;padding:0;font-family:var(--font-body);font-size:.9375rem;font-weight:700;letter-spacing:0}
+.appearance-options{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));border:1.5px solid var(--line-strong);border-radius:14px;overflow:hidden}
+.appearance-options label{position:relative;width:auto;min-width:0 !important;display:flex;align-items:center;justify-content:center;min-height:48px;padding:6px 8px;text-align:center;font-weight:700;font-size:.9375rem;line-height:1.2;cursor:pointer}
+.appearance-options label + label{border-left:1.5px solid var(--line-strong)}
+.appearance-options input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;opacity:0;cursor:pointer}
+.appearance-options label:has(input:checked){background:var(--deep);color:#fff}
+.appearance-options label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:-3px}
+body.large-text .appearance-options{grid-template-columns:1fr}
+body.large-text .appearance-options label + label{border-left:0;border-top:1.5px solid var(--line-strong)}
+:root[data-theme="dark"]{color-scheme:dark;--ink:#eef2ee;--muted:#b3beb6;--line:#2e3a32;--line-strong:#7d8c82;--soft:#131914;--panel:#1f2720;--field:#1a231c;--raised:#28382d;--green-2:#97d1a6;--focus:#8fb4ff;--brand-emergency:#f4a7ae;--deep:#97d1a6;--deep-hover:#b5e0bf;--shadow:none;--tint-flood:#1d2a38;--tint-road:#352f1a;--tint-waste:#1c3326;--tint-water:#183232;--tint-power:#382d14;--tint-safety:#3a2427}
+[data-theme="dark"] body.high-contrast{--ink:#fff;--muted:#e3e9e4;--line:#8d9c92;--line-strong:#c3cec6;--soft:#131914;--panel:#1f2720;--focus:#8fb4ff;background:#131914}
+[data-theme="dark"] .panel{background:var(--soft);box-shadow:none}
+[data-theme="dark"] .modal{background:var(--soft);box-shadow:0 0 0 1px var(--line-strong)}
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea, [data-theme="dark"] .wizard-step input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), [data-theme="dark"] .wizard-step select, [data-theme="dark"] .wizard-step textarea, [data-theme="dark"] .search-field input{background:var(--field);border-color:var(--line-strong);color:var(--ink)}
+[data-theme="dark"] ::placeholder{color:#93a198}
+[data-theme="dark"] .primary, [data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report:hover, [data-theme="dark"] .nav .nav-report.active{background:var(--gold);border-color:var(--gold);color:#0d2a22}
+[data-theme="dark"] .primary:hover{background:#ffdb3d}
+[data-theme="dark"] .nav .nav-report .nav-icon{color:#0d2a22}
+[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label:has(input:checked), [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
+[data-theme="dark"] .yn-buttons button[data-yn="yes"][aria-checked="true"]{color:#fff}
+[data-theme="dark"] .home-primary > span{background:#0d2a22}
+[data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
+@media (min-width: 881px){[data-theme="dark"] .rail .nav button.active, [data-theme="dark"] .rail .nav button.active code{color:#0d2a22}
+}
+[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .sync-panel, .action-log, .responder-scope-grid, .responder-case, .case-card, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] .responder-case-location strong{color:var(--ink)}
+[data-theme="dark"] :is(.guided-step, .sync-status, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .responder-case-location, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] .notice{background:#363322;color:#f3c95a;border-color:#5a5330}
+[data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
+[data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
+[data-theme="dark"] .severity-seg button[aria-checked="true"]{box-shadow:inset 0 0 0 2px #fffdf8}
+[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line:has(input:checked), [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
+[data-theme="dark"] .hotline-row:hover, [data-theme="dark"] .home-nearby-row:hover, [data-theme="dark"] .profile-action:hover{background:var(--raised)}
+[data-theme="dark"] .segmented{background:var(--soft);box-shadow:inset 0 0 0 1px var(--line-strong)}
+[data-theme="dark"] .segmented button{color:var(--muted)}
+[data-theme="dark"] .segmented button.active, [data-theme="dark"] .segmented button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--deep)}
+[data-theme="dark"] .toast{background:var(--raised);color:var(--ink);box-shadow:0 0 0 1px var(--line-strong)}
+[data-theme="dark"] .nav{box-shadow:none}
+[data-theme="dark"] .nav button{color:var(--muted)}
+[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"]{color:var(--ink)}
+[data-theme="dark"] .nav button.active .nav-icon{color:#0d2a22}
+[data-theme="dark"] .home-shortcuts > button, [data-theme="dark"] .home-shortcuts > button:nth-child(n){border-color:var(--line)}
+[data-theme="dark"] .public-report-update{color:var(--ink)}
+[data-theme="dark"] .wizard-progress span, [data-theme="dark"] .my-report-progress span::before, [data-theme="dark"] .report-detail-timeline li::before{background:#3c4a40}
+[data-theme="dark"] .wizard-progress span.active, [data-theme="dark"] .my-report-progress span.complete::before{background:var(--deep)}
+[data-theme="dark"] .my-report-progress i, [data-theme="dark"] .report-detail-timeline li > span{border-color:var(--line-strong)}
+[data-theme="dark"] .my-report-progress span.complete i, [data-theme="dark"] .report-detail-timeline li.complete > span, [data-theme="dark"] .report-detail-timeline li.active > span, [data-theme="dark"] .my-report-progress span.current i{border-color:var(--deep)}
+[data-theme="dark"] .switch{background:#2a352d;box-shadow:inset 0 0 0 1.5px var(--line-strong)}
+[data-theme="dark"] .setting-switch[aria-pressed="true"] .switch{background:var(--deep);box-shadow:none}
+[data-theme="dark"] .setting-switch[aria-pressed="true"] .switch::after{background:#0d2a22}
+[data-theme="dark"] img[src^="illustrations/category-"]{padding:4px;border-radius:12px;background:#f3eee1}
+[data-theme="dark"] .issue-photos img, [data-theme="dark"] .public-report-media.has-photo img, [data-theme="dark"] img.home-nearby-thumb, [data-theme="dark"] .evidence-item img, [data-theme="dark"] .review-thumbs img{box-shadow:0 0 0 1px var(--line-strong)}
+[data-theme="dark"] .brand-mark, [data-theme="dark"] .topbar-logo, [data-theme="dark"] .welcome-logo{box-shadow:0 0 0 1.5px rgba(243, 238, 225, .5)}
+[data-theme="dark"] .status-open, [data-theme="dark"] .status-blocked, [data-theme="dark"] .pill-critical{background:#3a2427;color:#f3b3b8;border-color:#5a3439}
+[data-theme="dark"] .status-review, [data-theme="dark"] .status-progress, [data-theme="dark"] .pill-medium{background:#1d2a38;color:#a9c8ec;border-color:#33465c}
+[data-theme="dark"] .status-assigned{background:#352c17;color:#f0cf7a;border-color:#57482a}
+[data-theme="dark"] .status-resolved, [data-theme="dark"] .pill-low, [data-theme="dark"] .verified-tag{background:#1c3326 !important;color:#9fdab4 !important;border-color:#2f5640 !important}
+[data-theme="dark"] .status-waiting, [data-theme="dark"] .pill-high{background:#3a2a14;color:#f5c27a;border-color:#5c4523}
+[data-theme="dark"] .profile-emergency, [data-theme="dark"] .danger-callout, [data-theme="dark"] .intake-notice, [data-theme="dark"] .track-privacy{background:#36252a;border-color:#5a3439;color:#f4a7ae}
+[data-theme="dark"] .profile-emergency b, [data-theme="dark"] .profile-emergency p, [data-theme="dark"] .danger-callout b, [data-theme="dark"] .intake-notice .link-button, [data-theme="dark"] .track-privacy .ico{color:#f4a7ae}
+[data-theme="dark"] .offline-banner, [data-theme="dark"] .similar-warning{background:#363322;border-color:#5a5330;color:#f3c95a}
+[data-theme="dark"] .offline-banner b, [data-theme="dark"] .similar-warning b{color:#f3c95a}
+[data-theme="dark"] body[data-view="home"] .privacy-promise, [data-theme="dark"] .privacy-preview, [data-theme="dark"] .report-aside-note, [data-theme="dark"] .private-note, [data-theme="dark"] .affected-box{background:#1c3326;border-color:#2f5640;color:#d3ead9 !important}
+[data-theme="dark"] .privacy-promise b, [data-theme="dark"] .privacy-preview b{color:#9fdab4}
+[data-theme="dark"] .row-icon{background:#1c3326;color:var(--green-2)}
 body.map-unavailable [data-focus-public]{display:none}
 #intake > .panel-head{display:none}
 </style>
@@ -3811,6 +3896,14 @@ body.map-unavailable [data-focus-public]{display:none}
             </select>
           </label>
           <p class="language-note">Help text is available in Twi, Ga, Ewe, Hausa, Dagbani and Fante. Full app translations are planned.</p>
+          <fieldset class="appearance-field">
+            <legend>Appearance</legend>
+            <div class="appearance-options">
+              <label><input type="radio" name="appearance" value="system" checked />Match phone</label>
+              <label><input type="radio" name="appearance" value="light" />Light</label>
+              <label><input type="radio" name="appearance" value="dark" />Dark</label>
+            </div>
+          </fieldset>
           <div class="settings-list" role="group" aria-label="Accessibility settings">
             <button class="setting-switch" id="largeTextBtn" type="button" aria-pressed="false"><span><b>Large text</b><small>Bigger text across lists and forms</small></span><i class="switch" aria-hidden="true"></i></button>
             <button class="setting-switch" id="contrastBtn" type="button" aria-pressed="false"><span><b>High contrast</b><small>Darker text and stronger borders</small></span><i class="switch" aria-hidden="true"></i></button>
@@ -4696,7 +4789,7 @@ body.map-unavailable [data-focus-public]{display:none}
     function loadSettings() {
       try {
         const raw = localStorage.getItem(SETTINGS_KEY);
-        return raw ? JSON.parse(raw) : { language: "en", largeText: false, highContrast: false, simpleMode: true, fieldMode: false, oneHand: false };
+        return raw ? JSON.parse(raw) : { language: "en", appearance: "system", largeText: false, highContrast: false, simpleMode: true, fieldMode: false, oneHand: false };
       } catch {
         return { language: "en", largeText: false, highContrast: false, simpleMode: true, fieldMode: false, oneHand: false };
       }
@@ -4798,6 +4891,9 @@ body.map-unavailable [data-focus-public]{display:none}
       document.querySelector("#fieldModeBtn").setAttribute("aria-pressed", String(Boolean(settings.fieldMode)));
       document.querySelector("#oneHandBtn").setAttribute("aria-pressed", String(Boolean(settings.oneHand)));
       document.querySelector("#languageSelect").value = settings.language || "en";
+      const appearance = settings.appearance === "light" || settings.appearance === "dark" ? settings.appearance : "system";
+      document.querySelectorAll('input[name="appearance"]').forEach((radio) => { radio.checked = radio.value === appearance; });
+      if (window.fixnowApplyTheme) window.fixnowApplyTheme(appearance);
       updateLanguageHelp();
     }
 
@@ -8507,6 +8603,12 @@ body.map-unavailable [data-focus-public]{display:none}
       applySettings();
       showToast(settings.oneHand ? "One-handed layout on" : "One-handed layout off");
     });
+
+    document.querySelectorAll('input[name="appearance"]').forEach((radio) => radio.addEventListener("change", () => {
+      settings.appearance = radio.value;
+      saveSettings();
+      applySettings();
+    }));
 
     document.querySelector("#largeTextBtn").addEventListener("click", () => {
       settings.largeText = !settings.largeText;

@@ -42,6 +42,12 @@ assert(activity.includes("EdgeToEdge.enable(") && activity.includes("ViewCompat.
 assert(activity.includes('Color.parseColor("#0d2a22")') && activity.includes("setAppearanceLightStatusBars(false)"), "the status bar strip must be deep green with light icons");
 assert(manifest.includes('android:windowSoftInputMode="adjustResize"'), "the window must make room for the keyboard");
 
+// Dark mode on Android: a dark night theme (the WebView follows it), no automatic inversion, and a narrow theme channel.
+const nightStyles = fs.readFileSync(path.join(root, "work", "fixnow-android", "app", "src", "main", "res", "values-night", "styles.xml"), "utf8");
+assert(/parent="android:style\/Theme\.Material\.NoActionBar"/.test(nightStyles) && nightStyles.includes("#131914"), "the night theme must be dark so the WebView reports dark mode to the page");
+assert(activity.includes("WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false)"), "Android must never invert the page by itself");
+assert(activity.includes('WebViewCompat.addWebMessageListener(webView, "fixnowTheme", LocalServerAccess.appOrigins()') && !activity.includes("addJavascriptInterface"), "the page reports its theme through a web message listener limited to the app's origins, never a JavaScript interface");
+
 // The local-server route is for the debug build only. The release build must refuse plain HTTP.
 const androidSource = path.join(root, "work", "fixnow-android", "app", "src");
 const javaPackage = path.join("java", "com", "fixnowghana", "command");
@@ -51,6 +57,7 @@ const mainNetworkConfig = fs.readFileSync(path.join(androidSource, "main", "res"
 const debugNetworkConfig = fs.readFileSync(path.join(androidSource, "debug", "res", "xml", "network_security_config.xml"), "utf8");
 const gradleBuildType = (name) => gradle.match(new RegExp(`\\b${name}\\s*\\{[^}]*\\}`))[0];
 assert(!/localhost|127\.0\.0\.1|10\.0\.2\.2|http:|setHttpAllowed|setDomain/.test(releaseAccess), "the release build must have no route to a local or plain-HTTP server");
+assert(releaseAccess.includes('return Collections.singleton("https://appassets.androidplatform.net");'), "in the release build only the app's own origin may message the app");
 assert(releaseAccess.includes("return standardUrl;") && /isAppPage\(Uri uri\) \{\s*return false;/.test(releaseAccess), "the release build must start on the secure app origin and treat no other page as the app");
 assert(!/localhost|setHttpAllowed|http:\/\//.test(activity), "code shared with the release build must not mention a local or plain-HTTP server");
 assert(!fs.existsSync(path.join(androidSource, "main", javaPackage, "LocalServerAccess.java")), "the local-server class must live in the build-specific folders, never in shared code");

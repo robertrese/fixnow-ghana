@@ -1,0 +1,11 @@
+<resources>
+    <!-- Dark theme: with targetSdk 33 and newer the WebView reports dark mode to the page only when the app's theme is dark. -->
+    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#97d1a6</item>
+        <item name="android:windowBackground">#131914</item>
+        <item name="android:navigationBarColor">#131914</item>
+        <item name="android:statusBarColor">#0d2a22</item>
+    </style>
+</resources>

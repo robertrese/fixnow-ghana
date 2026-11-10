@@ -1,13 +1,15 @@
 "use strict";
 
 // Walks through FixNow like a resident and saves a screenshot of every screen.
-// Usage: node work/qa/walkthrough.js [output-folder]   (default: work/qa/screenshots, ignored by Git)
+// Usage: node work/qa/walkthrough.js [output-folder] [--dark]
+// Default folder: work/qa/screenshots, or work/qa/screenshots/dark with --dark (both ignored by Git).
 // Fails if the page logs an error. Needs the local API and web server running (see work/qa/README.md).
 const fs = require("fs");
 const path = require("path");
-const { root, passWelcome, fillReportToReview, loadPlaywright } = require("./common");
+const { root, passWelcome, fillReportToReview, loadPlaywright, COLOR_SCHEME } = require("./common");
 
-const out = path.resolve(process.argv[2] || path.join(root, "work", "qa", "screenshots"));
+const folderArg = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
+const out = path.resolve(folderArg || path.join(root, "work", "qa", "screenshots", ...(COLOR_SCHEME === "dark" ? ["dark"] : [])));
 fs.mkdirSync(out, { recursive: true });
 
 (async () => {
@@ -16,7 +18,7 @@ fs.mkdirSync(out, { recursive: true });
   const errors = [];
 
   // Phone, 390 x 844, at 2x like a real handset.
-  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, colorScheme: COLOR_SCHEME });
   const page = await phone.newPage();
   page.on("pageerror", (error) => errors.push(`phone: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`phone console: ${message.text()}`); });
@@ -56,7 +58,7 @@ fs.mkdirSync(out, { recursive: true });
   await phone.close();
 
   // Laptop, 1280 x 800.
-  const laptop = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
+  const laptop = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2, colorScheme: COLOR_SCHEME });
   const desk = await laptop.newPage();
   desk.on("pageerror", (error) => errors.push(`laptop: ${error.message}`));
   const deskShot = async (name) => { await desk.mouse.move(2, 790); await desk.waitForTimeout(2200); await desk.screenshot({ path: path.join(out, `laptop-${name}.png`) }); };

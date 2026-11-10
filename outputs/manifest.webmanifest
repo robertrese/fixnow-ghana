@@ -6,7 +6,7 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f3f7f4",
+  "background_color": "#0d2a22",
   "theme_color": "#0d2a22",
   "description": "Report, track, and route community problems safely across Ghana.",
   "categories": ["utilities", "productivity"],

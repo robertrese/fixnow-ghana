@@ -28,7 +28,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
 
 public class MainActivity extends ComponentActivity {
     private static final int FILE_CHOOSER_REQUEST = 41;
@@ -37,6 +40,7 @@ public class MainActivity extends ComponentActivity {
     private static final int STATUS_STRIP_COLOR = Color.parseColor("#0d2a22");
     // Matches the tab bar. setBottomAreaColor lets this follow the app's theme.
     private static final int BOTTOM_AREA_LIGHT = Color.parseColor("#fffdf8");
+    private static final int BOTTOM_AREA_DARK = Color.parseColor("#1f2720");
 
     private WebView webView;
     private LinearLayout root;
@@ -68,7 +72,10 @@ public class MainActivity extends ComponentActivity {
         statusStrip.setBackgroundColor(STATUS_STRIP_COLOR);
         root.addView(statusStrip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0));
         root.addView(webView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        setBottomAreaColor(BOTTOM_AREA_LIGHT, true);
+        // Until the page reports its theme, follow the phone setting.
+        boolean phoneIsDark = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        applyPageTheme(phoneIsDark);
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             Insets keyboard = insets.getInsets(WindowInsetsCompat.Type.ime());
@@ -92,6 +99,18 @@ public class MainActivity extends ComponentActivity {
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        // The page has its own dark theme: Android must never invert it.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+            WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false);
+        }
+        // The page says "light" or "dark" (Profile > Appearance can differ from the phone), so the area
+        // below the tab bar and the navigation-bar icons match it. Only the app's own pages can send this.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(webView, "fixnowTheme", LocalServerAccess.appOrigins(),
+                    (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
+                        if (isMainFrame) applyPageTheme("dark".equals(message.getData()));
+                    });
+        }
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setTextZoom(Math.max(100, Math.round(getResources().getConfiguration().fontScale * 100)));
@@ -113,6 +132,10 @@ public class MainActivity extends ComponentActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, backCallback);
+    }
+
+    private void applyPageTheme(boolean dark) {
+        setBottomAreaColor(dark ? BOTTOM_AREA_DARK : BOTTOM_AREA_LIGHT, !dark);
     }
 
     /** Paints the area below the tab bar (and beside it in landscape) and picks readable navigation-bar icons. */

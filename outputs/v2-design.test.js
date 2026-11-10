@@ -116,4 +116,16 @@ assert([launcher, launcherRound].every((xml) => xml.includes('android:drawable="
 assert(fs.existsSync(path.join(androidRes, "mipmap-mdpi", "ic_launcher.png")) && fs.existsSync(path.join(androidRes, "mipmap-xxxhdpi", "ic_launcher_round.png")), "older Android versions need PNG launcher icons");
 assert(/\.welcome-logo, body\[data-view="home"\] \.topbar-logo, \.rail \.brand-mark\{box-shadow:0 0 0 1\.5px rgba\(243, 238, 225, \.5\)\}/.test(v2Css), "the logo needs a cream keyline on dark surfaces");
 
+// Dark mode: one token block, set before the first paint, with an Appearance setting that defaults to Match phone.
+const darkStart = v2Css.indexOf(':root[data-theme="dark"]{');
+const darkCss = v2Css.slice(darkStart);
+assert(darkStart > 0 && ["--soft:#131914", "--panel:#1f2720", "--ink:#eef2ee", "--muted:#b3beb6", "--line-strong:#7d8c82", "--focus:#8fb4ff"].every((token) => darkCss.includes(token)), "the dark tokens must exist");
+assert(html.includes('<meta name="color-scheme" content="light dark" />') && html.includes('<meta name="theme-color" content="#0d2a22" />'), "the page must declare both colour schemes and the brand theme colour");
+assert(html.indexOf('<script id="theme-boot">') < html.indexOf("<style>") && html.includes('matchMedia("(prefers-color-scheme: dark)")') && html.includes('addEventListener("beforeprint"'), "the theme must be set before the first paint, follow the phone and print in light");
+assert(html.includes('appearance: "system"') && html.includes('<input type="radio" name="appearance" value="system" checked />Match phone') && html.includes('choice = "system"'), "Appearance must default to Match phone");
+assert(!/--red:/.test(darkCss) && /--red:#ce1126/.test(v2Css) && /\[data-theme="dark"\] \.home-danger, \[data-theme="dark"\] \.emergency-call, \[data-theme="dark"\] \.hotline-call\{background:var\(--red\);box-shadow:0 0 0 1\.5px #fffdf8\}/.test(darkCss), "112 must stay flag red #ce1126 in dark mode, with a light ring");
+assert(html.split(/#97d1a6/i).length > 1 && html.slice(0, html.indexOf(':root[data-theme="dark"]{')).search(/#97d1a6/i) === -1, "mint fails on cream, so it may appear only in the dark block");
+assert(v2Css.includes(".appearance-options label{position:relative;width:auto;min-width:0 !important;"), "the three Appearance choices must share the row equally (an older rule sets labels to 180 px)");
+assert(/\[data-theme="dark"\] img\[src\^="illustrations\/category-"\]\{[^}]*background:#f3eee1/.test(darkCss) && !/\[data-theme="dark"\][^{]*img[^{]*\{[^}]*filter/.test(darkCss), "illustrations sit on a cream plate in dark mode, and photos are never filtered");
+
 console.log("V2 design and safety guard test passed");

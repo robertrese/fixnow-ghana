@@ -4,6 +4,10 @@ import android.net.Uri;
 
 import androidx.webkit.WebViewAssetLoader;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * DEBUG BUILD ONLY. Lets a test phone reach the developer's local API over USB.
  *
@@ -27,5 +31,10 @@ final class LocalServerAccess {
 
     static boolean isAppPage(Uri uri) {
         return "http".equals(uri.getScheme()) && "localhost".equals(uri.getHost()) && uri.getPort() == -1;
+    }
+
+    /** Origins allowed to send messages to the app: the release origin plus the debug page origin. */
+    static Set<String> appOrigins() {
+        return new HashSet<>(Arrays.asList("https://appassets.androidplatform.net", "http://localhost"));
     }
 }

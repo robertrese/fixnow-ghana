@@ -31,7 +31,8 @@
     "qa:overflow": "node work/qa/overflow-check.js",
     "qa:a11y": "node work/qa/a11y-scan.js",
     "qa:walkthrough": "node work/qa/walkthrough.js",
-    "qa": "npm run qa:overflow && npm run qa:a11y && npm run qa:walkthrough"
+    "qa": "npm run qa:overflow && npm run qa:a11y && npm run qa:walkthrough && npm run qa:dark",
+    "qa:dark": "node work/qa/overflow-check.js --dark && node work/qa/a11y-scan.js --dark && node work/qa/walkthrough.js --dark"
   },
   "dependencies": {
     "@googlemaps/markerclusterer": "2.6.2"

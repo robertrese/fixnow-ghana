@@ -2,14 +2,14 @@
 
 // Checks that no screen scrolls sideways on small phones, including with the app's Large text setting.
 // Exits with 1 and names the screen if the page is wider than the window.
-const { passWelcome, loadPlaywright } = require("./common");
+const { passWelcome, loadPlaywright, COLOR_SCHEME, THEME_LABEL } = require("./common");
 
 (async () => {
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch();
   const problems = [];
   for (const [width, height, largeText] of [[320, 640, false], [390, 844, true], [320, 640, true]]) {
-    const page = await (await browser.newContext({ viewport: { width, height } })).newPage();
+    const page = await (await browser.newContext({ viewport: { width, height }, colorScheme: COLOR_SCHEME })).newPage();
     await passWelcome(page);
     if (largeText) {
       await page.click('.nav button[data-app-view="profile"]');
@@ -59,5 +59,5 @@ const { passWelcome, loadPlaywright } = require("./common");
     console.error(`Sideways scrolling found:\n${problems.join("\n")}`);
     process.exit(1);
   }
-  console.log("No sideways scrolling at 320 px, 390 px with large text, or 320 px with large text.");
+  console.log(`No sideways scrolling at 320 px, 390 px with large text, or 320 px with large text${THEME_LABEL}.`);
 })().catch((error) => { console.error("Check failed:", error.message.split("\n")[0]); process.exit(1); });
