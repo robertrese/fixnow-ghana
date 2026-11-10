@@ -41,4 +41,7 @@ assert(html.includes("adminReadinessBtn") && html.includes("adminRetentionBtn"),
 assert(html.includes("openPrivateResponderEvidence") && html.includes("cache: \"no-store\""), "authorised evidence previews should consume signed URLs without caching");
 assert(/fixnow-ghana-static-v(?:2\d|[3-9]\d)/.test(worker) && worker.includes('url.pathname.startsWith("/api/")'), "Phase 11 should invalidate static assets while excluding every API response from service-worker storage");
 
+// The repository is public: demo staff accounts (with published passwords) must never exist in production.
+assert(backend.includes("if (SEED_DEMO_ACCOUNTS) throw new Error(\"SEED_DEMO_ACCOUNTS must be disabled in production\")") && backend.includes("const SEED_DEMO_ACCOUNTS = process.env.SEED_DEMO_ACCOUNTS === \"1\";"), "production must refuse to start with demo accounts");
+
 console.log("Phase 11 production geospatial and security foundation test passed");
