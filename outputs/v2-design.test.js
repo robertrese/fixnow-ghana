@@ -159,4 +159,9 @@ assert(v2Css.includes("html body select, html body textarea{font-size:max(16px, 
 assert(v2Css.includes("html{-webkit-text-size-adjust:100%"), "iPhone must not enlarge text in landscape");
 assert(html.includes("On iPhone, add FixNow to your Home Screen so your reports stay saved on this phone.") && html.includes("navigator.storage.persist()"), "iPhone Safari users get the Home Screen tip, and storage persistence is requested");
 
+// The Report tab is a filled circle with only the word "Report": no plus icon, not raised above the bar.
+const reportTab = html.match(/<button class="nav-report"[^>]*>[\s\S]*?<\/button>/)[0];
+assert(!/<svg|\+/.test(reportTab) && reportTab.includes("<span>Report</span>"), "the Report tab shows only the word Report, with no plus icon");
+assert(/\.nav \.nav-report\{[^}]*margin:0 auto;[^}]*box-shadow:none/.test(v2Css), "the Report tab sits inside the bar, not raised above it");
+
 console.log("V2 design and safety guard test passed");
