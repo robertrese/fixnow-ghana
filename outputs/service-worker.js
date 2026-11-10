@@ -1,4 +1,4 @@
-const CACHE_NAME = "fixnow-ghana-static-v32";
+const CACHE_NAME = "fixnow-ghana-static-v33";
 const ASSETS = [
   "./fixnow-ghana.html",
   "./emergency-contacts.js",
@@ -11,6 +11,12 @@ const ASSETS = [
   "./support.html",
   "./icon.svg",
   "./icon-maskable.svg",
+  "./apple-touch-icon.png",
+  "./favicon-32.png",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./icon-maskable-192.png",
+  "./icon-maskable-512.png",
   "./illustrations/ghana-map.svg",
   "./illustrations/category-flooding.svg",
   "./illustrations/category-road.svg",

@@ -50,6 +50,17 @@ Android notes:
 - **Theme.** `values-night/styles.xml` is a dark theme so the WebView reports dark mode; algorithmic darkening is off. The page tells the app its theme through `WebViewCompat.addWebMessageListener` ("fixnowTheme"), limited to the app's own origins. Never use `addJavascriptInterface`.
 - **Emulators.** `Medium_Phone_API_36.0` (Android 16) is the main test device. An Android 11 emulator, `FixNow_Test_API_30`, exists but needs about 7.5 GB of free disk space to start.
 
+## Devices and browser support
+
+- **Android:** the Android app, or the web app in Chrome. **iPhone and iPad:** the web app in Safari, added to the Home Screen. **Computers:** the web app in any modern browser. Basic phones would need SMS or USSD, a separate project. See `design/v2-handoff/IPHONE-AND-OTHER-DEVICES.md`.
+- **Support target** (use nothing newer without a fallback): iOS 15 and newer (iPhone 6s and later); Chrome or WebView 90 and newer; current Chrome, Edge and Firefox; Safari 15 and newer.
+  - Random IDs come from `makeUuid()`, never `crypto.randomUUID()` directly (`makeId()` is a different, older function that makes `FN-…` references). No `Array.prototype.at`.
+  - A `:has()` selector must stand alone; states people must see (ticked consent, the Appearance choice) use classes set in JavaScript.
+  - Every `100vh` has a `100dvh` line after it.
+- **iPhone:** `viewport-fit=cover` with `env(safe-area-inset-*)` padding (0 in the Android app, which pads natively), an `apple-touch-icon.png`, and a Home Screen tip in Safari because Safari can clear saved data after 7 days without a visit.
+- **QA engines:** `npm run qa:engines` repeats the layout check, axe scan and walkthrough in WebKit (with iPhone profiles) and Firefox, light and dark. On this PC (Windows preview build 10.0.26300) Playwright's Firefox does not start (Windows cannot load its `mozglue` library), so `npm run qa:webkit` is the run that works today. Real-iPhone checks (notch spacing, keyboard, Add to Home Screen, offline, camera, location, calls) need the app online over HTTPS.
+- **No App Store app** without the owner's decision: it needs a Mac, a US$99 a year Apple Developer account and Apple's approval.
+
 ## Working rules
 
 1. Run `npm run check` before and after every change. Do not finish with anything failing. When you add a product rule, add a guard for it, usually in `outputs/v2-design.test.js`.

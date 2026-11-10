@@ -25,6 +25,12 @@ tasks.register("syncWebAssets", Sync) {
         include "support.html"
         include "icon.svg"
         include "icon-maskable.svg"
+        include "apple-touch-icon.png"
+        include "favicon-32.png"
+        include "icon-192.png"
+        include "icon-512.png"
+        include "icon-maskable-192.png"
+        include "icon-maskable-512.png"
         include "illustrations/**"
         include "fonts/**"
     }

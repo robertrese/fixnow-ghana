@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="FixNow Ghana">
+  <!-- Square version with no rounded corners or transparency, for the iPhone home screen (apple-touch-icon).
+       iOS rounds the corners itself, so the bands stay equal thirds of the whole square. -->
+  <rect width="33.4" height="100" fill="#be3935"/>
+  <rect x="33.3" width="33.4" height="100" fill="#e3b944"/>
+  <rect x="66.6" width="33.4" height="100" fill="#2a5037"/>
+  <path fill="#fff" d="M36.8 41.2H47.6V44.1H40.4V47.1H46.2V50H40.4V56.6H36.8ZM50 41.2H54.4L58.9 49.8V41.2H62.5V56.6H58.1L53.6 48V56.6H50Z"/>
+</svg>

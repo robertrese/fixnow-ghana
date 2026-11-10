@@ -139,4 +139,22 @@ assert(html.includes('label: `Use ${number}`, className: number === contact.prim
 assert(html.replace(/Anonymous public case/g, "").search(/anonym/i) === -1, "the word anonymous must not appear in the app");
 assert(html.includes("You don't have to give your name or number.") && html.includes('<option value="Anonymous public case">No name or number</option>'), "residents are told they don't have to give their name or number");
 
+// iPhone, iPad and older browsers (target: iOS 15+, Chrome/WebView 90+, current desktop browsers, Safari 15+).
+assert((html.match(/crypto\.randomUUID\(\)/g) || []).length === 1 && (html.match(/function makeUuid\(/g) || []).length === 1 && html.includes("crypto.getRandomValues(new Uint8Array(16))"), "random IDs must come from makeUuid(), which works without crypto.randomUUID");
+assert(!/\.at\(-1\)/.test(html), "Array.prototype.at fails before iOS 15.4 and Chrome 92");
+for (const rule of v2Css.split("}").map((part) => part.split("{")[0]).filter((selector) => selector.includes(":has("))) {
+  assert(!rule.includes(","), `a :has() selector must stand alone, or older browsers drop the whole rule: ${rule.trim().slice(0, 80)}`);
+}
+assert(v2Css.includes(".consent-line.is-checked{") && v2Css.includes(".appearance-options label.is-checked{") && html.includes("function syncCheckedStyles("), "ticked consent lines and the Appearance choice must show their state without :has()");
+assert(html.includes("min-height: 100vh;\n      min-height: 100dvh;") && html.includes("height: 100vh;\n      height: 100dvh;"), "100vh needs a 100dvh line after it for Safari");
+assert(html.includes('content="width=device-width, initial-scale=1, viewport-fit=cover"') && v2Css.includes("padding-top:calc(10px + env(safe-area-inset-top))"), "the page must reach the notch area and pad the top bar clear of it");
+assert(html.includes('<link rel="apple-touch-icon" href="apple-touch-icon.png" />') && html.includes('<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />') && html.includes('<meta name="apple-mobile-web-app-title" content="FixNow" />'), "iPhone and browser-tab icons must be linked");
+for (const name of ["apple-touch-icon.png","favicon-32.png","icon-192.png","icon-512.png","icon-maskable-192.png","icon-maskable-512.png"]) {
+  assert(fs.existsSync(path.join(__dirname, name)) && worker.includes(`"./${name}"`) && gradle.includes(`include "${name}"`), `${name} must exist, be cached offline and be packaged`);
+}
+assert(webManifest.icons.some((item) => item.src === "./icon-512.png" && item.purpose === "any") && webManifest.icons.some((item) => item.src === "./icon-maskable-512.png" && item.purpose === "maskable"), "the manifest needs PNG icons too");
+assert(v2Css.includes("html body select, html body textarea{font-size:max(16px, 1rem)}"), "text fields on phones must use at least 16 px, or iPhone zooms in");
+assert(v2Css.includes("html{-webkit-text-size-adjust:100%"), "iPhone must not enlarge text in landscape");
+assert(html.includes("On iPhone, add FixNow to your Home Screen so your reports stay saved on this phone.") && html.includes("navigator.storage.persist()"), "iPhone Safari users get the Home Screen tip, and storage persistence is requested");
+
 console.log("V2 design and safety guard test passed");

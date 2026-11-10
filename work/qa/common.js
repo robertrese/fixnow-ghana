@@ -12,9 +12,15 @@ const settingsFile = path.join(localDataDir, "local-dev-settings.json");
 const API = process.env.FIXNOW_API || "http://localhost:4180";
 const APP = process.env.FIXNOW_APP || "http://localhost:4173/fixnow-ghana.html";
 const APP_URL = `${APP}?api=${encodeURIComponent(API)}`;
-// Pass --dark to any QA script to run it with the phone set to dark mode.
+// Pass --dark to any QA script to run it with the phone set to dark mode, and --engine=webkit or --engine=firefox
+// to run it in Safari's or Firefox's engine (default: Chromium). WebKit phone runs use Playwright's iPhone profiles.
 const COLOR_SCHEME = process.argv.includes("--dark") ? "dark" : "light";
-const THEME_LABEL = COLOR_SCHEME === "dark" ? " (dark mode)" : " (light mode)";
+const ENGINE = ((process.argv.find((arg) => arg.startsWith("--engine=")) || "--engine=chromium").split("=")[1] || "chromium").toLowerCase();
+if (!["chromium", "webkit", "firefox"].includes(ENGINE)) throw new Error(`Unknown engine: ${ENGINE}`);
+const ENGINE_NAME = { chromium: "Chromium", webkit: "WebKit", firefox: "Firefox" }[ENGINE];
+const THEME_LABEL = ` (${ENGINE_NAME}, ${COLOR_SCHEME} mode)`;
+// Screenshot folder suffix: "" for Chromium light, then "dark", "webkit", "webkit-dark", "firefox", "firefox-dark".
+const RUN_FOLDER = [ENGINE === "chromium" ? "" : ENGINE, COLOR_SCHEME === "dark" ? "dark" : ""].filter(Boolean).join("-");
 
 // Local-only admin password and signing secret, generated once and kept in an ignored folder.
 function localSettings() {
@@ -32,11 +38,29 @@ function localSettings() {
   }
 }
 
+// Browser context settings for this run. mobile: true asks for a phone (touch, mobile viewport handling).
+function contextOptions(width, height, { mobile = false, ...extra } = {}) {
+  const options = { viewport: { width, height }, colorScheme: COLOR_SCHEME, ...extra };
+  if (ENGINE === "webkit" && width < 700) {
+    const device = loadPlaywright().devices[width <= 320 ? "iPhone SE" : "iPhone 13"];
+    return { userAgent: device.userAgent, deviceScaleFactor: device.deviceScaleFactor, isMobile: true, hasTouch: true, ...options };
+  }
+  if (mobile) {
+    options.hasTouch = true;
+    if (ENGINE !== "firefox") options.isMobile = true; // Firefox has no mobile emulation
+  }
+  return options;
+}
+
+async function launchBrowser() {
+  return loadPlaywright()[ENGINE].launch();
+}
+
 function loadPlaywright() {
   try {
     return require("playwright");
   } catch {
-    console.error("Playwright is not installed. Run: npm install --no-save playwright@1.63.0 axe-core@4.10.2 && npx playwright install chromium");
+    console.error("Playwright is not installed. Run: npm install --no-save playwright@1.63.0 axe-core@4.10.2 && npx playwright install chromium webkit firefox");
     process.exit(2);
   }
 }
@@ -68,4 +92,4 @@ async function fillReportToReview(page) {
   await page.waitForTimeout(1200);
 }
 
-module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, THEME_LABEL, localSettings, loadPlaywright, passWelcome, fillReportToReview };
+module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, fillReportToReview };

@@ -12,7 +12,8 @@ Object.assign(process.env, {
   REQUIRE_HTTPS: "0",
   DATA_DIR: localDataDir,
   SEED_DEMO_ACCOUNTS: "1",
-  PUBLIC_REPORT_LIMIT_PER_HOUR: "50",
+  // QA runs in three browser engines and two themes submit many reports from this PC in one hour.
+  PUBLIC_REPORT_LIMIT_PER_HOUR: "500",
   BOOTSTRAP_ADMIN_PASSWORD: settings.adminPassword,
   ATTACHMENT_SIGNING_SECRET: settings.signingSecret
 });

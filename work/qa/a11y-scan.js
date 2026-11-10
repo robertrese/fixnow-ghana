@@ -3,7 +3,7 @@
 // Automated WCAG 2.1 A/AA check (axe-core) of the resident screens at 320, 390 and 1280 px.
 // Exits with 1 if any rule fails. Automated checks find many problems but not all of them;
 // keep testing with a screen reader and a keyboard too.
-const { passWelcome, fillReportToReview, loadPlaywright, COLOR_SCHEME, THEME_LABEL } = require("./common");
+const { passWelcome, fillReportToReview, launchBrowser, contextOptions, THEME_LABEL } = require("./common");
 
 let axeSource;
 try {
@@ -14,8 +14,7 @@ try {
 }
 
 (async () => {
-  const { chromium } = loadPlaywright();
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const findings = new Map();
   const scan = async (page, label) => {
     await page.waitForTimeout(400);
@@ -32,7 +31,7 @@ try {
   };
 
   for (const [width, height, tag] of [[390, 844, "phone"], [1280, 800, "laptop"], [320, 640, "small phone"]]) {
-    const page = await (await browser.newContext({ viewport: { width, height }, isMobile: width < 700, hasTouch: width < 700, colorScheme: COLOR_SCHEME })).newPage();
+    const page = await (await browser.newContext(contextOptions(width, height, { mobile: width < 700 }))).newPage();
     await page.goto(require("./common").APP_URL, { waitUntil: "load" });
     await scan(page, `${tag} welcome`);
     await passWelcome(page);

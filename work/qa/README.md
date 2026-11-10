@@ -6,10 +6,10 @@ These scripts test the app the way a resident uses it, against a local server. T
 
 ```powershell
 npm install --no-save playwright@1.63.0 axe-core@4.10.2
-npx playwright install chromium
+npx playwright install chromium webkit firefox
 ```
 
-`--no-save` keeps the test tools out of `package.json`, so the app itself has no new dependencies.
+`--no-save` keeps the test tools out of `package.json`, so the app itself has no new dependencies. WebKit is Safari's engine; Firefox is the third engine people use on computers.
 
 ## Each session
 
@@ -19,13 +19,24 @@ Run each command in its own terminal:
 npm run start:api      # local API with demo accounts; data in work/fixnow-backend/local-data
 npm run start:web      # the web app on http://localhost:4173
 npm run qa:seed        # once per fresh local-data folder: 4 moderated demo reports
-npm run qa             # layout check, WCAG scan, then walkthrough screenshots into work/qa/screenshots
+npm run qa             # Chromium, light and dark, plus the older-browser check
+npm run qa:engines     # the same layout check, WCAG scan and walkthrough in WebKit and Firefox, light and dark
+npm run qa:all         # both of the above
 ```
 
-- `overflow-check.js` fails if any screen scrolls sideways at 320 px, or at 320 or 390 px with Large text.
-- `a11y-scan.js` fails on any axe-core WCAG 2.1 A/AA violation at 320, 390 or 1280 px. Automated checks miss some problems, so also try a keyboard and a screen reader (TalkBack on Android).
+- `overflow-check.js` fails if any screen scrolls sideways at 320 px, or at 320 or 390 px with Large text, or if a visible text field uses text under 16 px (iPhone zooms in on those).
+- `a11y-scan.js` fails on any axe-core WCAG 2.1 A/AA violation at 320, 390 or 1280 px. Automated checks miss some problems, so also try a keyboard and a screen reader (TalkBack on Android, VoiceOver on iPhone).
 - `walkthrough.js` screenshots every main screen on a phone and a laptop, and fails if the page logs an error.
+- `old-browser-check.js` removes `crypto.randomUUID` before the page loads (as on iOS 15.0 to 15.3 and older Android browsers) and checks that the app still starts and saves a report.
+
+Every script takes `--dark` (phone set to dark mode) and `--engine=webkit` or `--engine=firefox` (default Chromium). WebKit phone runs use Playwright's iPhone SE (320 px) and iPhone 13 (390 px) profiles. Screenshots go to `work/qa/screenshots/`, then `dark/`, `webkit/`, `webkit-dark/`, `firefox/` and `firefox-dark/`.
+
+The local launcher allows 500 public reports an hour from this PC, because a full QA run submits many. The server's real default is 5.
 
 To start again with clean data, stop the API, delete `work/fixnow-backend/local-data`, start the API and seed again. A new local admin password is generated into `local-dev-settings.json` in that folder.
 
 The demo reports are invented, and the two photos in `demo-photos/` are drawings. If a screenshot goes anywhere public (an application, a slide), call it demo data.
+
+## What still needs a real iPhone
+
+Playwright's WebKit is Safari's engine, not an iPhone. These need a real iPhone with the app online over HTTPS: notch and home-indicator spacing, the keyboard with the sticky bars, Add to Home Screen, offline use from the Home Screen, the camera, location permission and handing a call over to the phone.

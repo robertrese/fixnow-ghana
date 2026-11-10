@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0d2a22" />
   <meta name="color-scheme" content="light dark" />
   <script id="theme-boot">
@@ -24,6 +24,11 @@
     })();
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="FixNow" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>FixNow Ghana</title>
   <style>
     :root {
@@ -156,6 +161,7 @@
 
     .app {
       min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       grid-template-columns: 292px minmax(0, 1fr);
     }
@@ -187,6 +193,7 @@
       position: sticky;
       top: 0;
       height: 100vh;
+      height: 100dvh;
       background:
         linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)),
         var(--nav);
@@ -2853,6 +2860,7 @@
 @font-face{font-family:"Atkinson Hyperlegible Next";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/atkinson-hyperlegible-next-latin-400.woff2") format("woff2")}
 @font-face{font-family:"Atkinson Hyperlegible Next";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/atkinson-hyperlegible-next-latin-700.woff2") format("woff2")}
 :root{--ink:#0d2a22;--muted:#4f5c55;--line:#ddd5c2;--line-strong:#c9bfa6;--soft:#f3eee1;--panel:#fffdf8;--nav:#0d2a22;--green:#0a7a52;--green-2:#0a6345;--gold:#fcd116;--red:#ce1126;--blue:#1d4f80;--teal:#1c8a8a;--focus:#1747b8;--brand-nav:#0d2a22;--brand-primary:#0a7a52;--brand-emergency:#72262e;--brand-cream:#f3eee1;--deep:#0d2a22;--deep-hover:#173f32;--tint-flood:#dfeaf6;--tint-road:#f8ecc4;--tint-waste:#dcefe3;--tint-water:#dceeee;--tint-power:#fbe7b0;--tint-safety:#f6dcdd;--radius:16px;--r-btn:14px;--r-hero:28px;--shadow:0 10px 30px rgba(13, 42, 34, .10);--font-display:"Bricolage Grotesque", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;--font-body:"Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--kente:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='12' shape-rendering='crispEdges'%3E%3Crect width='72' height='12' fill='%23fcd116'/%3E%3Crect x='16' width='2' height='12' fill='%230d2a22'/%3E%3Crect x='18' width='12' height='12' fill='%230a7a52'/%3E%3Crect x='21' y='3' width='3' height='3' fill='%23fcd116'/%3E%3Crect x='24' y='6' width='3' height='3' fill='%23fcd116'/%3E%3Crect x='30' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='31' width='8' height='12' fill='%23ce1126'/%3E%3Crect x='31' y='4' width='8' height='1' fill='%230d2a22'/%3E%3Crect x='31' y='7' width='8' height='1' fill='%230d2a22'/%3E%3Crect x='39' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='42' width='4' height='12' fill='%230d2a22' opacity='.18'/%3E%3Crect x='48' width='2' height='12' fill='%230d2a22'/%3E%3Crect x='50' width='14' height='12' fill='%230a7a52'/%3E%3Crect x='53' y='3' width='8' height='2' fill='%23fcd116'/%3E%3Crect x='53' y='7' width='8' height='2' fill='%23fcd116'/%3E%3Crect x='64' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='65' width='7' height='12' fill='%23ce1126'/%3E%3C/svg%3E")}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html.large-text-root{font-size:118.75%}
 body, .app{background:var(--soft)}
 body{color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -2992,7 +3000,7 @@ details[open] > summary{margin-bottom:8px}
 .privacy-note{display:grid;gap:4px;margin:0 0 18px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel);font-size:.9375rem;color:var(--muted)}
 .privacy-note b{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:.9375rem}
 .consent-line{display:grid !important;grid-template-columns:24px 1fr;align-items:start;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:16px;background:var(--panel);font-weight:400 !important;font-size:.9375rem !important;line-height:1.45}
-.consent-line:has(input:checked){border-color:var(--deep);background:#fffbe8}
+.consent-line.is-checked{border-color:var(--deep);background:#fffbe8}
 .consent-line input{margin:1px 0 0;accent-color:var(--deep)}
 .location-status{font-size:.9375rem}
 .yn-field{display:grid;grid-template-columns:minmax(0, 1fr) auto;align-items:center;gap:12px;margin-bottom:10px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
@@ -3085,6 +3093,7 @@ details[open] > summary{margin-bottom:8px}
 .secret-line .mini{grid-column:2;grid-row:1}
 .secret-card p{margin:0;color:var(--muted);font-size:.875rem}
 .result-route{margin:0;color:var(--muted);font-size:.875rem}
+.storage-tip{margin:0;padding:10px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:.9375rem;text-align:left}
 ul.notification-list{display:grid;gap:14px;margin:0 0 14px;padding:0;list-style:none}
 .notification-list li{display:grid;gap:4px;min-width:0;padding-bottom:14px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
 .notification-list small{color:var(--muted);font-size:.875rem}
@@ -3272,7 +3281,8 @@ body.welcome-open{overflow:hidden}
 .topbar-logo{display:none}
 .topbar-exit{display:none}
 .content > *{min-width:0}
-@media (max-width: 880px){.rail{position:static;height:0;min-height:0;padding:0;border:0;background:transparent;box-shadow:none}
+@media (max-width: 880px){html body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]), html body select, html body textarea{font-size:max(16px, 1rem)}
+.rail{position:static;height:0;min-height:0;padding:0;border:0;background:transparent;box-shadow:none}
 .rail .brand{display:none}
 .content{padding:0 16px calc(112px + env(safe-area-inset-bottom))}
 .topbar, body[data-view="home"] .topbar{position:sticky;top:0;z-index:30;display:flex;flex-direction:row;align-items:center;gap:12px;margin:0 -16px 16px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
@@ -3289,6 +3299,10 @@ body[data-view="report"] .topbar-logo{display:none}
 body[data-view="report"] .topbar-exit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;min-height:44px;padding:0;border:1.5px solid var(--line-strong);border-radius:50%;background:var(--panel);color:var(--ink)}
 body[data-view="report"] .nav{display:none}
 body[data-view="report"] .content{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.content{padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
+.topbar, body[data-view="home"] .topbar{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-top:calc(10px + env(safe-area-inset-top));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
+body[data-view="home"] .home-panel{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
+.wizard-actions{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
 .citizen-band{padding:0 0 8px}
 .nearby-panel > .citizen-band-head, .my-panel > .citizen-band-head, .profile-panel > .citizen-band-head{display:none}
 .nav{height:auto;padding:6px max(6px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));border-top:1px solid var(--line);background:var(--panel);box-shadow:0 -6px 20px rgba(13, 42, 34, .07)}
@@ -3434,7 +3448,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus, legen
 .appearance-options label{position:relative;width:auto;min-width:0 !important;display:flex;align-items:center;justify-content:center;min-height:48px;padding:6px 8px;text-align:center;font-weight:700;font-size:.9375rem;line-height:1.2;cursor:pointer}
 .appearance-options label + label{border-left:1.5px solid var(--line-strong)}
 .appearance-options input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;opacity:0;cursor:pointer}
-.appearance-options label:has(input:checked){background:var(--deep);color:#fff}
+.appearance-options label.is-checked{background:var(--deep);color:#fff}
 .appearance-options label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:-3px}
 body.large-text .appearance-options{grid-template-columns:1fr}
 body.large-text .appearance-options label + label{border-left:0;border-top:1.5px solid var(--line-strong)}
@@ -3447,7 +3461,7 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] .primary, [data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report:hover, [data-theme="dark"] .nav .nav-report.active{background:var(--gold);border-color:var(--gold);color:#0d2a22}
 [data-theme="dark"] .primary:hover{background:#ffdb3d}
 [data-theme="dark"] .nav .nav-report .nav-icon{color:#0d2a22}
-[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label:has(input:checked), [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
+[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label.is-checked, [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
 [data-theme="dark"] .yn-buttons button[data-yn="yes"][aria-checked="true"]{color:#fff}
 [data-theme="dark"] .home-primary > span{background:#0d2a22}
 [data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
@@ -3460,7 +3474,7 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
 [data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call, [data-theme="dark"] .modal-actions .emergency-dial{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
 [data-theme="dark"] .severity-seg button[aria-checked="true"]{box-shadow:inset 0 0 0 2px #fffdf8}
-[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line:has(input:checked), [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
+[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line.is-checked, [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
 [data-theme="dark"] .hotline-row:hover, [data-theme="dark"] .home-nearby-row:hover, [data-theme="dark"] .profile-action:hover{background:var(--raised)}
 [data-theme="dark"] .segmented{background:var(--soft);box-shadow:inset 0 0 0 1px var(--line-strong)}
 [data-theme="dark"] .segmented button{color:var(--muted)}
@@ -4475,7 +4489,39 @@ body.map-unavailable [data-focus-public]{display:none}
     const LEGACY_LOCAL_SYNC_SERVER = "http://localhost:4180";
     const LOCAL_SYNC_HOSTS = new Set(["localhost", "127.0.0.1", "10.0.2.2", "[::1]", "::1"]);
     const PAGE_LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
-    let citizenDeviceKey = crypto.randomUUID();
+    // A version 4 UUID. crypto.randomUUID is missing on iOS 15.0 to 15.3, Chrome before 92 and plain-HTTP pages,
+    // and calling it there stopped the whole app from starting. getRandomValues works everywhere.
+    function makeUuid() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+      const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+      return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+    }
+
+    // Older browsers (before iOS 15.4 and Chrome 105) cannot style a parent with :has(), so ticked choices get a class.
+    function syncCheckedStyles(root = document) {
+      root.querySelectorAll(".consent-line, .appearance-options label").forEach((line) => {
+        const input = line.querySelector('input[type="checkbox"], input[type="radio"]');
+        if (input) line.classList.toggle("is-checked", input.checked);
+      });
+    }
+    document.addEventListener("change", (event) => {
+      if (event.target instanceof HTMLInputElement && (event.target.type === "checkbox" || event.target.type === "radio")) syncCheckedStyles();
+    });
+
+    // Safari can clear a website's saved data after 7 days without a visit, unless it was added to the Home Screen.
+    function iphoneStorageTip() {
+      const appleTouchDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const fromHomeScreen = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+      return appleTouchDevice && !fromHomeScreen ? '<p class="storage-tip">On iPhone, add FixNow to your Home Screen so your reports stay saved on this phone.</p>' : "";
+    }
+    function askToKeepStorage() {
+      try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch { /* not supported */ }
+    }
+
+    let citizenDeviceKey = makeUuid();
     try {
       citizenDeviceKey = localStorage.getItem(DEVICE_KEY_STORE) || citizenDeviceKey;
       localStorage.setItem(DEVICE_KEY_STORE, citizenDeviceKey);
@@ -4694,6 +4740,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function setWizardStep(step) {
       wizardStep = Math.max(1, Math.min(6, Number(step) || 1));
+      syncCheckedStyles();
       document.querySelectorAll("[data-wizard-step]").forEach((panel) => {
         const active = Number(panel.dataset.wizardStep) === wizardStep;
         panel.hidden = !active;
@@ -4897,6 +4944,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const appearance = settings.appearance === "light" || settings.appearance === "dark" ? settings.appearance : "system";
       document.querySelectorAll('input[name="appearance"]').forEach((radio) => { radio.checked = radio.value === appearance; });
       if (window.fixnowApplyTheme) window.fixnowApplyTheme(appearance);
+      syncCheckedStyles();
       updateLanguageHelp();
     }
 
@@ -4955,6 +5003,7 @@ body.map-unavailable [data-focus-public]{display:none}
       modalReturnFocus = trigger instanceof HTMLElement ? trigger : null;
       modalTitle.textContent = title;
       modalBody.innerHTML = html;
+      syncCheckedStyles(modalBody);
       modalActions.innerHTML = "";
       actions.forEach((item) => {
         const button = document.createElement("button");
@@ -5393,7 +5442,7 @@ body.map-unavailable [data-focus-public]{display:none}
     function brief(report) {
       const location = redactSafeShareText(report.publicLocationLabel || [report.community, report.district, report.region].filter(Boolean).join(", "));
       const summary = redactSafeShareText(report.summary || report.details || "Report details available in FixNow Ghana.");
-      const update = Array.isArray(report.updates) && report.updates.length ? report.updates.at(-1)?.note : report.latestPublicUpdate?.note;
+      const update = Array.isArray(report.updates) && report.updates.length ? report.updates[report.updates.length - 1]?.note : report.latestPublicUpdate?.note;
       return [
         `FIXNOW GHANA ${report.id || report.reference}`,
         `${report.type || report.category || "Community report"} - ${report.status || "Open"}`,
@@ -6281,7 +6330,7 @@ body.map-unavailable [data-focus-public]{display:none}
             document.querySelector("#responderResolutionException").reportValidity();
             return;
           }
-          const updateKey = crypto.randomUUID();
+          const updateKey = makeUuid();
           const previousReport = { ...report };
           const queuedAt = new Date().toISOString();
           await queueResponderUpdate({ reportId: report.id, actorUserId: actorId, updateKey, nextStatus, publicUpdate, privateNote, resolutionEvidenceId, resolutionException, previousReport, queuedAt });
@@ -6345,7 +6394,7 @@ body.map-unavailable [data-focus-public]{display:none}
     async function submitResponderFieldAction(report, action, values) {
       const data = await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/field-action`, {
         method: "POST",
-        body: JSON.stringify({ action, actionKey: crypto.randomUUID(), ...values })
+        body: JSON.stringify({ action, actionKey: makeUuid(), ...values })
       });
       const index = responderReports.findIndex((item) => String(item.id) === String(report.id));
       if (index >= 0) responderReports[index] = authorizedResponderReport(data.report);
@@ -7511,11 +7560,11 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     async function sendReporterAction(report, action, reason = "", evidenceFile = null) {
-      const body = { action, reason, actionKey: crypto.randomUUID(), secret: report.trackingSecret || "" };
+      const body = { action, reason, actionKey: makeUuid(), secret: report.trackingSecret || "" };
       if (evidenceFile) {
         if (!report.trackingSecret) throw new Error("Reopening evidence from another device requires the private tracking secret");
         const evidence = await compressEvidenceImage(evidenceFile);
-        const uploadSessionKey = crypto.randomUUID();
+        const uploadSessionKey = makeUuid();
         const uploaded = await publicRequest("/api/public/uploads", {
           method: "POST", citizenAuth: false,
           body: JSON.stringify({ uploadSessionKey, clientAttachmentId: evidence.clientAttachmentId, uploadSecret: report.trackingSecret, fileName: evidence.name, mimeType: evidence.mimeType, dataBase64: evidence.dataBase64 })
@@ -7744,11 +7793,13 @@ body.map-unavailable [data-focus-public]{display:none}
     const ICON_CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
 
     function showSubmittedResult(report) {
+      askToKeepStorage();
       const both = `FixNow Ghana report\nReference: ${report.id}\nTracking secret: ${report.trackingSecret}`;
       openModal("Report submitted", `
         <div class="result-screen">
           <span class="result-icon ok">${ICON_CHECK}</span>
           <p class="result-lead">FixNow has received your report. A moderator will review it and route it to the responsible office.</p>
+          ${iphoneStorageTip()}
           <div class="secret-card">
             <div class="secret-line"><span>Reference number</span><strong>${escapeHtml(report.id)}</strong><button class="mini" type="button" data-copy-value="${escapeHtml(report.id)}" data-copy-label="Reference copied">Copy</button></div>
             <div class="secret-line"><span>Private tracking secret</span><strong class="secret">${escapeHtml(report.trackingSecret)}</strong><button class="mini" type="button" data-copy-value="${escapeHtml(report.trackingSecret)}" data-copy-label="Tracking secret copied">Copy</button></div>
@@ -7765,10 +7816,12 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function showQueuedResult(report, route) {
+      askToKeepStorage();
       openModal("Saved and waiting to send", `
         <div class="result-screen">
           <span class="result-icon wait">${ICON_CLOCK}</span>
           <p class="result-lead">FixNow could not be reached, so your report is saved on this phone. It will send automatically when you are back online.</p>
+          ${iphoneStorageTip()}
           <div class="secret-card">
             <b>What happens next</b>
             <ol class="next-steps">
@@ -7834,8 +7887,8 @@ body.map-unavailable [data-focus-public]{display:none}
       let report = null;
       try {
       report = buildDraft();
-      report.id = `LOCAL-${crypto.randomUUID()}`;
-      report.submissionKey = crypto.randomUUID();
+      report.id = `LOCAL-${makeUuid()}`;
+      report.submissionKey = makeUuid();
       report.trackingSecret = createTrackingSecret();
       report.created = Date.now();
       report.status = "Open";
@@ -8012,7 +8065,7 @@ body.map-unavailable [data-focus-public]{display:none}
       }
       if (blob.size > 750_000) throw new Error("Image could not be reduced below 750 KB");
       return {
-        clientAttachmentId: crypto.randomUUID(),
+        clientAttachmentId: makeUuid(),
         name: file.name.replace(/\.[^.]+$/, "") + ".jpg",
         mimeType: "image/jpeg",
         bytes: blob.size,
@@ -8066,7 +8119,7 @@ body.map-unavailable [data-focus-public]{display:none}
         try {
           evidenceItems.push(await compressEvidenceImage(file));
         } catch (error) {
-          evidenceItems.push({ clientAttachmentId: crypto.randomUUID(), name: file.name, state: "error", error: error.message || "Could not process image" });
+          evidenceItems.push({ clientAttachmentId: makeUuid(), name: file.name, state: "error", error: error.message || "Could not process image" });
         }
         renderEvidenceItems();
       }

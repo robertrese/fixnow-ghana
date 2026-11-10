@@ -6,19 +6,18 @@
 // Fails if the page logs an error. Needs the local API and web server running (see work/qa/README.md).
 const fs = require("fs");
 const path = require("path");
-const { root, passWelcome, fillReportToReview, loadPlaywright, COLOR_SCHEME } = require("./common");
+const { root, passWelcome, fillReportToReview, launchBrowser, contextOptions, RUN_FOLDER, THEME_LABEL } = require("./common");
 
 const folderArg = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
-const out = path.resolve(folderArg || path.join(root, "work", "qa", "screenshots", ...(COLOR_SCHEME === "dark" ? ["dark"] : [])));
+const out = path.resolve(folderArg || path.join(root, "work", "qa", "screenshots", ...(RUN_FOLDER ? [RUN_FOLDER] : [])));
 fs.mkdirSync(out, { recursive: true });
 
 (async () => {
-  const { chromium } = loadPlaywright();
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const errors = [];
 
   // Phone, 390 x 844, at 2x like a real handset.
-  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, colorScheme: COLOR_SCHEME });
+  const phone = await browser.newContext(contextOptions(390, 844, { mobile: true, deviceScaleFactor: 2 }));
   const page = await phone.newPage();
   page.on("pageerror", (error) => errors.push(`phone: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`phone console: ${message.text()}`); });
@@ -58,7 +57,7 @@ fs.mkdirSync(out, { recursive: true });
   await phone.close();
 
   // Laptop, 1280 x 800.
-  const laptop = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2, colorScheme: COLOR_SCHEME });
+  const laptop = await browser.newContext(contextOptions(1280, 800, { deviceScaleFactor: 2 }));
   const desk = await laptop.newPage();
   desk.on("pageerror", (error) => errors.push(`laptop: ${error.message}`));
   const deskShot = async (name) => { await desk.mouse.move(2, 790); await desk.waitForTimeout(2200); await desk.screenshot({ path: path.join(out, `laptop-${name}.png`) }); };
@@ -79,5 +78,5 @@ fs.mkdirSync(out, { recursive: true });
     console.error(`Page errors:\n${errors.join("\n")}`);
     process.exit(1);
   }
-  console.log("No page errors.");
+  console.log(`No page errors${THEME_LABEL}.`);
 })().catch((error) => { console.error("Walkthrough failed:", error.message.split("\n")[0]); process.exit(1); });
