@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,16 +18,29 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.SystemBarStyle;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.webkit.WebViewAssetLoader;
 
 public class MainActivity extends ComponentActivity {
     private static final int FILE_CHOOSER_REQUEST = 41;
     private static final int LOCATION_REQUEST = 42;
+    // Deep green behind the status bar in every theme, with light icons.
+    private static final int STATUS_STRIP_COLOR = Color.parseColor("#0d2a22");
+    // Matches the tab bar. setBottomAreaColor lets this follow the app's theme.
+    private static final int BOTTOM_AREA_LIGHT = Color.parseColor("#fffdf8");
 
     private WebView webView;
+    private LinearLayout root;
+    private View statusStrip;
     private WebViewAssetLoader assetLoader;
     private ValueCallback<Uri[]> filePathCallback;
     private GeolocationPermissions.Callback geoCallback;
@@ -37,12 +51,33 @@ public class MainActivity extends ComponentActivity {
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
+        // Draw edge to edge on every Android version, so phones behave the same, then keep the page
+        // clear of the status bar, the navigation bar, display cutouts and the keyboard ourselves.
+        EdgeToEdge.enable(this,
+                SystemBarStyle.dark(Color.TRANSPARENT),
+                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT));
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
         webView.setContentDescription("FixNow Ghana community reporting app");
         webView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-        setContentView(webView);
+
+        root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        statusStrip = new View(this);
+        statusStrip.setBackgroundColor(STATUS_STRIP_COLOR);
+        root.addView(statusStrip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0));
+        root.addView(webView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        setBottomAreaColor(BOTTOM_AREA_LIGHT, true);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            Insets keyboard = insets.getInsets(WindowInsetsCompat.Type.ime());
+            statusStrip.getLayoutParams().height = bars.top;
+            statusStrip.requestLayout();
+            view.setPadding(bars.left, 0, bars.right, Math.max(bars.bottom, keyboard.bottom));
+            return WindowInsetsCompat.CONSUMED;
+        });
+        setContentView(root);
 
         WebSettings settings = webView.getSettings();
         // The bundled application requires JavaScript, but never receives file-origin privileges.
@@ -78,6 +113,13 @@ public class MainActivity extends ComponentActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, backCallback);
+    }
+
+    /** Paints the area below the tab bar (and beside it in landscape) and picks readable navigation-bar icons. */
+    private void setBottomAreaColor(int color, boolean lightSurface) {
+        root.setBackgroundColor(color);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightNavigationBars(lightSurface);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightStatusBars(false);
     }
 
     private void dismissEmergencyDialogOrNavigate() {

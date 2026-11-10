@@ -37,6 +37,11 @@ const compressedBytes = coreFiles.reduce((total, file) => total + zlib.gzipSync(
 assert(compressedBytes < 120 * 1024, `core static assets exceed the 120 KiB compressed low-bandwidth budget: ${compressedBytes} bytes`);
 assert(rawBytes < 600 * 1024, `core static assets exceed the 600 KiB on-device budget: ${rawBytes} bytes`);
 
+// Edge to edge (Android 15 and newer): the page must stay clear of the system bars, cutouts and the keyboard.
+assert(activity.includes("EdgeToEdge.enable(") && activity.includes("ViewCompat.setOnApplyWindowInsetsListener(") && activity.includes("WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()") && activity.includes("WindowInsetsCompat.Type.ime()"), "MainActivity must apply system-bar, cutout and keyboard insets");
+assert(activity.includes('Color.parseColor("#0d2a22")') && activity.includes("setAppearanceLightStatusBars(false)"), "the status bar strip must be deep green with light icons");
+assert(manifest.includes('android:windowSoftInputMode="adjustResize"'), "the window must make room for the keyboard");
+
 // The local-server route is for the debug build only. The release build must refuse plain HTTP.
 const androidSource = path.join(root, "work", "fixnow-android", "app", "src");
 const javaPackage = path.join("java", "com", "fixnowghana", "command");
