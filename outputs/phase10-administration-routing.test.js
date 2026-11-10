@@ -27,6 +27,6 @@ assert(backend.includes("Demo data cannot be enabled in a production environment
 assert(backend.includes("No active routing rule matches this report") && backend.includes("recommendation_state"), "routing should create a recommendation rather than a delivery claim");
 assert(backend.includes("Sent, delivered, or acknowledged states require a recorded external integration outcome"), "delivery claims should require a real external outcome");
 assert(backend.includes("routing_overridden") && backend.includes("override_reason"), "human routing overrides should remain audited with reasons");
-assert(/fixnow-ghana-static-v(?:19|2\d)/.test(worker), "Phase 10 or later should retain the administration cache invalidation");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 19, "Phase 10 or later should retain the administration cache invalidation");
 
 console.log("Phase 10 administration and truthful routing test passed");

@@ -35,6 +35,6 @@ assert(backend.includes("function responderFieldAction") && backend.includes("fu
 assert(backend.includes("validateResponderTransition") && backend.includes("Status cannot move from"), "backend status transitions must be explicit");
 assert(backend.includes("Resolution requires clean field evidence or a documented exception"), "resolution should require proof or a documented exception");
 assert(backend.includes("Report is outside your permitted area") && backend.includes("reportInActorScope"), "responder scope enforcement must remain server-side");
-assert(/fixnow-ghana-static-v(?:1[89]|2\d)/.test(worker), "Phase 9 or later should retain the responder portal cache invalidation");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 18, "Phase 9 or later should retain the responder portal cache invalidation");
 
 console.log("Phase 9 separate responder field portal test passed");

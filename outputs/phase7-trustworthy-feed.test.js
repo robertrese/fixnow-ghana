@@ -24,6 +24,6 @@ assert(backend.includes('feed === "most-confirmed"') && backend.includes('feed =
 const serializer = backend.slice(backend.indexOf("function publicFeedReport"), backend.indexOf("function categoryGlyph"));
 assert(!serializer.includes("trackingSecret") && !serializer.includes("exactLatitude") && !serializer.includes("contact:"), "feed expansion must not weaken public privacy");
 assert(!html.includes("data-public-comment") && !backend.includes("public_comments"), "the public feed must not add unrestricted comments");
-assert(/fixnow-ghana-static-v(?:1[6-9]|2\d)/.test(worker), "Phase 7 or later should invalidate the previous offline cache");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 16, "Phase 7 or later should invalidate the previous offline cache");
 
 console.log("Phase 7 trustworthy public feed test passed");

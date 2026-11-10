@@ -3198,6 +3198,9 @@ ul.notification-list{display:grid;gap:14px;margin:0 0 14px;padding:0;list-style:
 .profile-emergency p{margin:0;color:#5f1a20;font-size:.9375rem}
 .emergency-call{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;border:0;border-radius:14px;background:var(--red);color:#fff;font-weight:700;font-size:1.0625rem;text-transform:none;letter-spacing:0}
 .emergency-call:hover{background:#b30f22}
+.modal-actions .emergency-dial{min-height:50px;border:1px solid var(--red);border-radius:var(--r-btn);background:var(--red);color:#fff;font-weight:700;font-size:1rem}
+@media (hover: hover){.modal-actions .emergency-dial:hover{background:#b30f22;border-color:#b30f22}
+}
 .profile-group-title{margin:24px 0 10px;font-family:var(--font-display);font-size:1.25rem;font-weight:750}
 .profile-grid{display:grid;gap:0;border:1px solid var(--line);border-radius:20px;background:var(--panel);overflow:hidden}
 .profile-action{position:static;display:grid;grid-template-columns:42px minmax(0, 1fr) auto;align-items:center;gap:12px;width:100%;min-height:70px;padding:12px 16px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;text-align:left;color:var(--ink)}
@@ -3455,7 +3458,7 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] :is(.guided-step, .sync-status, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .responder-case-location, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .notice{background:#363322;color:#f3c95a;border-color:#5a5330}
 [data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
-[data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
+[data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call, [data-theme="dark"] .modal-actions .emergency-dial{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
 [data-theme="dark"] .severity-seg button[aria-checked="true"]{box-shadow:inset 0 0 0 2px #fffdf8}
 [data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line:has(input:checked), [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
 [data-theme="dark"] .hotline-row:hover, [data-theme="dark"] .home-nearby-row:hover, [data-theme="dark"] .profile-action:hover{background:var(--raised)}
@@ -5035,7 +5038,7 @@ body.map-unavailable [data-focus-public]{display:none}
       openModal(`Call ${contact.serviceName}?`, `<p>Call <b>${escapeHtml(contact.serviceName)}</b> at <b>${escapeHtml(number)}</b>?</p><p>You will be taken to your device dialler. FixNow cannot confirm whether a call connects or is answered.</p>`, [
         { label: "Cancel", className: "secondary", action: closeModal },
         { label: `Copy ${number}`, className: "secondary", action: () => copyText(number, "Emergency number copied") },
-        { label: `Call ${number}`, className: "primary", action: () => startEmergencyDial(contact.serviceId, number) }
+        { label: `Call ${number}`, className: "emergency-dial", action: () => startEmergencyDial(contact.serviceId, number) }
       ], trigger);
     }
 

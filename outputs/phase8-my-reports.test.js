@@ -40,6 +40,6 @@ assert(backend.includes("citizen_report_preferences") && backend.includes("citiz
 assert(backend.includes("function recordCitizenReporterAction") && backend.includes("function removeCitizenReportContact"), "reporter confirmation, reopening, and contact controls need backend enforcement");
 assert(backend.includes("Only a resolved report can be reopened") && backend.includes("A reason is required to reopen a report"), "reopening must enforce state and reason");
 assert(backend.includes("Reporter requested that this resolved report be reopened") && backend.includes("Reporter confirmed the reported resolution"), "reporter actions should create public timeline events");
-assert(/fixnow-ghana-static-v(?:1[89]|2\d)/.test(worker), "Phase 8 or later should retain the advanced My Reports offline cache invalidation");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 18, "Phase 8 or later should retain the advanced My Reports offline cache invalidation");
 
 console.log("Phase 8 advanced My Reports and safe sharing test passed");

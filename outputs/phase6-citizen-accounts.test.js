@@ -31,6 +31,6 @@ assert(backend.includes('enabled: false') && backend.includes("Server-side Googl
 assert(backend.includes("session_revoked") && backend.includes("account_deleted") && backend.includes("citizenDataExport"), "session invalidation, account deletion, and export need audit-backed implementations");
 assert(setup.includes("never logs the code") && setup.includes("identity-detached public-service records"), "owner setup and deletion semantics must be documented");
 assert(environment.includes("OTP_PROVIDER_WEBHOOK_URL=") && environment.includes("OTP_HASH_SECRET=") && environment.includes("CITIZEN_SESSION_TTL_HOURS="), "production account configuration should be documented without credentials");
-assert(/fixnow-ghana-static-v(?:1[5-9]|2\d)/.test(worker), "Phase 6 or later should invalidate the previous offline cache");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 15, "Phase 6 or later should invalidate the previous offline cache");
 
 console.log("Phase 6 optional citizen accounts test passed");

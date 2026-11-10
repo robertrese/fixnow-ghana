@@ -123,9 +123,14 @@ assert(darkStart > 0 && ["--soft:#131914", "--panel:#1f2720", "--ink:#eef2ee", "
 assert(html.includes('<meta name="color-scheme" content="light dark" />') && html.includes('<meta name="theme-color" content="#0d2a22" />'), "the page must declare both colour schemes and the brand theme colour");
 assert(html.indexOf('<script id="theme-boot">') < html.indexOf("<style>") && html.includes('matchMedia("(prefers-color-scheme: dark)")') && html.includes('addEventListener("beforeprint"'), "the theme must be set before the first paint, follow the phone and print in light");
 assert(html.includes('appearance: "system"') && html.includes('<input type="radio" name="appearance" value="system" checked />Match phone') && html.includes('choice = "system"'), "Appearance must default to Match phone");
-assert(!/--red:/.test(darkCss) && /--red:#ce1126/.test(v2Css) && /\[data-theme="dark"\] \.home-danger, \[data-theme="dark"\] \.emergency-call, \[data-theme="dark"\] \.hotline-call\{background:var\(--red\);box-shadow:0 0 0 1\.5px #fffdf8\}/.test(darkCss), "112 must stay flag red #ce1126 in dark mode, with a light ring");
+assert(!/--red:/.test(darkCss) && /--red:#ce1126/.test(v2Css) && /\[data-theme="dark"\] \.home-danger, \[data-theme="dark"\] \.emergency-call, \[data-theme="dark"\] \.hotline-call, \[data-theme="dark"\] \.modal-actions \.emergency-dial\{background:var\(--red\);box-shadow:0 0 0 1\.5px #fffdf8\}/.test(darkCss), "112 must stay flag red #ce1126 in dark mode, with a light ring");
 assert(html.split(/#97d1a6/i).length > 1 && html.slice(0, html.indexOf(':root[data-theme="dark"]{')).search(/#97d1a6/i) === -1, "mint fails on cream, so it may appear only in the dark block");
 assert(v2Css.includes(".appearance-options label{position:relative;width:auto;min-width:0 !important;"), "the three Appearance choices must share the row equally (an older rule sets labels to 180 px)");
 assert(/\[data-theme="dark"\] img\[src\^="illustrations\/category-"\]\{[^}]*background:#f3eee1/.test(darkCss) && !/\[data-theme="dark"\][^{]*img[^{]*\{[^}]*filter/.test(darkCss), "illustrations sit on a cream plate in dark mode, and photos are never filtered");
+
+// Emergency calls are flag red in both themes; the number choice ("Use 192 / Use 112") keeps its normal buttons.
+assert(html.includes('{ label: `Call ${number}`, className: "emergency-dial", action: () => startEmergencyDial(contact.serviceId, number) }'), "the Call button in the call confirmation must use the emergency style for every number");
+assert(/\.modal-actions \.emergency-dial\{[^}]*background:var\(--red\);color:#fff/.test(v2Css), "the emergency Call button must be flag red with white text");
+assert(html.includes('label: `Use ${number}`, className: number === contact.primaryNumber ? "primary" : "secondary"'), "the number choice buttons stay as they are");
 
 console.log("V2 design and safety guard test passed");

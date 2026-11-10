@@ -89,7 +89,7 @@ Android notes:
   - deep green `#0d2a22` for dark surfaces and text;
   - canopy green `#0a7a52` for verified states and links;
   - Ghana gold `#fcd116` for the main action on dark surfaces (never gold text on cream);
-  - flag red `#ce1126` only for 112;
+  - flag red `#ce1126` only for emergency calls (the 112 actions, the hotline call buttons, and the Call button in the call confirmation for 112, 191, 192 and 193);
   - burgundy `#72262e` for emergency on light surfaces;
   - cotton cream `#f3eee1` as the background, with paper `#fffdf8` surfaces.
 - **Type:** Bricolage Grotesque (bold) for headings and the large emergency numbers; Atkinson Hyperlegible Next for everything else.
@@ -111,7 +111,7 @@ Android notes:
   - All dark styles live in one section at the end of `work/design/fixnow-v3.css`, starting with `:root[data-theme="dark"]`. Light rules stay untouched.
   - Tokens: page `#131914`, cards `#1f2720`, fields `#1a231c`, raised `#28382d`, text `#eef2ee`, muted `#b3beb6`, lines `#2e3a32`, strong lines `#7d8c82`, focus `#8fb4ff`, emergency text `#f4a7ae`.
   - Main action: Ghana gold with deep green text. Mint `#97d1a6` is the accent for links, verified, selected, progress and switches, and appears only in the dark section (it fails on cream).
-  - 112 and the call buttons stay flag red `#ce1126` with a 1.5 px `#fffdf8` ring. Selected severity gets a light ring.
+  - 112, the hotline call buttons and the confirmation Call button stay flag red `#ce1126` with a 1.5 px `#fffdf8` ring. Selected severity gets a light ring.
   - Problem types keep their own tile colours; their illustrations sit on a cream plate. Photos are never dimmed or filtered; they get a thin border.
   - The Home hero stays deep green with the kente strip. No shadows for depth in dark: borders and lighter surfaces instead.
   - Older components with hard-coded light backgrounds are mapped onto the dark surfaces in grouped rules. When a new component appears, check it with `npm run qa:dark`.

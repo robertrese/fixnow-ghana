@@ -34,6 +34,6 @@ assert(backend.includes('pathname === "/api/public/uploads"') && backend.include
 assert(backend.includes("detectImageType") && backend.includes("crypto.randomUUID()"), "the server should inspect image signatures and use random storage names");
 assert(backend.includes("claimReportAttachments") && backend.includes("attachmentCount"), "reports should claim bounded uploads and expose only a safe count to citizens");
 assert(backend.includes('pathname === "/api/public/reports/duplicates"') && backend.includes("merged: false"), "the backend must never merge duplicate suggestions automatically");
-assert(/fixnow-ghana-static-v(?:1[4-9]|2\d)/.test(worker), "Phase 5 or later assets should invalidate the previous offline cache");
+assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 14, "Phase 5 or later assets should invalidate the previous offline cache");
 
 console.log("Phase 5 guided reporting and private evidence test passed");
