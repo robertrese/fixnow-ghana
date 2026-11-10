@@ -27,7 +27,8 @@ npm run build:css        # compile work/design/fixnow-v3.css into the app
 npm run start:api        # local API on http://localhost:4180 with demo accounts (data in work/fixnow-backend/local-data)
 npm run start:web        # serves outputs/ on http://localhost:4173
 npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo photos) through the real API
-npm run qa               # layout check + WCAG scan + walkthrough screenshots (needs Playwright, see work/qa/README.md)
+npm run qa               # layout check + WCAG scan + walkthrough screenshots, in light and then dark (needs Playwright, see work/qa/README.md)
+npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
 ```
 
 Open the app at `http://localhost:4173/fixnow-ghana.html?api=http%3A%2F%2Flocalhost%3A4180`.
@@ -41,6 +42,13 @@ $env:ANDROID_HOME="C:\Users\tyres\AppData\Local\Android\Sdk"
 $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
 .\gradlew.bat :app:assembleDebug
 ```
+
+Android notes:
+
+- **Edge to edge.** `MainActivity` draws edge to edge on every Android version and applies the system-bar, display-cutout and keyboard insets itself: a deep green strip behind the status bar (light icons), a bottom area that matches the tab bar and follows the page's theme, and a page that shrinks above the keyboard. Keep this when changing the activity (guarded in `phase12-accessibility-android.test.js`).
+- **Local server (debug only).** The debug build serves its pages as `http://localhost/assets/…` and talks to `http://localhost:4180` through `adb reverse tcp:4180 tcp:4180` over USB. The code is in `app/src/debug/…/LocalServerAccess.java`; the release copy has no such route, and a guard keeps it that way.
+- **Theme.** `values-night/styles.xml` is a dark theme so the WebView reports dark mode; algorithmic darkening is off. The page tells the app its theme through `WebViewCompat.addWebMessageListener` ("fixnowTheme"), limited to the app's own origins. Never use `addJavascriptInterface`.
+- **Emulators.** `Medium_Phone_API_36.0` (Android 16) is the main test device. An Android 11 emulator, `FixNow_Test_API_30`, exists but needs about 7.5 GB of free disk space to start.
 
 ## Working rules
 
@@ -98,3 +106,13 @@ $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
   - arrows on buttons;
   - hover effects on touch screens (wrap them in `@media (hover: hover)`).
 - **Focused flows:** on phones the tab bar is hidden during the report wizard. The `.topbar-exit` button must stay.
+- **Dark mode** (brief: `design/v2-handoff/DARK-MODE-AND-LOGO.md`):
+  - Profile > Appearance offers Match phone (the default), Light and Dark, saved with the other settings. The `theme-boot` script at the top of `<head>` sets `html[data-theme]` before the first paint, follows the phone, and prints in light.
+  - All dark styles live in one section at the end of `work/design/fixnow-v3.css`, starting with `:root[data-theme="dark"]`. Light rules stay untouched.
+  - Tokens: page `#131914`, cards `#1f2720`, fields `#1a231c`, raised `#28382d`, text `#eef2ee`, muted `#b3beb6`, lines `#2e3a32`, strong lines `#7d8c82`, focus `#8fb4ff`, emergency text `#f4a7ae`.
+  - Main action: Ghana gold with deep green text. Mint `#97d1a6` is the accent for links, verified, selected, progress and switches, and appears only in the dark section (it fails on cream).
+  - 112 and the call buttons stay flag red `#ce1126` with a 1.5 px `#fffdf8` ring. Selected severity gets a light ring.
+  - Problem types keep their own tile colours; their illustrations sit on a cream plate. Photos are never dimmed or filtered; they get a thin border.
+  - The Home hero stays deep green with the kente strip. No shadows for depth in dark: borders and lighter surfaces instead.
+  - Older components with hard-coded light backgrounds are mapped onto the dark surfaces in grouped rules. When a new component appears, check it with `npm run qa:dark`.
+  - Never copy from the Figma frames anything listed in section 3.5 of the brief; take colours only.
