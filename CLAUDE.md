@@ -85,6 +85,12 @@ $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
   - burgundy `#72262e` for emergency on light surfaces;
   - cotton cream `#f3eee1` as the background, with paper `#fffdf8` surfaces.
 - **Type:** Bricolage Grotesque (bold) for headings and the large emergency numbers; Atkinson Hyperlegible Next for everything else.
+- **Logo:** a rounded square (corner radius 11%) in three equal vertical bands, red `#be3935`, gold `#e3b944` and green `#2a5037`, with a white "FN" on the gold band. The master is `design/v2-handoff/logo/fixnow-logo.svg`.
+  - `outputs/icon.svg` is the logo in the app and the web app icon; `outputs/icon-maskable.svg` is the full-bleed manifest icon (`"purpose": "maskable"`).
+  - The Android launcher icon is the adaptive pair `ic_launcher_background.xml` (bands) and `ic_launcher_foreground.xml` (letters, also the themed-icon layer), plus PNGs for Android 6 to 7.1.
+  - Never frame the tile again (no extra background, padding or radius).
+  - On dark surfaces (welcome, Home hero, laptop sidebar, and everywhere in dark mode) give it a 1.5 px cream keyline at about 50% opacity, or the green band disappears.
+  - Keep the white "FN" as designed: logos are exempt from contrast rules, and "FixNow Ghana" is always written beside it.
 - **Signature:** a woven kente-style strip (the `--kente` token) appears only on the Home hero, the welcome screen and the top of the laptop sidebar. Do not scatter it elsewhere.
 - **Do not use:**
   - ALL-CAPS labels;

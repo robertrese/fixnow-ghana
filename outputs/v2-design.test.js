@@ -103,4 +103,17 @@ assert(html.includes("report.updatesSeenAt") && html.includes("preference.public
 assert(html.includes("Phone alerts are not set up yet."), "the bell must not imply that push notifications exist");
 assert(/Object\.assign\(report, \{ status: result\.report\.status, updates: result\.report\.updates, updatedAt: result\.report\.updatedAt, createdAt: result\.report\.createdAt \}\)/.test(html), "a background update check must not overwrite what the reporter wrote");
 
+// The logo confirmed by the owner: three bands with FN, in the app, the web app icon and the Android launcher.
+const icon = fs.readFileSync(path.join(__dirname, "icon.svg"), "utf8");
+const webManifest = JSON.parse(fs.readFileSync(path.join(__dirname, "manifest.webmanifest"), "utf8"));
+const androidRes = path.join(root, "work", "fixnow-android", "app", "src", "main", "res");
+const launcher = fs.readFileSync(path.join(androidRes, "mipmap-anydpi-v26", "ic_launcher.xml"), "utf8");
+const launcherRound = fs.readFileSync(path.join(androidRes, "mipmap-anydpi-v26", "ic_launcher_round.xml"), "utf8");
+assert(["#be3935", "#e3b944", "#2a5037"].every((colour) => icon.toLowerCase().includes(colour)) && !/star|polygon|#ce1126|#006b3f/i.test(icon), "icon.svg must be the three-band FN logo, with no flag or star");
+assert(webManifest.icons.some((item) => item.src === "./icon.svg" && item.purpose === "any") && webManifest.icons.some((item) => item.src === "./icon-maskable.svg" && item.purpose === "maskable"), "the manifest needs the logo and a separate maskable icon");
+assert(worker.includes('"./icon-maskable.svg"') && gradle.includes('include "icon-maskable.svg"'), "the maskable icon must be cached offline and packaged for Android");
+assert([launcher, launcherRound].every((xml) => xml.includes('android:drawable="@drawable/ic_launcher_background"') && xml.includes('<monochrome android:drawable="@drawable/ic_launcher_foreground"')), "the launcher icon must use the new band and letter layers, with a themed-icon layer");
+assert(fs.existsSync(path.join(androidRes, "mipmap-mdpi", "ic_launcher.png")) && fs.existsSync(path.join(androidRes, "mipmap-xxxhdpi", "ic_launcher_round.png")), "older Android versions need PNG launcher icons");
+assert(/\.welcome-logo, body\[data-view="home"\] \.topbar-logo, \.rail \.brand-mark\{box-shadow:0 0 0 1\.5px rgba\(243, 238, 225, \.5\)\}/.test(v2Css), "the logo needs a cream keyline on dark surfaces");
+
 console.log("V2 design and safety guard test passed");

@@ -3214,7 +3214,9 @@ body.citizen-signed-in .profile-account-card{display:none}
 .welcome-screen::before{content:"";display:block;flex:0 0 auto;height:12px;background:var(--kente) repeat-x;background-size:72px 12px}
 .welcome-intro, .welcome-consent{flex:1 0 auto;width:min(100%, 480px);margin:0 auto;padding:max(26px, env(safe-area-inset-top)) 24px 26px}
 .welcome-intro{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left}
-.welcome-logo{width:56px;height:56px;border-radius:14px;box-shadow:0 0 0 2px rgba(253, 250, 241, .18)}
+.welcome-logo{width:56px;height:56px}
+.brand-mark, .topbar-logo, .welcome-logo{padding:0;background:none;border-radius:11%;box-shadow:none;object-fit:contain}
+.welcome-logo, body[data-view="home"] .topbar-logo, .rail .brand-mark{box-shadow:0 0 0 1.5px rgba(243, 238, 225, .5)}
 .welcome-intro h1{margin:14px 0 0;color:rgba(253, 250, 241, .82);font-family:var(--font-body);font-size:1.0625rem;font-weight:700;letter-spacing:0}
 .welcome-tagline{margin:6px 0 0;color:#fdfaf1;font-family:var(--font-display);font-size:3.25rem;font-weight:800;line-height:.98;letter-spacing:-.035em}
 .welcome-map{align-self:flex-end;width:min(220px, 56vw);height:auto;margin:-4px -6px 4px 0}
@@ -3256,7 +3258,7 @@ body[data-view="home"] .topbar{background:var(--nav);border-bottom-color:var(--n
 body[data-view="home"] .topbar h1{color:#fdfaf1}
 body[data-view="home"] .topbar .lead{color:rgba(253, 250, 241, .72)}
 body[data-view="home"] .topbar :focus-visible{outline-color:var(--gold)}
-.topbar-logo{display:block;width:40px;height:40px;border-radius:10px;flex:0 0 auto}
+.topbar-logo{display:block;width:40px;height:40px;flex:0 0 auto}
 .topbar-titles{flex:1;min-width:0}
 .topbar h1{margin:0;font-size:1.25rem;font-weight:750;line-height:1.2}
 .topbar .lead{margin:1px 0 0;overflow:hidden;color:var(--muted);font-size:.875rem;white-space:nowrap;text-overflow:ellipsis}

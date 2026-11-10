@@ -1,10 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FixNow Ghana icon">
-  <rect width="512" height="512" rx="96" fill="#0d2a22"/>
-  <rect x="84" y="98" width="344" height="316" rx="48" fill="#ffffff"/>
-  <path d="M84 122h344v94H84z" fill="#ce1126"/>
-  <path d="M84 216h344v94H84z" fill="#fcd116"/>
-  <path d="M84 310h344v104H84z" fill="#006b3f"/>
-  <circle cx="256" cy="256" r="80" fill="#ffffff" opacity=".9"/>
-  <path d="M256 176l22 50 54 5-41 36 12 53-47-28-47 28 12-53-41-36 54-5z" fill="#111111"/>
-  <text x="256" y="394" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="900" fill="#111111">FN</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="FixNow Ghana">
+  <!-- FixNow Ghana logo, rebuilt from the Figma frames (v2-welcome, v2-home, v2-report-step-1 to 6).
+       Three equal vertical bands, red | gold | green, with white FN on the gold band. Corner radius 11%.
+       Colours measured from the Figma export. Letters are paths, so no font is needed. -->
+  <defs><clipPath id="fn-tile"><rect width="100" height="100" rx="11"/></clipPath></defs>
+  <g clip-path="url(#fn-tile)">
+    <rect width="33.4" height="100" fill="#be3935"/>
+    <rect x="33.3" width="33.4" height="100" fill="#e3b944"/>
+    <rect x="66.6" width="33.4" height="100" fill="#2a5037"/>
+  </g>
+  <path fill="#fff" d="M36.8 41.2H47.6V44.1H40.4V47.1H46.2V50H40.4V56.6H36.8ZM50 41.2H54.4L58.9 49.8V41.2H62.5V56.6H58.1L53.6 48V56.6H50Z"/>
 </svg>

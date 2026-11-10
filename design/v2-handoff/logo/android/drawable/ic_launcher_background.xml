@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon background: red | gold | green. Each band is a third of the 72 dp area that launchers
+     show (18 to 90 dp), and the outer bands run to the edges of the 108 dp canvas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#BE3935" android:pathData="M0,0h42.1v108h-42.1z"/>
+    <path android:fillColor="#E3B944" android:pathData="M42,0h24v108h-24z"/>
+    <path android:fillColor="#2A5037" android:pathData="M65.9,0h42.1v108h-42.1z"/>
+</vector>

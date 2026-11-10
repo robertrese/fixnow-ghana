@@ -24,6 +24,7 @@ tasks.register("syncWebAssets", Sync) {
         include "terms.html"
         include "support.html"
         include "icon.svg"
+        include "icon-maskable.svg"
         include "illustrations/**"
         include "fonts/**"
     }
