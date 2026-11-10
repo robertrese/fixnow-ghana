@@ -7,15 +7,19 @@
   <meta name="color-scheme" content="light dark" />
   <script id="theme-boot">
     // Theme before the first paint, so there is no white flash: the saved Appearance choice, otherwise the phone setting.
-    // Printing always uses the light theme. The Android app listens on fixnowTheme to match its system bars.
+    // Printing always uses the light theme. The Android app listens on fixnowTheme to match its system bars, and replies
+    // with the phone's setting ("phone:dark" or "phone:light"), because older Android WebViews cannot report it.
     (function () {
-      var root = document.documentElement, query = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null, choice = "system";
+      var root = document.documentElement, query = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null, choice = "system", phoneDark = null;
       try { choice = JSON.parse(localStorage.getItem(new URLSearchParams(location.search).get("demo") === "1" ? "fixnow-gh-demo-v1-settings" : "fixnow-gh-v3-settings") || "{}").appearance || "system"; } catch (e) {}
       function apply(printing) {
-        var dark = !printing && (choice === "dark" || (choice === "system" && !!query && query.matches));
+        var dark = !printing && (choice === "dark" || (choice === "system" && (phoneDark !== null ? phoneDark : !!query && query.matches)));
         root.setAttribute("data-theme", dark ? "dark" : "light");
         try { if (window.fixnowTheme) window.fixnowTheme.postMessage(dark ? "dark" : "light"); } catch (e) {}
       }
+      if (window.fixnowTheme) window.fixnowTheme.onmessage = function (event) {
+        if (event.data === "phone:dark" || event.data === "phone:light") { phoneDark = event.data === "phone:dark"; apply(); }
+      };
       apply();
       if (query && query.addEventListener) query.addEventListener("change", function () { apply(); });
       addEventListener("beforeprint", function () { apply(true); });
@@ -709,7 +713,10 @@
     .map::before {
       content: "";
       position: absolute;
-      inset: 42px 16% 52px 20%;
+      top: 42px;
+      right: 16%;
+      bottom: 52px;
+      left: 20%;
       border-radius: 46% 42% 50% 44%;
       background:
         linear-gradient(160deg, rgba(255,255,255,.68), rgba(255,255,255,.26)),
@@ -743,7 +750,10 @@
     .pin::after {
       content: "";
       position: absolute;
-      inset: 4px;
+      top: 4px;
+      right: 4px;
+      bottom: 4px;
+      left: 4px;
       border-radius: 50%;
       background: rgba(255,255,255,.86);
     }
@@ -1279,7 +1289,10 @@
 
     .modal-backdrop {
       position: fixed;
-      inset: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
       display: none;
       place-items: center;
       background: rgba(8, 20, 16, .64);
@@ -3029,7 +3042,7 @@ details[open] > summary{margin-bottom:8px}
 .photo-pick{position:relative;display:grid !important;place-items:center;align-content:center;gap:10px !important;min-height:132px;margin:0 !important;padding:14px;border:2px dashed #a99f86;border-radius:18px;background:var(--panel);color:var(--deep) !important;text-align:center;cursor:pointer}
 .photo-pick:first-child{border-style:solid;border-color:var(--deep);background:#fffbe8}
 .photo-pick .ico{width:2rem;height:2rem}
-.photo-pick input[type="file"]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.photo-pick input[type="file"]{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .photo-pick:focus-within{outline:3px solid var(--focus);outline-offset:2px}
 .evidence-gallery{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;margin-top:10px}
 .evidence-item{display:grid;gap:4px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:.75rem}
@@ -3115,7 +3128,7 @@ ul.notification-list{display:grid;gap:14px;margin:0 0 14px;padding:0;list-style:
 .my-report-card h3{margin:0;font-size:1.25rem;font-weight:750;line-height:1.2}
 .my-report-card > p{margin:0;color:var(--muted);font-size:.9375rem}
 .card-link{padding:0;min-height:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.card-link::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.card-link::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit}
 .card-link:focus-visible{outline:none}
 .my-report-progress{display:grid;grid-template-columns:repeat(4, 1fr);gap:0;margin:10px 0 2px}
 .my-report-progress span{position:relative;display:grid;justify-items:center;gap:6px;height:auto;min-height:0;padding:0;border:0;border-radius:0;background:transparent}
@@ -3239,7 +3252,7 @@ body.citizen-signed-in .profile-account-card{display:none}
 .setting-switch[aria-pressed="true"] .switch{background:var(--deep)}
 .setting-switch[aria-pressed="true"] .switch::after{transform:translateX(20px);background:var(--gold)}
 .tool-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.welcome-screen{position:fixed;inset:0;z-index:55;display:flex;flex-direction:column;overflow-y:auto;background:var(--nav);color:#fdfaf1}
+.welcome-screen{position:fixed;top:0;right:0;bottom:0;left:0;z-index:55;display:flex;flex-direction:column;overflow-y:auto;background:var(--nav);color:#fdfaf1}
 .welcome-screen[hidden]{display:none}
 .welcome-screen[data-step="consent"]{background:var(--soft);color:var(--ink)}
 .welcome-screen::before{content:"";display:block;flex:0 0 auto;height:12px;background:var(--kente) repeat-x;background-size:72px 12px}
@@ -3447,7 +3460,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus, legen
 .appearance-options{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));border:1.5px solid var(--line-strong);border-radius:14px;overflow:hidden}
 .appearance-options label{position:relative;width:auto;min-width:0 !important;display:flex;align-items:center;justify-content:center;min-height:48px;padding:6px 8px;text-align:center;font-weight:700;font-size:.9375rem;line-height:1.2;cursor:pointer}
 .appearance-options label + label{border-left:1.5px solid var(--line-strong)}
-.appearance-options input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;opacity:0;cursor:pointer}
+.appearance-options input{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;min-height:0;margin:0;opacity:0;cursor:pointer}
 .appearance-options label.is-checked{background:var(--deep);color:#fff}
 .appearance-options label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:-3px}
 body.large-text .appearance-options{grid-template-columns:1fr}
@@ -4976,11 +4989,11 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function escapeHtml(value) {
       return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     const languageHelp = {
@@ -5468,7 +5481,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function csvEscape(value) {
-      return `"${String(value ?? "").replaceAll('"', '""')}"`;
+      return `"${String(value ?? "").replace(/"/g, '""')}"`;
     }
 
     function exportCsv() {
@@ -6006,7 +6019,7 @@ body.map-unavailable [data-focus-public]{display:none}
     function createTrackingSecret() {
       const bytes = new Uint8Array(32);
       crypto.getRandomValues(bytes);
-      return btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+      return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
     }
 
     function openQueueDatabase() {

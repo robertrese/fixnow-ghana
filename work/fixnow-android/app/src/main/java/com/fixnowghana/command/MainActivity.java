@@ -28,6 +28,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewCompat;
@@ -50,6 +51,7 @@ public class MainActivity extends ComponentActivity {
     private GeolocationPermissions.Callback geoCallback;
     private String geoOrigin;
     private boolean handlingBack;
+    private JavaScriptReplyProxy themeReply;
     private OnBackPressedCallback backCallback;
 
     @Override
@@ -73,9 +75,7 @@ public class MainActivity extends ComponentActivity {
         root.addView(statusStrip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0));
         root.addView(webView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         // Until the page reports its theme, follow the phone setting.
-        boolean phoneIsDark = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-        applyPageTheme(phoneIsDark);
+        applyPageTheme(phoneIsDark(getResources().getConfiguration()));
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             Insets keyboard = insets.getInsets(WindowInsetsCompat.Type.ime());
@@ -108,7 +108,14 @@ public class MainActivity extends ComponentActivity {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(webView, "fixnowTheme", LocalServerAccess.appOrigins(),
                     (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
-                        if (isMainFrame) applyPageTheme("dark".equals(message.getData()));
+                        if (!isMainFrame) return;
+                        applyPageTheme("dark".equals(message.getData()));
+                        // WebViews older than about version 105 cannot tell the page the phone's dark setting,
+                        // so the app tells it once per page load, and again whenever the phone setting changes.
+                        if (replyProxy != themeReply) {
+                            themeReply = replyProxy;
+                            sendPhoneTheme(getResources().getConfiguration());
+                        }
                     });
         }
         settings.setLoadWithOverviewMode(true);
@@ -132,6 +139,20 @@ public class MainActivity extends ComponentActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, backCallback);
+    }
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        sendPhoneTheme(newConfig);
+    }
+
+    private static boolean phoneIsDark(android.content.res.Configuration config) {
+        return (config.uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void sendPhoneTheme(android.content.res.Configuration config) {
+        if (themeReply != null) themeReply.postMessage(phoneIsDark(config) ? "phone:dark" : "phone:light");
     }
 
     private void applyPageTheme(boolean dark) {

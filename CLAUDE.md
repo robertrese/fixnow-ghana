@@ -48,13 +48,14 @@ Android notes:
 - **Edge to edge.** `MainActivity` draws edge to edge on every Android version and applies the system-bar, display-cutout and keyboard insets itself: a deep green strip behind the status bar (light icons), a bottom area that matches the tab bar and follows the page's theme, and a page that shrinks above the keyboard. Keep this when changing the activity (guarded in `phase12-accessibility-android.test.js`).
 - **Local server (debug only).** The debug build serves its pages as `http://localhost/assets/…` and talks to `http://localhost:4180` through `adb reverse tcp:4180 tcp:4180` over USB. The code is in `app/src/debug/…/LocalServerAccess.java`; the release copy has no such route, and a guard keeps it that way.
 - **Theme.** `values-night/styles.xml` is a dark theme so the WebView reports dark mode; algorithmic darkening is off. The page tells the app its theme through `WebViewCompat.addWebMessageListener` ("fixnowTheme"), limited to the app's own origins. Never use `addJavascriptInterface`.
-- **Emulators.** `Medium_Phone_API_36.0` (Android 16) is the main test device. An Android 11 emulator, `FixNow_Test_API_30`, exists but needs about 7.5 GB of free disk space to start.
+- **Emulators.** `Medium_Phone_API_36.0` (Android 16) is the main test device. `FixNow_Test_API_30` (Android 11) is kept for tests; it needs about 7.5 GB of free disk space to start. Its WebView is version 83 and cannot update (no Play Store), which makes it a worst case below the support target: real Android 11 phones update WebView through the Play Store.
+- **Phone theme for older WebViews.** WebViews older than about version 105 cannot report the phone's dark setting, so the app replies to the page's first theme message with `phone:dark` or `phone:light`, and sends it again from `onConfigurationChanged`. The page uses it only in Match phone mode.
 
 ## Devices and browser support
 
 - **Android:** the Android app, or the web app in Chrome. **iPhone and iPad:** the web app in Safari, added to the Home Screen. **Computers:** the web app in any modern browser. Basic phones would need SMS or USSD, a separate project. See `design/v2-handoff/IPHONE-AND-OTHER-DEVICES.md`.
 - **Support target** (use nothing newer without a fallback): iOS 15 and newer (iPhone 6s and later); Chrome or WebView 90 and newer; current Chrome, Edge and Firefox; Safari 15 and newer.
-  - Random IDs come from `makeUuid()`, never `crypto.randomUUID()` directly (`makeId()` is a different, older function that makes `FN-…` references). No `Array.prototype.at`.
+  - Random IDs come from `makeUuid()`, never `crypto.randomUUID()` directly (`makeId()` is a different, older function that makes `FN-…` references). No `Array.prototype.at` or `String.replaceAll` (use `replace` with a `/g` pattern). Spell out `top`/`right`/`bottom`/`left` instead of the `inset` shorthand (Chrome 87).
   - A `:has()` selector must stand alone; states people must see (ticked consent, the Appearance choice) use classes set in JavaScript.
   - Every `100vh` has a `100dvh` line after it.
 - **iPhone:** `viewport-fit=cover` with `env(safe-area-inset-*)` padding (0 in the Android app, which pads natively), an `apple-touch-icon.png`, and a Home Screen tip in Safari because Safari can clear saved data after 7 days without a visit.

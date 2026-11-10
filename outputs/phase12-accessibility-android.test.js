@@ -48,6 +48,9 @@ assert(/parent="android:style\/Theme\.Material\.NoActionBar"/.test(nightStyles) 
 assert(activity.includes("WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false)"), "Android must never invert the page by itself");
 assert(activity.includes('WebViewCompat.addWebMessageListener(webView, "fixnowTheme", LocalServerAccess.appOrigins()') && !activity.includes("addJavascriptInterface"), "the page reports its theme through a web message listener limited to the app's origins, never a JavaScript interface");
 
+assert(activity.includes('themeReply.postMessage(phoneIsDark(config) ? "phone:dark" : "phone:light")') && activity.includes("public void onConfigurationChanged("), "the app must tell older WebViews the phone's dark setting, including when it changes");
+assert(html.includes('event.data === "phone:dark" || event.data === "phone:light"'), "the page must follow the phone setting the app reports");
+
 // The local-server route is for the debug build only. The release build must refuse plain HTTP.
 const androidSource = path.join(root, "work", "fixnow-android", "app", "src");
 const javaPackage = path.join("java", "com", "fixnowghana", "command");

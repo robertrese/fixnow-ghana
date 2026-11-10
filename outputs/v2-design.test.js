@@ -142,6 +142,8 @@ assert(html.includes("You don't have to give your name or number.") && html.incl
 // iPhone, iPad and older browsers (target: iOS 15+, Chrome/WebView 90+, current desktop browsers, Safari 15+).
 assert((html.match(/crypto\.randomUUID\(\)/g) || []).length === 1 && (html.match(/function makeUuid\(/g) || []).length === 1 && html.includes("crypto.getRandomValues(new Uint8Array(16))"), "random IDs must come from makeUuid(), which works without crypto.randomUUID");
 assert(!/\.at\(-1\)/.test(html), "Array.prototype.at fails before iOS 15.4 and Chrome 92");
+assert(!/(^|[;{\s])inset:/.test(html.slice(0, html.indexOf("<script>"))), "spell out top/right/bottom/left: the inset shorthand fails before Chrome 87, which hid every dialog in WebView 83");
+assert(!html.includes(".replaceAll("), "String.replaceAll fails in WebView 83 and older; escapeHtml stopped every dialog there");
 for (const rule of v2Css.split("}").map((part) => part.split("{")[0]).filter((selector) => selector.includes(":has("))) {
   assert(!rule.includes(","), `a :has() selector must stand alone, or older browsers drop the whole rule: ${rule.trim().slice(0, 80)}`);
 }
