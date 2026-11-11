@@ -32,9 +32,9 @@ assert(html.includes("function startEmergencyDial"), "web calls must be explicit
 assert(html.includes("emergencyDiallerOpening"), "repeated dialler launches must be blocked");
 assert(html.includes("window.fixNowDismissEmergencyDialog"), "Android Back must safely dismiss emergency confirmation");
 assert(!html.includes('href="tel:112"'), "emergency calls must not be scattered as raw links");
-assert(html.includes("--brand-emergency: #72262e"), "the burgundy emergency colour must be preserved");
-assert(html.includes("--brand-nav: #0d2a22"), "the deep green navigation colour must be preserved");
-assert(html.includes("--brand-primary: #0a7a52"), "the green primary action colour must be preserved");
+assert(/--brand-emergency:\s*#72262e/.test(html), "the burgundy emergency colour must be preserved");
+assert(/--brand-nav:\s*#0d2a22/.test(html), "the deep green navigation colour must be preserved");
+assert(/--brand-primary:\s*#0a7a52/.test(html), "the green primary action colour must be preserved");
 assert(worker.includes('"./emergency-contacts.js"'), "verified contact fallback must be cached offline");
 assert(worker.includes('url.pathname.startsWith("/api/")'), "API responses must remain excluded from service-worker caching");
 assert(android.includes("Intent.ACTION_DIAL"), "Android must open the dialler without calling directly");
