@@ -31,14 +31,15 @@
     "qa:overflow": "node work/qa/overflow-check.js",
     "qa:a11y": "node work/qa/a11y-scan.js",
     "qa:walkthrough": "node work/qa/walkthrough.js",
-    "qa": "npm run qa:overflow && npm run qa:a11y && npm run qa:walkthrough && npm run qa:dark && npm run qa:old-browsers && npm run qa:pages",
+    "qa": "npm run qa:overflow && npm run qa:a11y && npm run qa:walkthrough && npm run qa:dark && npm run qa:old-browsers && npm run qa:pages && npm run qa:staff",
     "qa:dark": "node work/qa/overflow-check.js --dark && node work/qa/a11y-scan.js --dark && node work/qa/walkthrough.js --dark",
     "qa:old-browsers": "node work/qa/old-browser-check.js && node work/qa/old-browser-check.js --engine=webkit",
     "qa:engines": "npm run qa:webkit && npm run qa:firefox",
-    "qa:webkit": "node work/qa/overflow-check.js --engine=webkit && node work/qa/a11y-scan.js --engine=webkit && node work/qa/walkthrough.js --engine=webkit && node work/qa/overflow-check.js --engine=webkit --dark && node work/qa/a11y-scan.js --engine=webkit --dark && node work/qa/walkthrough.js --engine=webkit --dark",
+    "qa:webkit": "node work/qa/overflow-check.js --engine=webkit && node work/qa/a11y-scan.js --engine=webkit && node work/qa/walkthrough.js --engine=webkit && node work/qa/overflow-check.js --engine=webkit --dark && node work/qa/a11y-scan.js --engine=webkit --dark && node work/qa/walkthrough.js --engine=webkit --dark && node work/qa/staff-check.js --engine=webkit && node work/qa/staff-check.js --engine=webkit --dark",
     "qa:firefox": "node work/qa/overflow-check.js --engine=firefox && node work/qa/a11y-scan.js --engine=firefox && node work/qa/walkthrough.js --engine=firefox && node work/qa/overflow-check.js --engine=firefox --dark && node work/qa/a11y-scan.js --engine=firefox --dark && node work/qa/walkthrough.js --engine=firefox --dark",
     "qa:all": "npm run qa && npm run qa:engines",
-    "qa:pages": "node work/qa/pages-check.js"
+    "qa:pages": "node work/qa/pages-check.js",
+    "qa:staff": "node work/qa/staff-check.js && node work/qa/staff-check.js --dark"
   },
   "dependencies": {
     "@googlemaps/markerclusterer": "2.6.2"
