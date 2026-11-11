@@ -90,6 +90,19 @@ assert(/body\[data-view="report"\] \.nav\{display:none\}/.test(v2Css) && /body\[
 assert(backend.includes("function stripJpegMetadata") && backend.includes('"Cross-Origin-Resource-Policy": "cross-origin"'), "approved public photos are re-written without metadata and served for the app");
 assert(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("Show photo publicly") && fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
 
+// Public demo: nothing leaves the page, no real calls, clear labels, staff sign-in points to the gallery.
+assert(html.includes("<b>Demo.</b> Sample data only. Nothing you enter leaves this page, and calls are switched off."), "the demo banner says plainly that nothing is sent and calls are off");
+assert(html.includes("This is a demo. In a real emergency, dial 112 from your phone.") && html.includes("if (IS_DEMO_MODE || emergencyDiallerOpening"), "demo mode never opens the dialler");
+assert(html.includes('openModal("Staff sign-in is not in the demo"') && html.includes('window.location.href = "screens/"'), "demo staff access explains and links to the screen gallery");
+assert(html.includes('if (IS_DEMO_MODE) throw new Error("This is a demo, so nothing is sent from this page.");') && html.includes('if (IS_DEMO_MODE) throw new Error("Demo data cannot sync to production");'), "every request helper refuses to send in demo mode");
+assert(html.includes("if (IS_DEMO_MODE) { showDemoNearby(); return; }") && html.includes('if (safeView === "nearby" && IS_DEMO_MODE) showDemoNearby();'), "Nearby and the map never contact a server in demo mode");
+const demoBuild = fs.readFileSync(path.join(__dirname, "..", "work", "demo", "build-demo-site.js"), "utf8");
+assert(demoBuild.includes("const IS_DEMO_MODE = true;") && demoBuild.includes(`connect-src 'self'; form-action 'none'`), "the public demo build is always in demo mode and cannot connect to other servers");
+if (fs.existsSync(path.join(__dirname, "..", "docs", "fixnow-ghana.html"))) {
+  const demoApp = fs.readFileSync(path.join(__dirname, "..", "docs", "fixnow-ghana.html"), "utf8");
+  assert(demoApp.includes("const IS_DEMO_MODE = true;") && demoApp.includes(`connect-src 'self'`), "docs/ must be the demo build (run npm run build:demo)");
+}
+
 // Errors are shown on the page in plain words, not only in a passing toast or as a browser message.
 assert(html.includes('<p class="track-status" id="trackStatus" role="status"></p>') && html.includes("No report matches that reference and secret. Check both and try again."), "Find your report shows a lasting error message");
 assert(html.includes("function friendlyRequestError") && html.includes("escapeHtml(friendlyRequestError(error,"), "Nearby explains a connection failure in plain words");

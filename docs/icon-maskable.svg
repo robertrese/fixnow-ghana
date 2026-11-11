@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="FixNow Ghana">
+  <!-- Full-bleed version for the web app manifest ("purpose": "maskable"). The bands are equal thirds of the
+       central 80% safe zone and run to the edges, so any mask shape keeps three similar bands and the whole FN. -->
+  <rect width="36.7" height="100" fill="#be3935"/>
+  <rect x="36.6" width="26.8" height="100" fill="#e3b944"/>
+  <rect x="63.3" width="36.7" height="100" fill="#2a5037"/>
+  <g transform="translate(10 10) scale(.8)">
+    <path fill="#fff" d="M36.8 41.2H47.6V44.1H40.4V47.1H46.2V50H40.4V56.6H36.8ZM50 41.2H54.4L58.9 49.8V41.2H62.5V56.6H58.1L53.6 48V56.6H50Z"/>
+  </g>
+</svg>

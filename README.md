@@ -21,7 +21,21 @@ Generated Android builds, runtime databases, WAL/SHM files, test data, logs, rel
 - A report takes six steps: problem, place, description, photos, contact, review. Contact details, photos and exact GPS are optional.
 - Without a connection, a report is saved on the phone and sent automatically once the phone is back online with the app open. The app says "Saved and waiting to send" until the server confirms the report, and only then shows a reference number and private tracking secret.
 - The public feed shows only moderator-verified reports, at an approximate location. A photo appears publicly only after a moderator marks it clean and confirms that no faces, number plates or house numbers are visible. The server re-writes each published photo without its metadata.
-- Demo mode is explicitly enabled with `?demo=1`; it uses separate browser storage and disables server sync.
+- Demo mode is explicitly enabled with `?demo=1`; it uses separate browser storage and sends nothing. In demo mode the 112 and hotline buttons show the number and the advice to dial 112 from a phone, without opening the dialler, and staff sign-in points to the screen gallery.
+- Staff work in a separate page (`outputs/staff.html`). Responders see a report only after a moderator verifies or escalates it and it is routed to their own office, or when it is assigned to them.
+
+## Public demo and screen gallery
+
+- **Demo app:** `docs/` is a generated copy of the app that is always in demo mode, with a browser rule that blocks connections to any other server. Build it with `npm run build:demo` and check it with `node work/qa/demo-check.js`. GitHub Pages serves it from the `docs` folder of `main`.
+- **Screen gallery:** every resident and staff screen, phone and laptop, light and dark, in `design/screens` ([README](design/screens/README.md)), and on the demo site at `/screens/`. Rebuild with `npm run gallery`.
+
+To switch the demo site on (a repository setting only the owner can change):
+
+1. Open the repository on GitHub, then **Settings** (top bar, right).
+2. In the left menu, under **Code and automation**, click **Pages**.
+3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+4. Under **Branch**, choose **main**, then the folder **/docs**, then **Save**.
+5. After a minute or two the page shows "Your site is live at …". That is the demo link (`https://robertrese.github.io/fixnow-ghana/`), and the gallery is at `…/screens/`.
 
 ## Local checks
 
@@ -37,3 +51,8 @@ This runs the syntax checks, the front-end policy and phase tests, and the backe
 - Add a restricted Google Maps browser key and Map ID for the live map. Without them, Nearby shows the list of verified reports.
 - Connect an SMS (OTP) provider for optional citizen accounts.
 - Rebuild and sign the Android app after web changes (see `work/fixnow-android/README.md`).
+- **Make sure urgent reports are not slowed down by moderation.** Responders now see a report only after a moderator verifies or escalates it, so:
+  - nothing reaches an office until a moderator acts. Urgent reports are first in the review queue and Escalate releases them at once, but nights and weekends need a moderator rota, or an alert for urgent reports, which is not built yet;
+  - a report that no routing rule matches reaches no office after verification (moderators see a "No office can see this" warning and can assign it by hand). Add a catch-all routing rule for every district;
+  - offices are matched to staff accounts by the office name, so a mistyped office name means that account sees nothing. Link staff accounts to offices by ID;
+  - when a case is moved to another office, the first office loses access unless the case is assigned to someone there. Agree how hand-overs work.

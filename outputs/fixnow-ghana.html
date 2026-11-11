@@ -2622,6 +2622,12 @@ body.large-text .appearance-options{grid-template-columns:1fr}
 body.large-text .appearance-options label + label{border-left:0;border-top:1.5px solid var(--line-strong)}
 .track-status{margin:10px 0 0;font-weight:700;color:var(--brand-emergency)}
 .track-status:empty{display:none}
+.demo-banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:calc(6px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 6px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.95rem;line-height:1.4}
+.demo-banner span{margin:4px 12px 4px 0}
+.demo-banner button{min-height:44px;margin:4px 0;padding:6px 16px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700}
+.demo-call-number{margin:0 0 6px}
+.demo-call-number b{font-family:var(--font-display);font-size:2.6rem;line-height:1.1;color:var(--brand-emergency)}
+.honest-state a.primary{display:inline-flex;align-items:center;min-height:44px;margin-top:12px;padding:10px 16px;border-radius:14px;background:var(--deep);color:#fffdf8;font-weight:700;text-decoration:none}
 :root[data-theme="dark"]{color-scheme:dark;--ink:#eef2ee;--muted:#b3beb6;--line:#2e3a32;--line-strong:#7d8c82;--soft:#131914;--panel:#1f2720;--field:#1a231c;--raised:#28382d;--green-2:#97d1a6;--focus:#8fb4ff;--brand-emergency:#f4a7ae;--deep:#97d1a6;--deep-hover:#b5e0bf;--shadow:none;--tint-flood:#1d2a38;--tint-road:#352f1a;--tint-waste:#1c3326;--tint-water:#183232;--tint-power:#382d14;--tint-safety:#3a2427}
 [data-theme="dark"] body.high-contrast{--ink:#fff;--muted:#e3e9e4;--line:#8d9c92;--line-strong:#c3cec6;--soft:#131914;--panel:#1f2720;--focus:#8fb4ff;background:#131914}
 [data-theme="dark"] .panel{background:var(--soft);box-shadow:none}
@@ -2678,11 +2684,14 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] .row-icon{background:#1c3326;color:var(--green-2)}
 body.map-unavailable [data-focus-public]{display:none}
 #intake > .panel-head{display:none}
+[data-theme="dark"] .demo-banner{border-bottom:1px solid var(--line)}
+[data-theme="dark"] .demo-banner button{background:transparent;color:#fffdf8;border-color:rgba(255,253,248,.7)}
+[data-theme="dark"] .honest-state a.primary{background:#fcd116;color:#0d2a22}
 </style>
 </head>
 <body data-view="home">
   <a class="skip-link" href="#main">Skip to main content</a>
-  <div class="demo-banner" id="demoBanner" hidden>DEMO DATA - sample reports stay in this browser and cannot sync to production.<button id="demoResetBtn" type="button">Reset demo data</button></div>
+  <div class="demo-banner" id="demoBanner" role="note" hidden><span><b>Demo.</b> Sample data only. Nothing you enter leaves this page, and calls are switched off.</span><button id="demoResetBtn" type="button">Reset demo data</button></div>
   <div class="app">
     <aside class="rail">
       <div class="brand">
@@ -3758,7 +3767,8 @@ body.map-unavailable [data-focus-public]{display:none}
       });
       if (safeView === "report") setWizardStep(wizardStep);
       if (safeView === "nearby") checkForReportUpdates().catch(() => {});
-      if (safeView === "nearby" && window.FixNowMaps) {
+      if (safeView === "nearby" && IS_DEMO_MODE) showDemoNearby();
+      else if (safeView === "nearby" && window.FixNowMaps) {
         window.FixNowMaps.initializeNearby({ apiBase: validateSyncServer(DEFAULT_SYNC_SERVER) });
         loadNearbyReports();
       }
@@ -4130,6 +4140,12 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function openEmergencyConfirmation(contact, number, trigger) {
       if (!validEmergencyNumber(contact.serviceId, number)) return;
+      if (IS_DEMO_MODE) {
+        openModal(`${contact.serviceName}: ${number}`, `<p class="demo-call-number"><b>${escapeHtml(number)}</b></p><p><b>This is a demo. In a real emergency, dial 112 from your phone.</b></p><p>Calling is switched off here so nobody reaches emergency services by accident while exploring. In the real app this button asks you to confirm, then opens your phone's dialler.</p>`, [
+          { label: "Close", className: "secondary", action: closeModal }
+        ], trigger);
+        return;
+      }
       openModal(`Call ${contact.serviceName}?`, `<p>Call <b>${escapeHtml(contact.serviceName)}</b> at <b>${escapeHtml(number)}</b>?</p><p>You will be taken to your device dialler. FixNow cannot confirm whether a call connects or is answered.</p>`, [
         { label: "Cancel", className: "secondary", action: closeModal },
         { label: `Copy ${number}`, className: "secondary", action: () => copyText(number, "Emergency number copied") },
@@ -4138,7 +4154,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function startEmergencyDial(serviceId, number) {
-      if (emergencyDiallerOpening || !validEmergencyNumber(serviceId, number)) return;
+      if (IS_DEMO_MODE || emergencyDiallerOpening || !validEmergencyNumber(serviceId, number)) return;
       emergencyDiallerOpening = true;
       closeModal();
       window.location.href = `tel:${number}`;
@@ -4579,7 +4595,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     async function publicRequest(path, options = {}) {
-      if (IS_DEMO_MODE) throw new Error("Demo reports cannot be submitted");
+      if (IS_DEMO_MODE) throw new Error("This is a demo, so nothing is sent from this page.");
       const server = validateSyncServer(DEFAULT_SYNC_SERVER);
       const { citizenAuth = true, ...fetchOptions } = options;
       const headers = { "Content-Type": "application/json", ...(fetchOptions.headers || {}) };
@@ -4905,7 +4921,15 @@ body.map-unavailable [data-focus-public]{display:none}
       listButton.setAttribute("aria-pressed", String(safeMode === "list"));
     }
 
+    // The public feed and the map come from the FixNow server, which the demo never contacts.
+    function showDemoNearby() {
+      setNearbyMode("list");
+      document.querySelector("#nearbyResultSummary").innerHTML = "<span>Demo: the verified public feed needs the FixNow server.</span>";
+      document.querySelector("#nearbyReportList").innerHTML = `<div class="honest-state"><strong>Nearby is not available in the demo.</strong><p>It shows moderator-verified reports from the FixNow server, and the demo never contacts a server. The screen gallery shows what it looks like.</p><a class="primary" href="screens/">Open the screen gallery</a></div>`;
+    }
+
     async function loadNearbyReports() {
+      if (IS_DEMO_MODE) { showDemoNearby(); return; }
       if (nearbyLoading) return;
       nearbyLoading = true;
       const summary = document.querySelector("#nearbyResultSummary");
@@ -5787,6 +5811,26 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function showQueuedResult(report, route) {
+      if (IS_DEMO_MODE) {
+        openPage("Demo report saved", `
+          <div class="result-screen">
+            <span class="result-icon wait">${ICON_CLOCK}</span>
+            <p class="result-lead">This is a demo, so nothing was sent. Your report is kept only in this browser and is labelled Not sent yet in My reports.</p>
+            <div class="secret-card">
+              <b>In the real app</b>
+              <ol class="next-steps">
+                <li>The report goes to the FixNow server.</li>
+                <li>You get a reference number and a private tracking secret.</li>
+                <li>A moderator checks it before anything is public.</li>
+              </ol>
+            </div>
+          </div>
+        `, [
+          { label: "View in My reports", className: "primary", action: () => { closeModal(); setView("my"); } },
+          { label: "Done", className: "secondary", action: () => { closeModal(); setView("home"); } }
+        ]);
+        return;
+      }
       askToKeepStorage();
       openPage("Saved and waiting to send", `
         <div class="result-screen">
@@ -6372,7 +6416,16 @@ body.map-unavailable [data-focus-public]{display:none}
     document.querySelector("[data-open-citizen-account]").addEventListener("click", (event) => openCitizenAccount(event.currentTarget));
 
     // Staff work in a separate page (staff.html), so resident pages never load staff code or staff data.
-    document.querySelector("#responderAccessBtn").addEventListener("click", () => { window.location.href = `staff.html${window.location.search}`; });
+    document.querySelector("#responderAccessBtn").addEventListener("click", (event) => {
+      if (IS_DEMO_MODE) {
+        openModal("Staff sign-in is not in the demo", `<p>Staff sign in to a real FixNow server, which the demo does not use. The demo never sends anything.</p><p>The screen gallery shows every staff screen (review queue, case pages, routing, staff accounts and the audit log) with demo data.</p>`, [
+          { label: "Open the screen gallery", className: "primary", action: () => { window.location.href = "screens/"; } },
+          { label: "Close", className: "secondary", action: closeModal }
+        ], event.currentTarget);
+        return;
+      }
+      window.location.href = `staff.html${window.location.search}`;
+    });
     document.querySelector("#privacySettingsBtn").addEventListener("click", (event) => openModal("Privacy and consent", `
       <p>${hasConsent() ? "Privacy and terms consent is saved on this device." : "Privacy and terms consent has not been saved on this device."}</p>
       <p>Reports, accessibility choices, and any offline submission attempts remain on this device until you delete local data. Confirmed server reports are not deleted by clearing this device.</p>

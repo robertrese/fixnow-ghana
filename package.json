@@ -40,6 +40,7 @@
     "qa:all": "npm run qa && npm run qa:engines",
     "qa:pages": "node work/qa/pages-check.js",
     "gallery": "node work/qa/gallery.js",
+    "build:demo": "node work/demo/build-demo-site.js",
     "qa:staff": "node work/qa/staff-check.js && node work/qa/staff-check.js --dark"
   },
   "dependencies": {
