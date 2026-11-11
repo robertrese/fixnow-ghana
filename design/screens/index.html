@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FixNow Ghana screens</title>
+<style>
+  :root { --ink:#0d2a22; --muted:#4f5c55; --line:#ddd5c2; --page:#f3eee1; --card:#fffdf8; --accent:#0a7a52; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#eef2ee; --muted:#b3beb6; --line:#2e3a32; --page:#131914; --card:#1f2720; --accent:#97d1a6; } }
+  body { margin:0; background:var(--page); color:var(--ink); font-family:system-ui, -apple-system, "Segoe UI", sans-serif; line-height:1.5; }
+  main { max-width:1400px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { margin:0 0 4px; } h2 { margin:32px 0 8px; } p { color:var(--muted); margin:0 0 12px; }
+  .filters { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+  .filters button { min-height:44px; padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-weight:700; cursor:pointer; }
+  .filters button[aria-pressed="true"] { background:var(--ink); color:var(--page); }
+  .screen { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin:12px 0; }
+  .screen h3 { margin:0; } .screen p { margin:2px 0 10px; }
+  .row { display:flex; gap:12px; overflow-x:auto; align-items:flex-start; }
+  figure { margin:0; flex:0 0 auto; } figcaption { font-size:.85rem; color:var(--muted); }
+  figure img { display:block; border:1px solid var(--line); border-radius:10px; height:auto; }
+  figure.phone img { width:220px; } figure.laptop img { width:460px; }
+  .hide-phone figure.phone, .hide-laptop figure.laptop, .hide-light figure.light, .hide-dark figure.dark { display:none; }
+</style>
+</head>
+<body>
+<main>
+<h1>FixNow Ghana screens</h1>
+<p>Every resident and staff screen, on a phone (390 px) and a laptop (1280 px), in light and dark. All content is demo data from the local test server; no real reports, people or places are shown. Labels are the Figma page names, or "Staff: ..." for staff screens.</p>
+<div class="filters" role="group" aria-label="Show">
+  <button type="button" data-toggle="phone" aria-pressed="true">Phone</button>
+  <button type="button" data-toggle="laptop" aria-pressed="true">Laptop</button>
+  <button type="button" data-toggle="light" aria-pressed="true">Light</button>
+  <button type="button" data-toggle="dark" aria-pressed="true">Dark</button>
+</div>
+<h2>Resident</h2>
+<section class="screen" aria-label="Welcome and consent"><h3>Welcome and consent</h3><p>No Figma page; first screen after install.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-01-welcome.webp" alt="Welcome and consent, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-01-welcome.webp" alt="Welcome and consent, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-01-welcome.webp" alt="Welcome and consent, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-01-welcome.webp" alt="Welcome and consent, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-home"><h3>v2-home</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-02-home.webp" alt="v2-home, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-02-home.webp" alt="v2-home, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-02-home.webp" alt="v2-home, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-02-home.webp" alt="v2-home, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-1"><h3>v2-report-step-1</h3><p>What happened?</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-04-step-1.webp" alt="v2-report-step-1, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-04-step-1.webp" alt="v2-report-step-1, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-04-step-1.webp" alt="v2-report-step-1, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-04-step-1.webp" alt="v2-report-step-1, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-2"><h3>v2-report-step-2</h3><p>Where is it?</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-05-step-2.webp" alt="v2-report-step-2, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-05-step-2.webp" alt="v2-report-step-2, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-05-step-2.webp" alt="v2-report-step-2, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-05-step-2.webp" alt="v2-report-step-2, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-3"><h3>v2-report-step-3</h3><p>Describe the problem.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-06-step-3.webp" alt="v2-report-step-3, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-06-step-3.webp" alt="v2-report-step-3, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-06-step-3.webp" alt="v2-report-step-3, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-06-step-3.webp" alt="v2-report-step-3, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-4"><h3>v2-report-step-4</h3><p>Add photos (optional).</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-07-step-4.webp" alt="v2-report-step-4, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-07-step-4.webp" alt="v2-report-step-4, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-07-step-4.webp" alt="v2-report-step-4, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-07-step-4.webp" alt="v2-report-step-4, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-5"><h3>v2-report-step-5</h3><p>Contact (optional).</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-08-step-5.webp" alt="v2-report-step-5, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-08-step-5.webp" alt="v2-report-step-5, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-08-step-5.webp" alt="v2-report-step-5, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-08-step-5.webp" alt="v2-report-step-5, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Similar report found nearby"><h3>Similar report found nearby</h3><p>Figma canvas frame. Nothing is merged automatically.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-09-similar.webp" alt="Similar report found nearby, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-09-similar.webp" alt="Similar report found nearby, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-09-similar.webp" alt="Similar report found nearby, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-09-similar.webp" alt="Similar report found nearby, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-step-6"><h3>v2-report-step-6</h3><p>Review and send.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-10-step-6.webp" alt="v2-report-step-6, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-10-step-6.webp" alt="v2-report-step-6, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-10-step-6.webp" alt="v2-report-step-6, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-10-step-6.webp" alt="v2-report-step-6, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-success"><h3>v2-report-success</h3><p>Report submitted: reference and private tracking secret.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-11-success.webp" alt="v2-report-success, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-11-success.webp" alt="v2-report-success, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-11-success.webp" alt="v2-report-success, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-11-success.webp" alt="v2-report-success, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-my-reports"><h3>v2-my-reports</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-12-my-reports.webp" alt="v2-my-reports, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-12-my-reports.webp" alt="v2-my-reports, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-12-my-reports.webp" alt="v2-my-reports, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-12-my-reports.webp" alt="v2-my-reports, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-report-timeline"><h3>v2-report-timeline</h3><p>Report progress.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-13-timeline.webp" alt="v2-report-timeline, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-13-timeline.webp" alt="v2-report-timeline, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-13-timeline.webp" alt="v2-report-timeline, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-13-timeline.webp" alt="v2-report-timeline, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-nearby"><h3>v2-nearby</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-14-nearby.webp" alt="v2-nearby, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-14-nearby.webp" alt="v2-nearby, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-14-nearby.webp" alt="v2-nearby, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-14-nearby.webp" alt="v2-nearby, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Report detail"><h3>Report detail</h3><p>Figma canvas frame; approximate area only.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-15-detail.webp" alt="Report detail, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-15-detail.webp" alt="Report detail, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-15-detail.webp" alt="Report detail, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-15-detail.webp" alt="Report detail, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-profile-1 and v2-profile-2"><h3>v2-profile-1 and v2-profile-2</h3><p>Account, accessibility, appearance, staff access, privacy.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-16-profile.webp" alt="v2-profile-1 and v2-profile-2, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-16-profile.webp" alt="v2-profile-1 and v2-profile-2, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-16-profile.webp" alt="v2-profile-1 and v2-profile-2, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-16-profile.webp" alt="v2-profile-1 and v2-profile-2, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-find-report"><h3>v2-find-report</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-17-find-report.webp" alt="v2-find-report, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-17-find-report.webp" alt="v2-find-report, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-17-find-report.webp" alt="v2-find-report, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-17-find-report.webp" alt="v2-find-report, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<h2>Dialogs</h2>
+<section class="screen" aria-label="Call confirmation (112)"><h3>Call confirmation (112)</h3><p>Every call goes through this confirmation.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-19-call-112.webp" alt="Call confirmation (112), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-19-call-112.webp" alt="Call confirmation (112), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-19-call-112.webp" alt="Call confirmation (112), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-19-call-112.webp" alt="Call confirmation (112), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Hotline choice (Fire: 192 or 112)"><h3>Hotline choice (Fire: 192 or 112)</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-20-hotline-choice.webp" alt="Hotline choice (Fire: 192 or 112), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-20-hotline-choice.webp" alt="Hotline choice (Fire: 192 or 112), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-20-hotline-choice.webp" alt="Hotline choice (Fire: 192 or 112), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-20-hotline-choice.webp" alt="Hotline choice (Fire: 192 or 112), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<h2>States</h2>
+<section class="screen" aria-label="v2-my-reports: empty"><h3>v2-my-reports: empty</h3><p>Nothing sent from this phone yet.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-03-my-reports-empty.webp" alt="v2-my-reports: empty, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-03-my-reports-empty.webp" alt="v2-my-reports: empty, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-03-my-reports-empty.webp" alt="v2-my-reports: empty, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-03-my-reports-empty.webp" alt="v2-my-reports: empty, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-find-report: error"><h3>v2-find-report: error</h3><p>Wrong reference or secret.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-18-find-report-error.webp" alt="v2-find-report: error, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-18-find-report-error.webp" alt="v2-find-report: error, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-18-find-report-error.webp" alt="v2-find-report: error, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-18-find-report-error.webp" alt="v2-find-report: error, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Saved and waiting to send"><h3>Saved and waiting to send</h3><p>No reference or secret until the server confirms.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-21-saved-waiting.webp" alt="Saved and waiting to send, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-21-saved-waiting.webp" alt="Saved and waiting to send, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-21-saved-waiting.webp" alt="Saved and waiting to send, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-21-saved-waiting.webp" alt="Saved and waiting to send, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-my-reports: Not sent yet"><h3>v2-my-reports: Not sent yet</h3><p>An unsent report on this phone.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-22-not-sent-yet.webp" alt="v2-my-reports: Not sent yet, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-22-not-sent-yet.webp" alt="v2-my-reports: Not sent yet, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-22-not-sent-yet.webp" alt="v2-my-reports: Not sent yet, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-22-not-sent-yet.webp" alt="v2-my-reports: Not sent yet, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-home: offline"><h3>v2-home: offline</h3><p>Reports wait on the phone and send when the connection returns.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-23-offline.webp" alt="v2-home: offline, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-23-offline.webp" alt="v2-home: offline, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-23-offline.webp" alt="v2-home: offline, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-23-offline.webp" alt="v2-home: offline, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="v2-nearby: could not load"><h3>v2-nearby: could not load</h3><p>The server could not be reached.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-24-nearby-error.webp" alt="v2-nearby: could not load, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-24-nearby-error.webp" alt="v2-nearby: could not load, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-24-nearby-error.webp" alt="v2-nearby: could not load, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-24-nearby-error.webp" alt="v2-nearby: could not load, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<h2>Staff</h2>
+<section class="screen" aria-label="Staff: Sign in"><h3>Staff: Sign in</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-30-staff-sign-in.webp" alt="Staff: Sign in, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-30-staff-sign-in.webp" alt="Staff: Sign in, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-30-staff-sign-in.webp" alt="Staff: Sign in, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-30-staff-sign-in.webp" alt="Staff: Sign in, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Review queue"><h3>Staff: Review queue</h3><p>Immediate danger and Critical first, then longest waiting.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-31-staff-review.webp" alt="Staff: Review queue, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-31-staff-review.webp" alt="Staff: Review queue, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-31-staff-review.webp" alt="Staff: Review queue, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-31-staff-review.webp" alt="Staff: Review queue, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Review page"><h3>Staff: Review page</h3><p>Private details, public preview and the office it will be routed to.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-32-staff-review-page.webp" alt="Staff: Review page, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-32-staff-review-page.webp" alt="Staff: Review page, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-32-staff-review-page.webp" alt="Staff: Review page, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-32-staff-review-page.webp" alt="Staff: Review page, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Verify and publish"><h3>Staff: Verify and publish</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-33-staff-verify.webp" alt="Staff: Verify and publish, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-33-staff-verify.webp" alt="Staff: Verify and publish, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-33-staff-verify.webp" alt="Staff: Verify and publish, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-33-staff-verify.webp" alt="Staff: Verify and publish, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Reject with a reason"><h3>Staff: Reject with a reason</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-34-staff-reject.webp" alt="Staff: Reject with a reason, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-34-staff-reject.webp" alt="Staff: Reject with a reason, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-34-staff-reject.webp" alt="Staff: Reject with a reason, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-34-staff-reject.webp" alt="Staff: Reject with a reason, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: All cases (moderator)"><h3>Staff: All cases (moderator)</h3><p>Shows which verified cases no office can see yet.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-35-staff-all-cases.webp" alt="Staff: All cases (moderator), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-35-staff-all-cases.webp" alt="Staff: All cases (moderator), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-35-staff-all-cases.webp" alt="Staff: All cases (moderator), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-35-staff-all-cases.webp" alt="Staff: All cases (moderator), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Desk cases (NADMO)"><h3>Staff: Desk cases (NADMO)</h3><p>Only cases verified or escalated and routed to this office.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-36-staff-desk-cases.webp" alt="Staff: Desk cases (NADMO), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-36-staff-desk-cases.webp" alt="Staff: Desk cases (NADMO), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-36-staff-desk-cases.webp" alt="Staff: Desk cases (NADMO), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-36-staff-desk-cases.webp" alt="Staff: Desk cases (NADMO), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Case page"><h3>Staff: Case page</h3><p>Exact location here only; contact only for the assigned responder and moderators.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-37-staff-case-page.webp" alt="Staff: Case page, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-37-staff-case-page.webp" alt="Staff: Case page, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-37-staff-case-page.webp" alt="Staff: Case page, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-37-staff-case-page.webp" alt="Staff: Case page, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Post an update"><h3>Staff: Post an update</h3><p>Public update and internal note kept apart.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-38-staff-update.webp" alt="Staff: Post an update, phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-38-staff-update.webp" alt="Staff: Post an update, phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-38-staff-update.webp" alt="Staff: Post an update, laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-38-staff-update.webp" alt="Staff: Post an update, laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Routing (admin)"><h3>Staff: Routing (admin)</h3><p>Demo offices and demo routing rules.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-39-staff-routing.webp" alt="Staff: Routing (admin), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-39-staff-routing.webp" alt="Staff: Routing (admin), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-39-staff-routing.webp" alt="Staff: Routing (admin), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-39-staff-routing.webp" alt="Staff: Routing (admin), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Staff accounts (admin)"><h3>Staff: Staff accounts (admin)</h3><p></p><div class="row">
+<figure class="phone light"><img src="img/light-phone-40-staff-accounts.webp" alt="Staff: Staff accounts (admin), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-40-staff-accounts.webp" alt="Staff: Staff accounts (admin), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-40-staff-accounts.webp" alt="Staff: Staff accounts (admin), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-40-staff-accounts.webp" alt="Staff: Staff accounts (admin), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+<section class="screen" aria-label="Staff: Audit log (admin)"><h3>Staff: Audit log (admin)</h3><p>Network addresses stored as a keyed hash, except staff sign-ins.</p><div class="row">
+<figure class="phone light"><img src="img/light-phone-41-staff-audit.webp" alt="Staff: Audit log (admin), phone, light (demo data)" loading="lazy" /><figcaption>Phone, light</figcaption></figure>
+<figure class="phone dark"><img src="img/dark-phone-41-staff-audit.webp" alt="Staff: Audit log (admin), phone, dark (demo data)" loading="lazy" /><figcaption>Phone, dark</figcaption></figure>
+<figure class="laptop light"><img src="img/light-laptop-41-staff-audit.webp" alt="Staff: Audit log (admin), laptop, light (demo data)" loading="lazy" /><figcaption>Laptop, light</figcaption></figure>
+<figure class="laptop dark"><img src="img/dark-laptop-41-staff-audit.webp" alt="Staff: Audit log (admin), laptop, dark (demo data)" loading="lazy" /><figcaption>Laptop, dark</figcaption></figure>
+</div></section>
+</main>
+<script>
+  document.querySelectorAll("[data-toggle]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var on = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", String(on));
+      document.body.classList.toggle("hide-" + button.dataset.toggle, !on);
+    });
+  });
+</script>
+</body>
+</html>

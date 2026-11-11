@@ -2620,6 +2620,8 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus, legen
 .appearance-options label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:-3px}
 body.large-text .appearance-options{grid-template-columns:1fr}
 body.large-text .appearance-options label + label{border-left:0;border-top:1.5px solid var(--line-strong)}
+.track-status{margin:10px 0 0;font-weight:700;color:var(--brand-emergency)}
+.track-status:empty{display:none}
 :root[data-theme="dark"]{color-scheme:dark;--ink:#eef2ee;--muted:#b3beb6;--line:#2e3a32;--line-strong:#7d8c82;--soft:#131914;--panel:#1f2720;--field:#1a231c;--raised:#28382d;--green-2:#97d1a6;--focus:#8fb4ff;--brand-emergency:#f4a7ae;--deep:#97d1a6;--deep-hover:#b5e0bf;--shadow:none;--tint-flood:#1d2a38;--tint-road:#352f1a;--tint-waste:#1c3326;--tint-water:#183232;--tint-power:#382d14;--tint-safety:#3a2427}
 [data-theme="dark"] body.high-contrast{--ink:#fff;--muted:#e3e9e4;--line:#8d9c92;--line-strong:#c3cec6;--soft:#131914;--panel:#1f2720;--focus:#8fb4ff;background:#131914}
 [data-theme="dark"] .panel{background:var(--soft);box-shadow:none}
@@ -2965,6 +2967,7 @@ body.map-unavailable [data-focus-public]{display:none}
           <label class="track-field">Private tracking secret<input id="trackSecretInput" placeholder="The long secret you saved" autocomplete="off" /></label>
           <button class="primary" id="trackCaseBtn" type="button">Find report</button>
         </div>
+        <p class="track-status" id="trackStatus" role="status"></p>
         <p class="track-privacy"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>FixNow staff cannot recover a lost tracking secret. Keep it private, like a password.</span></p>
       </section>
 
@@ -4925,7 +4928,7 @@ body.map-unavailable [data-focus-public]{display:none}
       } catch (error) {
         nearbyReports = [];
         summary.innerHTML = "<span>Verified reports could not be loaded.</span>";
-        document.querySelector("#nearbyReportList").innerHTML = `<div class="honest-state"><strong>Public feed unavailable.</strong><p>${escapeHtml(error.message || "Check your connection and try again.")}</p><button class="primary" type="button" data-nearby-retry>Try again</button></div>`;
+        document.querySelector("#nearbyReportList").innerHTML = `<div class="honest-state"><strong>Public feed unavailable.</strong><p>${escapeHtml(friendlyRequestError(error, "") || "Check your connection and try again.")}</p><button class="primary" type="button" data-nearby-retry>Try again</button></div>`;
         document.querySelector("[data-nearby-retry]").addEventListener("click", loadNearbyReports);
       } finally {
         nearbyLoading = false;
@@ -6457,15 +6460,26 @@ body.map-unavailable [data-focus-public]{display:none}
       });
     });
 
+    // Network failures arrive as a TypeError with a browser message ("Failed to fetch"); say it in plain words.
+    function friendlyRequestError(error, fallback) {
+      if (!navigator.onLine) return "You are offline. Check your connection and try again.";
+      if (error instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(String(error && error.message))) return "FixNow could not be reached. Check your connection and try again.";
+      return (error && error.message) || fallback;
+    }
+
     async function findTrackedCase() {
       const query = document.querySelector("#trackCaseInput").value.trim().toUpperCase();
       const secret = document.querySelector("#trackSecretInput").value.trim();
+      const trackStatus = document.querySelector("#trackStatus");
+      trackStatus.textContent = "";
       if (!query) {
+        trackStatus.textContent = "Enter the reference number.";
         showToast("Enter a case number");
         document.querySelector("#trackCaseInput").focus();
         return;
       }
       if (!secret) {
+        trackStatus.textContent = "Enter the private tracking secret.";
         showToast("Enter the private tracking secret");
         document.querySelector("#trackSecretInput").focus();
         return;
@@ -6502,6 +6516,8 @@ body.map-unavailable [data-focus-public]{display:none}
         showToast(`${query} updated from the service`);
         return;
       } catch (error) {
+        // The server answers the same way for a wrong reference and a wrong secret, so the message cannot say which.
+        trackStatus.textContent = error.status === 404 ? "No report matches that reference and secret. Check both and try again." : friendlyRequestError(error, "The report could not be found.");
         showToast(error.message || "Could not retrieve report");
       }
     }

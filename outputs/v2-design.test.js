@@ -90,6 +90,10 @@ assert(/body\[data-view="report"\] \.nav\{display:none\}/.test(v2Css) && /body\[
 assert(backend.includes("function stripJpegMetadata") && backend.includes('"Cross-Origin-Resource-Policy": "cross-origin"'), "approved public photos are re-written without metadata and served for the app");
 assert(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("Show photo publicly") && fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
 
+// Errors are shown on the page in plain words, not only in a passing toast or as a browser message.
+assert(html.includes('<p class="track-status" id="trackStatus" role="status"></p>') && html.includes("No report matches that reference and secret. Check both and try again."), "Find your report shows a lasting error message");
+assert(html.includes("function friendlyRequestError") && html.includes("escapeHtml(friendlyRequestError(error,"), "Nearby explains a connection failure in plain words");
+
 // Screen polish found in the November QA pass.
 assert(!html.includes("Citizen reports stay on this device"), "sent reports go to the server, so the sidebar must not say reports stay on the device");
 assert(v2Css.includes(".wizard-progress::before{content:none}"), "the old progress track must stay switched off so the wizard shows one progress bar");

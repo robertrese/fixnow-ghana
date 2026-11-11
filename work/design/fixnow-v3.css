@@ -674,6 +674,9 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 
 /* ---------- Dark mode (html[data-theme="dark"], set before first paint) ----------
    Mint #97d1a6 is the accent only here: it fails on cream. Gold stays the main action, flag red stays 112. */
+.track-status{margin:10px 0 0;font-weight:700;color:var(--brand-emergency)}
+.track-status:empty{display:none}
+
 :root[data-theme="dark"]{
   color-scheme:dark;
   --ink:#eef2ee; --muted:#b3beb6; --line:#2e3a32; --line-strong:#7d8c82; --soft:#131914; --panel:#1f2720;

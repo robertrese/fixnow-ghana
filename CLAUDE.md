@@ -29,6 +29,7 @@ npm run start:api        # local API on http://localhost:4180 with demo accounts
 npm run start:web        # serves outputs/ on http://localhost:4173
 npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo photos), 3 waiting for review and a demo routing rule, through the real API
 npm run qa               # layout check + WCAG scan + walkthrough screenshots, in light and then dark (needs Playwright, see work/qa/README.md)
+npm run gallery          # rebuilds design/screens (every resident and staff screen, phone and laptop, light and dark) on fresh seeded data
 npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
 ```
 

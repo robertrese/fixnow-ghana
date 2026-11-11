@@ -38,6 +38,10 @@ To start again with clean data, stop the API, delete `work/fixnow-backend/local-
 
 The demo reports are invented, and the two photos in `demo-photos/` are drawings. If a screenshot goes anywhere public (an application, a slide), call it demo data.
 
+## Screen gallery
+
+`npm run gallery` (`gallery.js`) rebuilds `design/screens`: compressed WebP images of every resident screen, dialog and state and every staff screen, on a phone and a laptop, in light and dark, plus `index.html` and `README.md`. Run it on fresh seeded data (move `work/fixnow-backend/local-data` aside, start the API, `npm run qa:seed`), because the walk submits reports. Staff screens are taken first so those reports do not clutter the moderator queue. Rebuild it only when screens change.
+
 ## Android emulators (regular checks)
 
 Run these after changes to the Android app, the page layout, dark mode or anything an old browser might not support. Android 11 is the worst case: its WebView is version 83, below the support target, and cannot update (no Play Store). Everything must work there; small visual differences are fine.
