@@ -12,6 +12,10 @@ const folderArg = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
 const out = path.resolve(folderArg || path.join(root, "work", "qa", "screenshots", ...(RUN_FOLDER ? [RUN_FOLDER] : [])));
 fs.mkdirSync(out, { recursive: true });
 
+
+// A hung browser must fail the run, not block it forever.
+setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1); }, 10 * 60 * 1000).unref();
+
 (async () => {
   const browser = await launchBrowser();
   const errors = [];

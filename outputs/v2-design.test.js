@@ -164,4 +164,7 @@ const reportTab = html.match(/<button class="nav-report"[^>]*>[\s\S]*?<\/button>
 assert(!/<svg|\+/.test(reportTab) && reportTab.includes("<span>Report</span>"), "the Report tab shows only the word Report, with no plus icon");
 assert(/\.nav \.nav-report\{[^}]*margin:0 auto;[^}]*box-shadow:none/.test(v2Css), "the Report tab sits inside the bar, not raised above it");
 
+// Old WebViews ignore flex gap, so the phone top bar spaces the logo and exit button with margins.
+assert(v2Css.includes(".topbar, body[data-view=\"home\"] .topbar{column-gap:0}") && v2Css.includes(".topbar-logo, body[data-view=\"report\"] .topbar-exit{margin-right:12px}"), "the top bar must not rely on flex gap for the logo spacing");
+
 console.log("V2 design and safety guard test passed");

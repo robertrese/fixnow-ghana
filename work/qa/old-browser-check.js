@@ -5,6 +5,10 @@
 // Needs the local API and web server running (see work/qa/README.md). Pass --engine=webkit to use Safari's engine.
 const { passWelcome, fillReportToReview, launchBrowser, contextOptions, THEME_LABEL } = require("./common");
 
+
+// A hung browser must fail the run, not block it forever.
+setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1); }, 10 * 60 * 1000).unref();
+
 (async () => {
   const browser = await launchBrowser();
   const page = await (await browser.newContext(contextOptions(390, 844, { mobile: true }))).newPage();

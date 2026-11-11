@@ -4,6 +4,10 @@
 // no visible text field uses text under 16 px (iPhone zooms in on those). Exits with 1 and names the screen.
 const { passWelcome, launchBrowser, contextOptions, THEME_LABEL } = require("./common");
 
+
+// A hung browser must fail the run, not block it forever.
+setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1); }, 10 * 60 * 1000).unref();
+
 (async () => {
   const browser = await launchBrowser();
   const problems = [];

@@ -37,6 +37,25 @@ To start again with clean data, stop the API, delete `work/fixnow-backend/local-
 
 The demo reports are invented, and the two photos in `demo-photos/` are drawings. If a screenshot goes anywhere public (an application, a slide), call it demo data.
 
+## Android emulators (regular checks)
+
+Run these after changes to the Android app, the page layout, dark mode or anything an old browser might not support. Android 11 is the worst case: its WebView is version 83, below the support target, and cannot update (no Play Store). Everything must work there; small visual differences are fine.
+
+```powershell
+# Start one emulator (cold boot if it will not start); FixNow_Test_API_30 is Android 11, Medium_Phone_API_36.0 is Android 16
+& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd FixNow_Test_API_30 -no-snapshot-load
+$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
+& $adb install -r work\fixnow-android\app\build\outputs\apk\debug\app-debug.apk
+& $adb reverse tcp:4180 tcp:4180
+node work/qa/android-insets-check.js android11 work/qa/screenshots/android11 gestural,threebutton
+node work/qa/android-insets-check.js android11-dark work/qa/screenshots/android11 gestural dark
+node work/qa/android-theme-check.js work/qa/screenshots/android11
+```
+
+- `android-insets-check.js`: nothing under the status or navigation bar, no extra gap, no double padding, and the keyboard never covers the step 3 description, the step 5 contact field or staff sign-in, in gesture and 3-button navigation.
+- `android-theme-check.js`: dark mode follows the phone, also when it changes while the app is open; the in-app Light and Dark choices override it; the area below the tab bar matches the page.
+- The Android 11 emulator needs about 7.5 GB of free disk space to start.
+
 ## What still needs a real iPhone
 
 Playwright's WebKit is Safari's engine, not an iPhone. These need a real iPhone with the app online over HTTPS: notch and home-indicator spacing, the keyboard with the sticky bars, Add to Home Screen, offline use from the Home Screen, the camera, location permission and handing a call over to the phone.

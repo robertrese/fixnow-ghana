@@ -13,6 +13,10 @@ try {
   process.exit(2);
 }
 
+
+// A hung browser must fail the run, not block it forever.
+setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1); }, 10 * 60 * 1000).unref();
+
 (async () => {
   const browser = await launchBrowser();
   const findings = new Map();
