@@ -602,17 +602,6 @@
       filter: drop-shadow(0 18px 35px rgba(20,42,34,.16));
     }
 
-    .map-line {
-      position: absolute;
-      background: rgba(255,255,255,.82);
-      border: 1px solid rgba(19,32,27,.07);
-      transform-origin: center;
-    }
-
-    .map-line.one { width: 110%; height: 22px; left: -20px; top: 45%; transform: rotate(-10deg); }
-    .map-line.two { width: 22px; height: 110%; left: 57%; top: -22px; transform: rotate(10deg); }
-    .map-line.three { width: 70%; height: 18px; left: 18%; top: 69%; transform: rotate(16deg); }
-
     .pin {
       position: absolute;
       z-index: 2;
@@ -635,19 +624,6 @@
       background: rgba(255,255,255,.86);
     }
 
-    .map-footer {
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-      z-index: 3;
-    }
-
     .legend {
       display: flex;
       flex-wrap: wrap;
@@ -660,13 +636,6 @@
       gap: 6px;
     }
 
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--green);
-    }
-
     .filters {
       display: flex;
       align-items: center;
@@ -674,27 +643,6 @@
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
-
-    .seg {
-      display: inline-flex;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .seg button {
-      border: 0;
-      border-right: 1px solid var(--line);
-      background: #fff;
-      color: var(--muted);
-      padding: 9px 11px;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .seg button:last-child { border-right: 0; }
-    .seg button.active { background: var(--nav); color: #fff; }
 
     .queue {
       display: grid;
@@ -885,12 +833,6 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
-    }
-
-    .helper-panel {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
     }
 
     .sync-panel {
@@ -1645,26 +1587,6 @@
       font-size: 13px !important;
     }
 
-    .urgent-actions {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .urgent-actions button {
-      display: grid;
-      place-items: center;
-      min-height: 52px;
-      border: 1px solid rgba(255, 255, 255, .35);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, .1);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 900;
-      text-decoration: none;
-      text-align: center;
-    }
-
     .emergency-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
@@ -1750,7 +1672,6 @@
     }
 
     .split-actions { justify-content: space-between; }
-    .single-field-row { grid-template-columns: minmax(0, 260px); }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1840,7 +1761,6 @@
       .quick-type-grid, .guided-steps, .examples-grid { grid-template-columns: 1fr; }
       .topbar .lead { font-size: 14px; }
       .status-strip .pill:nth-child(2) { display: none; }
-      .urgent-actions { grid-template-columns: 1fr; }
       .wizard-progress span { display: grid; justify-items: center; text-align: center; }
       .wizard-actions { flex-direction: column-reverse; }
       .wizard-actions .primary, .wizard-actions .secondary { width: 100%; }
@@ -1988,7 +1908,6 @@
       background: #edf2ee;
     }
     .public-issue-detail .public-report-media b { font-size: 34px; }
-    .public-issue-detail .issue-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
     .public-issue-detail > p { margin: 0; color: var(--muted); line-height: 1.55; }
 
     .my-report-tools {
@@ -2008,7 +1927,6 @@
     .my-report-progress {
       gap: 5px;
     }
-    .my-report-card .primary-view { border-color: var(--green); color: var(--green); }
 
     .profile-panel .citizen-band-head > div { max-width: 720px; }
 
