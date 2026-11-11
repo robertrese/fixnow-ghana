@@ -86,3 +86,12 @@ Privacy rules now enforced by the server, with tests in `work/fixnow-backend/tes
 Not done yet: the responder map view from the old portal is not in the new staff area (cases are a list only), and
 case pages need a connection because private details are never stored on the phone. Status updates posted offline
 are kept on the phone, labelled "Not sent yet", and sent when the connection returns.
+
+## Office routing rule (12 November 2026)
+
+- Responders see a report only after a moderator has verified or escalated it, and only if the routing rules send it
+  to their own office (or it is assigned to them). Reports waiting for review stay with moderators and admins.
+- Verifying or escalating records the routing straight away, so the office sees the case in the same moment.
+- A released report that no rule matches is seen only by moderators and admins, marked "No office can see this".
+- Demo routing (local demo data only): flooding to NADMO, water and electricity to the utility desk, waste and roads to
+  the assembly, anything else in Accra Metropolitan to the assembly.

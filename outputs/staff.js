@@ -278,6 +278,7 @@
     if (kind === "cases") tags.push('<span class="tag tag-quiet">' + esc(report.status || "Open") + "</span>");
     if (kind === "cases" && !report.publicVerified) tags.push('<span class="tag tag-warn">Not verified yet</span>');
     if (kind === "cases" && operations.overdue) tags.push('<span class="tag tag-warn">Overdue</span>');
+    if (kind === "cases" && canModerate() && (report.publicVerified || report.status === "Escalated") && !report.routedOffice) tags.push('<span class="tag tag-urgent">No office can see this</span>');
     if (pending) tags.push('<span class="tag tag-warn">Not sent yet</span>');
     const meta = kind === "review"
       ? "<span>" + esc(report.type || "") + "</span><span>" + esc(waited(report.createdAt)) + "</span>"
@@ -304,11 +305,11 @@
     const term = search.toLowerCase();
     const shown = lastCases.filter((report) => !term || [report.id, report.title, report.type, report.community, report.district, report.details].some((value) => String(value || "").toLowerCase().indexOf(term) >= 0));
     const user = session.user || {};
-    const queues = [["institutional", "In my area"], ["assigned", "Assigned to me"], ["overdue", "Overdue"], ["escalated", "Escalated"]];
+    const queues = [["institutional", canModerate() ? "All cases" : "My office"], ["assigned", "Assigned to me"], ["overdue", "Overdue"], ["escalated", "Escalated"]];
     const categories = ["Flooding or drainage", "Road or bridge", "Waste or sanitation", "Water supply", "Electricity", "Public safety", "Clinic access", "School access", "Market facilities", "Public toilet", "Streetlight", "Other"];
     const statuses = ["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Rejected"];
-    view.innerHTML = offlineNote() + '<div class="s-head"><h1 tabindex="-1">Cases</h1><p>' + esc(user.agency || "Your office") + ", " + esc(user.district || user.region || "all areas") + ". Exact locations and contact details are on each case page, not in this list.</p></div>" +
-      (summary ? '<div class="s-stats"><div class="s-stat"><b>' + summary.area + '</b><span>in my area</span></div><div class="s-stat"><b>' + summary.assigned + '</b><span>assigned to me</span></div><div class="s-stat' + (summary.overdue ? " is-urgent" : "") + '"><b>' + summary.overdue + '</b><span>overdue</span></div><div class="s-stat"><b>' + summary.escalated + "</b><span>escalated</span></div></div>" : "") +
+    view.innerHTML = offlineNote() + '<div class="s-head"><h1 tabindex="-1">Cases</h1><p>' + (canModerate() ? "Every case in every area." : "Cases a moderator has verified or escalated and routed to " + esc(user.agency || "your office") + ", or assigned to you, in " + esc(user.district || user.region || "your area") + ".") + " Exact locations and contact details are on each case page, not in this list.</p></div>" +
+      (summary ? '<div class="s-stats"><div class="s-stat"><b>' + summary.area + '</b><span>' + (canModerate() ? "all cases" : "for my office") + '</span></div><div class="s-stat"><b>' + summary.assigned + '</b><span>assigned to me</span></div><div class="s-stat' + (summary.overdue ? " is-urgent" : "") + '"><b>' + summary.overdue + '</b><span>overdue</span></div><div class="s-stat"><b>' + summary.escalated + "</b><span>escalated</span></div></div>" : "") +
       '<div class="s-seg" role="group" aria-label="Which cases">' + queues.map((q) => '<button type="button" data-queue="' + q[0] + '" aria-pressed="' + (q[0] === casesQueue) + '">' + q[1] + "</button>").join("") + "</div>" +
       '<div class="s-filters"><label>Search<input id="caseSearch" type="search" value="' + esc(search) + '" placeholder="Reference, place or words" /></label>' +
       '<label>Problem type<select id="caseCategory"><option value="">All types</option>' + categories.map((c) => "<option" + (c === category ? " selected" : "") + ">" + c + "</option>").join("") + "</select></label>" +
@@ -425,13 +426,13 @@
     if (review) {
       const route = report.routePreview || {};
       html += '<section class="s-section" aria-labelledby="previewTitle"><h2 id="previewTitle">What residents will see</h2><div class="s-preview"><p class="label">Public preview</p><div class="tags"><span class="tag">' + esc(report.type || "Report") + '</span><span class="tag tag-ok">Moderator verified</span></div><h3 class="s-preview-title">' + esc(titleOf(report)) + '</h3><p class="hint">' + esc(placeOf(report)) + '</p><p class="s-gap">' + esc(report.details || "") + '</p></div><p class="hint s-gap">Residents see the approximate area only. Contact details, the exact location and photos that have not been checked are never public.</p></section>' +
-        '<section class="s-section"><h2>Where it goes after verification</h2><div class="s-card">' + (route.matched ? "<p><b>" + esc(route.office || "An office without a name") + "</b></p><p class=\"hint\">Routing rule: " + esc(route.rule) + ". " + esc(route.note) + "</p>" : "<p>" + esc(route.note || "No routing rule matches this report yet.") + "</p>") + "</div></section>" +
+        '<section class="s-section"><h2>Where it goes after verification</h2><div class="s-card">' + (route.matched ? "<p><b>" + esc(route.office || "An office without a name") + "</b></p><p class=\"hint\">Routing rule: " + esc(route.rule) + ". When you verify or escalate, the report goes straight to this office's case list. Until then no office can see it. Nothing is sent outside FixNow.</p>" : '<p class="s-warn"><b>No office will see this report.</b> No routing rule matches it, so after you verify or escalate it only moderators and admins can see it. If it is urgent, escalate it, then assign it to someone from the Cases tab, and ask an administrator to add a rule.</p>') + "</div></section>" +
         '<div class="s-actions stack"><button class="btn btn-primary" type="button" data-act="verify">Verify and publish</button><button class="btn" type="button" data-act="escalate-review">Escalate</button><button class="btn" type="button" data-act="hide">Hide</button><button class="btn btn-danger" type="button" data-act="reject">Reject</button></div>';
     } else {
       const assignedToMe = assignee && Number(assignee.id) === myId();
       const canUpdate = assignedToMe || canModerate();
       html += '<section class="s-section"><h2>Response</h2><dl class="s-dl"><div><dt>Status</dt><dd>' + esc(report.status || "Open") + "</dd></div><div><dt>Assigned to</dt><dd>" + esc(assignee ? (assignee.name || assignee.username) + (assignee.institution ? ", " + assignee.institution : "") : "Not assigned") + "</dd></div>" +
-        "<div><dt>Due</dt><dd>" + esc(operations.slaDueAt ? when(operations.slaDueAt) + (operations.overdue ? ", overdue" : "") : "No target set") + "</dd></div><div><dt>Responsible office shown publicly</dt><dd>" + esc(report.responsibleInstitution || "Not set") + "</dd></div></dl>" +
+        "<div><dt>Routed to</dt><dd>" + esc(report.routedOffice || "No office yet") + "</dd></div><div><dt>Due</dt><dd>" + esc(operations.slaDueAt ? when(operations.slaDueAt) + (operations.overdue ? ", overdue" : "") : "No target set") + "</dd></div><div><dt>Responsible office shown publicly</dt><dd>" + esc(report.responsibleInstitution || "Not set") + "</dd></div></dl>" +
         '<div class="s-actions stack">' + (!assignee ? '<button class="btn btn-primary" type="button" data-act="accept">Accept case</button>' : "") +
         (canUpdate ? '<button class="btn' + (assignee ? " btn-primary" : "") + '" type="button" data-act="update">Post an update</button>' : "") +
         (canAssign() ? '<button class="btn" type="button" data-act="assign">' + (assignee ? "Reassign" : "Assign") + "</button>" : "") +
@@ -523,8 +524,8 @@
       { label: "Verify and publish", className: "btn-primary", action: async () => {
         if (!$("#verifyPrivacy").checked) { $("#verifyPrivacy").focus(); throw new Error("Confirm the privacy check first."); }
         const note = need("#verifyNote", "Add a verification note.");
-        await api("/api/reports/" + encodeURIComponent(report.id) + "/moderation", { method: "POST", body: { action: "approve", privacyChecked: true, note: note, responsibleInstitution: $("#verifyOffice").value.trim() } });
-        await afterModeration("Verified. The report is now on Nearby.");
+        const data = await api("/api/reports/" + encodeURIComponent(report.id) + "/moderation", { method: "POST", body: { action: "approve", privacyChecked: true, note: note, responsibleInstitution: $("#verifyOffice").value.trim() } });
+        await afterModeration(data.report.routedOffice ? "Verified. It is on Nearby and in the case list of " + data.report.routedOffice + "." : "Verified and on Nearby, but no office can see it: no routing rule matches.");
       } },
       { label: "Cancel", action: closeDialog }
     ]);
@@ -539,8 +540,8 @@
     openDialog(copy[0], "<p>" + esc(copy[1]) + "</p>" + textField("moderationReason", copy[2], "Staff only. Kept in the audit log.", true), [
       { label: copy[3], className: copy[4], action: async () => {
         const note = need("#moderationReason", "Add a reason.");
-        await api("/api/reports/" + encodeURIComponent(report.id) + "/moderation", { method: "POST", body: { action: copy[5], note: note } });
-        await afterModeration(copy[6]);
+        const data = await api("/api/reports/" + encodeURIComponent(report.id) + "/moderation", { method: "POST", body: { action: copy[5], note: note } });
+        await afterModeration(act !== "escalate-review" ? copy[6] : data.report.routedOffice ? "Escalated and sent to the case list of " + data.report.routedOffice + ". No outside office has been contacted by FixNow." : "Escalated, but no office can see it: no routing rule matches. Assign it from the Cases tab.");
       } },
       { label: "Cancel", action: closeDialog }
     ]);

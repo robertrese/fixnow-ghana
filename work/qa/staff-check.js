@@ -16,6 +16,13 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
 let failures = 0;
 const fail = (message) => { failures++; console.log(`FAIL: ${message}`); };
 
+// Demo seed: three reports wait for review; the others are routed to one desk each by the demo routing rules.
+const WAITING = ["Live wire hanging over the footpath", "Drain overflowing into homes", "Loose planks on the footbridge"];
+const NOT_MINE = {
+  assembly: ["Blocked drain floods the road after rain", "Streetlights out along the junction"],
+  nadmo: ["Refuse not collected for two weeks", "Streetlights out along the junction"],
+  utility: ["Refuse not collected for two weeks", "Blocked drain floods the road after rain"]
+};
 const roles = [["moderator", "moderator123"], ["assembly", "assembly123"], ["nadmo", "nadmo123"], ["utility", "utility123"], ["admin", null]];
 const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]];
 
@@ -98,6 +105,11 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         await page.waitForTimeout(500);
         await check(tab, `1-${tab}`);
         if ((tab === "review" || tab === "cases") && /Demo contact|5\.55\d{3}/.test(await listText())) fail(`${label}, ${tab}: a list shows contact details or exact coordinates`);
+        if (tab === "cases" && NOT_MINE[username]) {
+          const text = await listText();
+          for (const title of WAITING) if (text.includes(title)) fail(`${label}: a report still waiting for review is in a responder list (${title})`);
+          for (const title of NOT_MINE[username]) if (text.includes(title)) fail(`${label}: a report routed to another desk is in this desk's list (${title})`);
+        }
       }
 
       // Review page and its dialogs (moderators and admins).
@@ -111,7 +123,7 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         await page.waitForSelector("#pageTitle:not(:empty)");
         await page.waitForTimeout(500);
         if (!/Demo contact 024/.test(await page.textContent("#pageBody"))) fail(`${label}: moderators should see contact details on the review page`);
-        if (!/Accra Metropolitan Assembly \(demo\)/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the routing office`);
+        if (!/Water and Power Response \(demo\)/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
         await check("review page", "2-review-page");
         for (const [act, name] of [["verify", "3-verify-dialog"], ["reject", "4-reject-dialog"], ["escalate-review", "5-escalate-dialog"], ["hide", "6-hide-dialog"]]) {
           await page.click(`[data-act="${act}"]`);
@@ -156,7 +168,7 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         }
         await page.click("#pageBack");
         await page.waitForTimeout(400);
-      } else if (username !== "nadmo" && username !== "utility") fail(`${label}: expected demo cases in this area`);
+      } else if (!NOT_MINE[username]) fail(`${label}: moderators and admins should see the demo cases`);
 
       // Sign out works for everyone and leaves nothing private behind: no token, no account, no unsent updates,
       // nothing from the last account in the page, and no staff data from older versions of the resident page.

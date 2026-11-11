@@ -82,6 +82,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .s-note b{color:var(--ink)}
 .s-empty{border:1px dashed var(--line-strong);border-radius:16px;padding:18px;background:var(--panel)}
 .s-empty p{color:var(--muted);margin-top:6px}
+.s-warn{background:var(--emergency-bg);border:1px solid var(--emergency);border-radius:12px;padding:10px 12px}
 .s-status{min-height:1.5em;color:var(--emergency);font-weight:700;margin-top:8px}
 .s-status:empty{display:none}
 .s-offline{background:var(--warn-bg);border:1px solid #d8b43c;border-radius:12px;padding:10px 12px;margin-bottom:14px}

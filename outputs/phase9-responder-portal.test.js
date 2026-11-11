@@ -15,7 +15,7 @@ const backend = fs.readFileSync(path.join(__dirname, "..", "work", "fixnow-backe
 // Screens and roles.
 for (const id of ["signInView", "staffTabs", "staffView", "staffPage", "pageBack", "dialogBackdrop", "dialogTitle"]) assert(staffHtml.includes(`id="${id}"`), `staff control ${id} should exist`);
 assert(staff.includes('if (canModerate()) tabs.push({ id: "review"') && staff.includes('if (isAdmin()) tabs.push({ id: "routing"'), "tabs depend on the signed-in role");
-for (const queue of ['["institutional", "In my area"]', '["assigned", "Assigned to me"]', '["overdue", "Overdue"]', '["escalated", "Escalated"]']) assert(staff.includes(queue), `case list needs the ${queue} filter`);
+for (const queue of ['["institutional", canModerate() ? "All cases" : "My office"]', '["assigned", "Assigned to me"]', '["overdue", "Overdue"]', '["escalated", "Escalated"]']) assert(staff.includes(queue), `case list needs the ${queue} filter`);
 assert(staff.includes('id="caseSearch"') && staff.includes('id="caseCategory"') && staff.includes('id="caseStatus"'), "cases need search, type and status filters");
 
 // Moderator review: urgent first, waiting time, verify, reject, escalate, hide, public preview, routing preview.
@@ -75,6 +75,13 @@ assert(backend.includes("Resolution requires clean field evidence or a documente
 assert(backend.includes("Report is outside your permitted area") && backend.includes("reportInActorScope"), "responder scope enforcement must remain server-side");
 assert(backend.includes("const PRIVATE_REPORT_KEYS") && backend.includes(".map(responderListReport)"), "staff lists must strip contact details and exact locations on the server");
 assert(backend.includes("function canSeeReporterContact") && backend.includes('logAudit(actor, "case_viewed"'), "contact access is limited and case views are audited");
+// Responders see only what a moderator has released and routed to their own office (or what is assigned to them).
+const visibility = backend.slice(backend.indexOf("function reportVisibleToActor"), backend.indexOf("function canAssignCases"));
+assert(visibility.includes("if (canModerate(actor)) return true;") && visibility.includes("Number(row.hidden) || row.status === \"Rejected\""), "moderators see everything; hidden and rejected reports stay with them");
+assert(visibility.includes("Number(row.assignment_user_id || 0) === Number(actor.id)") && visibility.includes("canonicalScopeLabel(office) === canonicalScopeLabel(actor.agency)"), "responders see assigned cases and cases routed to their own office only");
+assert(backend.includes(".filter((row) => reportVisibleToActor(actor, row))") && backend.split("reportVisibleToActor(actor, ").length - 1 >= 12, "every responder read and action uses the visibility rule");
+assert(backend.includes('action === "approve" || action === "escalate" ? routeAfterModeration(reportId, actor, req)'), "verifying or escalating routes the report to its office at once");
+assert(staff.includes("No office can see this") && staff.includes("No office will see this report."), "moderators are warned when a released report has no office");
 assert(backend.includes('A reason is required to reject a report') && backend.includes('A reason is required to hide a report'), "reject and hide need reasons on the server");
 assert(Number((worker.match(/fixnow-ghana-static-v(\d+)/) || [])[1]) >= 44, "the staff page needs the cache version that added it");
 

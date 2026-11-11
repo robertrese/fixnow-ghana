@@ -310,7 +310,7 @@ async function apiFailure(pathname, options = {}) {
         name: "Ama Response Lead",
         phone: "+233240000000",
         email: "ama@example.org",
-        agency: "Accra Metro Response",
+        agency: "Accra Metropolitan Assembly",
         roleRequested: "District Assembly",
         region: "Greater Accra",
         district: "Accra Metropolitan",
@@ -340,7 +340,7 @@ async function apiFailure(pathname, options = {}) {
     });
     assert(responderLogin.token, "approved responder should log in");
     assert(responderLogin.user.role === "District Assembly", "login should expose responder role");
-    assert(responderLogin.user.agency === "Accra Metro Response", "login should expose responder institution");
+    assert(responderLogin.user.agency === "Accra Metropolitan Assembly", "login should expose responder institution");
     assert(responderLogin.user.region === "Greater Accra" && responderLogin.user.district === "Accra Metropolitan", "login should expose responder geographic scope");
 
     const responderAdminConfig = await apiFailure("/api/admin/config", { token: responderLogin.token });
@@ -545,9 +545,16 @@ async function apiFailure(pathname, options = {}) {
     const moderatorCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: adminLogin.token });
     assert(moderatorCase.report.contact === "private-contact" && moderatorCase.report.location.exactLatitude === 5.525, "the case page should show contact and exact location to moderators");
     assert(moderatorCase.report.awaitingReview === true && moderatorCase.report.routePreview && typeof moderatorCase.report.routePreview.matched === "boolean", "the case page should show review state and the route preview");
-    const responderCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
-    assert(responderCase.report.contact === undefined && responderCase.report.contactAccess === "assigned-or-moderator-only" && responderCase.report.hasContact === true, "unassigned responders must not see reporter contact details");
-    assert(responderCase.report.location.exactLatitude === 5.525, "responders in the report's area should see the exact location on the case page");
+    // Responders see nothing until a moderator verifies or escalates the report.
+    const responderBeforeReview = await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
+    assert(responderBeforeReview.status === 403, "responders must not open a report before a moderator verifies or escalates it");
+    const responderListBeforeReview = await api("/api/reports?queue=institutional", { token: responderLogin.token });
+    assert(!responderListBeforeReview.reports.some((report) => report.id === publicSubmission.reference || report.id === urgentSubmission.reference), "reports waiting for review must not appear in responder lists");
+    const responderPhotoBeforeReview = await apiFailure(`/api/reports/${publicSubmission.reference}/routing`, { token: responderLogin.token });
+    assert(responderPhotoBeforeReview.status === 403, "responders must not read routing or private data of an unreviewed report");
+    // A second office in the same area, for checking that each office sees only its own cases.
+    await api("/api/users", { method: "POST", token: adminLogin.token, body: { username: "accra.water", password: "StrongPass789!", role: "Utility Desk", name: "Accra Water Desk", agency: "Water and Power Response", region: "Greater Accra", district: "Accra Metropolitan", mustChangePassword: false } });
+    const otherOfficeLogin = await api("/api/login", { method: "POST", body: { username: "accra.water", password: "StrongPass789!" } });
     const outOfScopeCase = await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: outOfScopeLogin.token });
     assert(outOfScopeCase.status === 403, "responders outside the area must not open the case page");
     const summary = await api("/api/staff/summary", { token: adminLogin.token });
@@ -562,6 +569,10 @@ async function apiFailure(pathname, options = {}) {
     assert(approveWithoutPrivacy.status === 400, "verifying a report should require the privacy confirmation");
     const escalated = await api(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "escalate", note: "Live wire: needs ECG and NADMO now" } });
     assert(escalated.report.status === "Escalated", "moderators should be able to escalate a dangerous report");
+    assert(escalated.report.routedOffice === "Accra Metropolitan Assembly", "escalating routes the report straight to the office the rules choose");
+    const escalatedForResponder = await api(`/api/reports/${urgentSubmission.reference}/case`, { token: responderLogin.token });
+    assert(escalatedForResponder.report.status === "Escalated", "the routed office sees an escalated report at once, before public verification");
+    assert((await apiFailure(`/api/reports/${urgentSubmission.reference}/case`, { token: otherOfficeLogin.token })).status === 403, "an office the report was not routed to must not see it");
     const rejected = await api(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "reject", note: "Test report" } });
     assert(rejected.report.status === "Rejected" && rejected.report.moderationNote === "Test report", "a rejection should keep its reason");
     const afterReject = await api("/api/reports?queue=review", { token: adminLogin.token });
@@ -580,6 +591,15 @@ async function apiFailure(pathname, options = {}) {
       }
     });
     assert(publicApproval.report.publicVerified === true, "moderator approval should explicitly verify a report for public display");
+    assert(publicApproval.report.routedOffice === "Accra Metropolitan Assembly", "verifying routes the report to the office the rules choose");
+    const responderCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
+    assert(responderCase.report.contact === undefined && responderCase.report.contactAccess === "assigned-or-moderator-only" && responderCase.report.hasContact === true, "unassigned responders must not see reporter contact details");
+    assert(responderCase.report.location.exactLatitude === 5.525, "the routed office should see the exact location on the case page");
+    const responderListAfterReview = await api("/api/reports?queue=institutional", { token: responderLogin.token });
+    assert(responderListAfterReview.reports.some((report) => report.id === publicSubmission.reference), "a verified report appears in the routed office's list");
+    const otherOfficeList = await api("/api/reports?queue=institutional", { token: otherOfficeLogin.token });
+    assert(!otherOfficeList.reports.some((report) => report.id === publicSubmission.reference), "another office in the same area must not see a report routed elsewhere");
+    assert((await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: otherOfficeLogin.token })).status === 403, "another office must not open a report routed elsewhere");
     const publicFeed = await api("/api/public/reports?category=Flooding%20or%20drainage");
     const publicFeedReport = publicFeed.reports.find((report) => report.id === publicSubmission.reference);
     assert(publicFeedReport && publicFeedReport.verification === "moderator-verified", "approved reports should appear in the public feed with verification state");
@@ -752,6 +772,13 @@ async function apiFailure(pathname, options = {}) {
       method: "POST", token: adminLogin.token,
       body: { agencyId: backupAgency.item.id, reason: "Regional equipment is required for this incident." }
     });
+    const afterOverride = await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
+    assert(afterOverride.status === 403, "when a case is routed to another office, the previous office loses access unless the case is assigned to it");
+    await api(`/api/reports/${publicSubmission.reference}/routing/override`, {
+      method: "POST", token: adminLogin.token,
+      body: { agencyId: routingAgency.item.id, reason: "Regional equipment arranged; the assembly keeps the case." }
+    });
+    assert((await api(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token })).report.id === publicSubmission.reference, "routing the case back restores the office's access");
     assert(overriddenRoute.routing.recommendation.state === "overridden" && overriddenRoute.routing.recommendation.agencyId === backupAgency.item.id, "a human override should retain the original recommendation and reason");
 
     const outOfScopeReports = await api("/api/reports", { token: outOfScopeLogin.token });

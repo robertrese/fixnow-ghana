@@ -738,6 +738,25 @@ function reportInActorScope(actor, row) {
     canonicalScopeLabel(actorDistrict) === canonicalScopeLabel(row.district));
 }
 
+// Which office a report has been routed to: the latest routing recommendation, or a human override of it.
+function routedOfficeName(reportId) {
+  const recommendation = db.prepare("SELECT agency_id, override_agency_id FROM routing_recommendations WHERE report_id = ? ORDER BY created_at DESC LIMIT 1").get(reportId);
+  if (!recommendation) return "";
+  const office = db.prepare("SELECT name FROM admin_directory_items WHERE id = ?").get(recommendation.override_agency_id || recommendation.agency_id);
+  return office ? office.name : "";
+}
+
+// Moderators and admins see every report. A responder sees a report only inside their own area, and only when it is
+// assigned to them, or it has been routed to their own office (routing happens when a moderator verifies or escalates).
+// Reports waiting for review, hidden or rejected stay with moderators.
+function reportVisibleToActor(actor, row) {
+  if (canModerate(actor)) return true;
+  if (!reportInActorScope(actor, row) || Number(row.hidden) || row.status === "Rejected") return false;
+  if (Number(row.assignment_user_id || 0) === Number(actor.id)) return true;
+  const office = routedOfficeName(row.id);
+  return Boolean(office && actor.agency && canonicalScopeLabel(office) === canonicalScopeLabel(actor.agency));
+}
+
 function canAssignCases(actor) {
   if (canModerate(actor)) return true;
   return /lead|coordinator|supervisor|manager/i.test(String(actor?.role || ""));
@@ -2590,6 +2609,7 @@ function upsertReport(input, actor, req) {
     return { action: "updated", report: publicReport(db.prepare("SELECT * FROM reports WHERE id = ?").get(id)) };
   }
 
+  const assignToAuthor = actor && actor.id && !canModerate(actor);
   db.prepare(`
     INSERT INTO reports (
       id, payload_json, status, severity, type, region, district, community, assigned_to,
@@ -2616,6 +2636,7 @@ function upsertReport(input, actor, req) {
     slaDueAt(severity, createdAt)
   );
   storeReportLocation(id, location, stamp);
+  if (assignToAuthor) db.prepare("UPDATE reports SET assignment_user_id = ?, assignment_state = 'accepted', accepted_at = ?, accepted_by = ? WHERE id = ?").run(actor.id, stamp, actor.id, id);
   db.prepare(`
     INSERT INTO report_history (id, report_id, from_status, to_status, public_update, private_note, actor_user_id, created_at)
     VALUES (?, ?, '', ?, ?, '', ?, ?)
@@ -2633,7 +2654,7 @@ function listReports(actor, query) {
   if (queue === "review" && !canModerate(actor)) throw Object.assign(new Error("Moderator access required"), { statusCode: 403 });
   const rows = db.prepare("SELECT * FROM reports ORDER BY updated_at DESC LIMIT ?").all(limit);
   const list = rows
-    .filter((row) => (canModerate(actor) || !Number(row.hidden)) && reportInActorScope(actor, row))
+    .filter((row) => reportVisibleToActor(actor, row))
     .filter((row) => queue !== "review" || isAwaitingReview(row))
     .filter((row) => queue !== "assigned" || Number(row.assignment_user_id) === Number(actor.id))
     .filter((row) => queue !== "unassigned" || !row.assignment_user_id)
@@ -2665,7 +2686,7 @@ function responderListReport(row) {
   const hasExactLocation = Boolean(report.location && report.location.exactLatitude !== null && report.location.exactLatitude !== undefined);
   for (const key of PRIVATE_REPORT_KEYS) delete report[key];
   report.location = publicLocationForReport(row.id);
-  return { ...report, hasContact, hasExactLocation };
+  return { ...report, hasContact, hasExactLocation, routedOffice: routedOfficeName(row.id) };
 }
 
 // Reporter contact details: moderators, admins and the responder the case is assigned to. Exact location: any staff
@@ -2677,13 +2698,13 @@ function canSeeReporterContact(actor, row) {
 function responderCaseDetail(reportId, actor, req) {
   const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!row || (Number(row.hidden) && !canModerate(actor))) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, row)) throw Object.assign(new Error("This report has not been routed to your office"), { statusCode: 403 });
   const report = responderReport(row);
   const contactAllowed = canSeeReporterContact(actor, row);
   const hasContact = Boolean(report.contact || report.trustedContact);
   if (!contactAllowed) { delete report.contact; delete report.trustedContact; }
   logAudit(actor, "case_viewed", "report", reportId, { contactShown: contactAllowed && hasContact }, req);
-  return { ...report, hasContact, contactAccess: contactAllowed ? "shown" : "assigned-or-moderator-only", awaitingReview: isAwaitingReview(row), routePreview: routePreview(row) };
+  return { ...report, hasContact, contactAccess: contactAllowed ? "shown" : "assigned-or-moderator-only", awaitingReview: isAwaitingReview(row), routePreview: routePreview(row), routedOffice: routedOfficeName(row.id) };
 }
 
 // Counts for the staff home screen, all from the database for this account's area.
@@ -2702,7 +2723,7 @@ function staffSummary(actor) {
 
 function listAssignableResponders(actor, reportId = "") {
   const report = reportId ? db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId) : null;
-  if (report && !reportInActorScope(actor, report)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  if (report && !reportVisibleToActor(actor, report)) throw Object.assign(new Error("This report has not been routed to your office"), { statusCode: 403 });
   return db.prepare("SELECT * FROM users WHERE status = 'active' ORDER BY name ASC").all()
     .filter((candidate) => isResponder(candidate) && (!report || reportInActorScope(candidate, report)))
     .filter((candidate) => canModerate(actor) || canonicalScopeLabel(candidate.agency) === canonicalScopeLabel(actor.agency))
@@ -2729,7 +2750,7 @@ function validateResponderTransition(fromStatus, toStatus) {
 function createResponderEvidence(reportId, body, actor, req) {
   const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!row) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
   if (!canActOnAssignedReport(actor, row)) throw Object.assign(new Error("Accept or receive assignment before adding field evidence"), { statusCode: 403 });
   const clientAttachmentId = sanitizeText(body.clientAttachmentId, 80).toLowerCase();
   const encoded = String(body.dataBase64 || "").replace(/^data:[^;]+;base64,/, "");
@@ -2999,7 +3020,7 @@ function signedAttachmentPath(reportId, attachmentId, actor) {
   const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   const attachment = attachmentRecord(attachmentId);
   if (!report || !attachment || attachment.report_id !== reportId) throw Object.assign(new Error("Private attachment not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, report)) throw Object.assign(new Error("Attachment is outside your permitted area"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, report)) throw Object.assign(new Error("Attachment is outside your permitted area"), { statusCode: 403 });
   if (attachment.quarantine_state === "rejected") throw Object.assign(new Error("Rejected evidence cannot be accessed"), { statusCode: 403 });
   const expires = Math.floor(Date.now() / 1000) + 300;
   const payload = `${attachmentId}.${expires}.${actor.id}`;
@@ -3024,7 +3045,7 @@ function verifySignedAttachment(attachmentId, query) {
   const actor = db.prepare("SELECT * FROM users WHERE id = ? AND status = 'active'").get(actorId);
   const attachment = attachmentRecord(attachmentId);
   const report = attachment ? db.prepare("SELECT * FROM reports WHERE id = ?").get(attachment.report_id) : null;
-  if (!actor || !attachment || !report || !reportInActorScope(actor, report) || attachment.quarantine_state === "rejected") {
+  if (!actor || !attachment || !report || !reportVisibleToActor(actor, report) || attachment.quarantine_state === "rejected") {
     throw Object.assign(new Error("Private attachment is unavailable"), { statusCode: 403 });
   }
   return attachment;
@@ -3033,7 +3054,7 @@ function verifySignedAttachment(attachmentId, query) {
 function responderFieldAction(reportId, body, actor, req) {
   const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!row) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
   const action = sanitizeText(body.action, 30).toLowerCase();
   if (!new Set(["accept", "assign", "reassign", "escalate"]).has(action)) throw Object.assign(new Error("Unsupported field action"), { statusCode: 400 });
   const actionKey = sanitizeText(body.actionKey, 80).toLowerCase();
@@ -3279,9 +3300,14 @@ function acceptResponderInvitation(body, req) {
 function routeRecommendation(reportId, actor, req) {
   const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!report) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, report)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, report)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
   const rule = matchRoutingRule(report);
   if (!rule) throw Object.assign(new Error("No active routing rule matches this report; an administrator must review configuration"), { statusCode: 404 });
+  recordRoutingRecommendation(reportId, rule, actor, req);
+  return routingState(reportId);
+}
+
+function recordRoutingRecommendation(reportId, rule, actor, req) {
   const id = crypto.randomUUID();
   const stamp = nowIso();
   db.prepare(`INSERT INTO routing_recommendations (
@@ -3290,7 +3316,18 @@ function routeRecommendation(reportId, actor, req) {
   ) VALUES (?, ?, ?, ?, ?, ?, ?, 'recommended', 'rules', '', ?, ?)`)
     .run(id, reportId, rule.id, rule.rule_version, rule.agency_id, rule.response_target_id, rule.rationale, actor.id, stamp);
   logAudit(actor, "routing_recommended", "report", reportId, { recommendationId: id, ruleId: rule.id, ruleVersion: rule.rule_version, agencyId: rule.agency_id }, req);
-  return routingState(reportId);
+}
+
+// After a moderator verifies or escalates: route the report to the office the active rules choose, unless it was
+// routed already. Returns the office name, or "" when no rule matches (then only moderators and admins can see it).
+function routeAfterModeration(reportId, actor, req) {
+  const existing = routedOfficeName(reportId);
+  if (existing) return existing;
+  const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
+  const rule = report ? matchRoutingRule(report) : null;
+  if (!rule) return "";
+  recordRoutingRecommendation(reportId, rule, actor, req);
+  return routedOfficeName(reportId);
 }
 
 function matchRoutingRule(report) {
@@ -3355,7 +3392,7 @@ function routingState(reportId) {
 function overrideRoute(reportId, body, actor, req) {
   const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!report) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
-  if (!reportInActorScope(actor, report) || !canAssignCases(actor)) throw Object.assign(new Error("A scoped case lead or administrator is required"), { statusCode: 403 });
+  if (!reportVisibleToActor(actor, report) || !canAssignCases(actor)) throw Object.assign(new Error("A scoped case lead or administrator is required"), { statusCode: 403 });
   const current = db.prepare("SELECT * FROM routing_recommendations WHERE report_id = ? ORDER BY created_at DESC LIMIT 1").get(reportId);
   const agencyId = sanitizeText(body.agencyId, 80);
   const reason = sanitizeText(body.reason, 1000);
@@ -3478,7 +3515,7 @@ function patchReport(reportId, body, actor, req) {
     error.statusCode = 404;
     throw error;
   }
-  if (!reportInActorScope(actor, row)) {
+  if (!reportVisibleToActor(actor, row)) {
     const error = new Error("Report is outside your permitted area");
     error.statusCode = 403;
     throw error;
@@ -3715,7 +3752,9 @@ function moderateReport(reportId, body, actor, req) {
     publicVerified: Boolean(publicVerified),
     responsibleInstitution
   }, req);
-  return publicReport(db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId));
+  // Verifying or escalating releases the report to the office the routing rules choose (nothing is sent outside FixNow).
+  const routedOffice = action === "approve" || action === "escalate" ? routeAfterModeration(reportId, actor, req) : routedOfficeName(reportId);
+  return { ...publicReport(db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId)), routedOffice };
 }
 
 function migrateLegacyReports() {
@@ -4335,7 +4374,7 @@ async function handler(req, res) {
       const reportId = decodeURIComponent(routingMatch[1]);
       const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
       if (!row) return send(req, res, 404, { ok: false, error: "Report not found" });
-      if (!reportInActorScope(actor, row)) return send(req, res, 403, { ok: false, error: "Report is outside your permitted area" });
+      if (!reportVisibleToActor(actor, row)) return send(req, res, 403, { ok: false, error: "This report has not been routed to your office" });
       return send(req, res, 200, { ok: true, routing: routingState(reportId) });
     }
 
@@ -4368,7 +4407,7 @@ async function handler(req, res) {
       const reportId = decodeURIComponent(reportLocationMatch[1]);
       const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
       if (!row) return send(req, res, 404, { ok: false, error: "Report not found" });
-      if (!reportInActorScope(actor, row)) return send(req, res, 403, { ok: false, error: "Report is outside your permitted area" });
+      if (!reportVisibleToActor(actor, row)) return send(req, res, 403, { ok: false, error: "This report has not been routed to your office" });
       return send(req, res, 200, { ok: true, reportId, location: responderLocationForReport(reportId) });
     }
 

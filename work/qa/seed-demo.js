@@ -1,8 +1,8 @@
 "use strict";
 
 // Seeds the LOCAL API with four moderated demo reports so Nearby, photos and timelines can be tested, plus three
-// reports waiting for moderator review and one demo office with a routing rule for the staff screens.
-// Pass --review-only to add just the review reports and routing rule to data that was seeded before.
+// reports waiting for moderator review and three demo offices with routing rules for the staff screens.
+// Pass --review-only to add just the offices, routing rules and review reports to data that was seeded before.
 // Every step goes through the real API: upload, submit, moderate, review photo, publish photo, responder update.
 // The two photos in demo-photos/ are drawings, not real places. Label any screenshot that uses them as demo data.
 const crypto = require("crypto");
@@ -26,9 +26,9 @@ const reports = [
     type: "Flooding or drainage", subcategory: "Blocked drain", severity: "High", title: "Blocked drain floods the road after rain",
     details: "The roadside drain is packed with plastic waste. After rain, water spreads across the road and into shop fronts.",
     community: "Kaneshie, near the market road", coordinates: "5.5689,-0.2365", worsening: true, accessBlocked: true, problemDuration: "weeks",
-    photo: "drain.jpg", institution: "Accra Metropolitan Assembly",
+    photo: "drain.jpg", institution: "NADMO", desk: "nadmo",
     updates: [
-      { action: "accept", publicUpdate: "Accra Metropolitan Assembly has received this report and assigned it to its drainage desk." },
+      { action: "accept", publicUpdate: "The NADMO desk has received this report and is arranging a site visit." },
       { status: "In Progress", publicUpdate: "A site visit to inspect the drain is planned." }
     ]
   },
@@ -46,15 +46,39 @@ const reports = [
   {
     type: "Electricity", subcategory: "Streetlight out", severity: "Low", title: "Streetlights out along the junction",
     details: "Three streetlights at the junction have been off for several nights, so the crossing is dark.",
-    community: "Asylum Down, at the junction", coordinates: "5.5708,-0.2036", problemDuration: "days", updates: []
+    community: "Near the main junction", coordinates: "5.5450,-0.2100", problemDuration: "days", updates: []
   }
 ];
 
 (async () => {
   const settings = localSettings();
   const admin = await call("/api/login", { method: "POST", body: { username: "admin", password: settings.adminPassword } });
-  const responder = await call("/api/login", { method: "POST", body: { username: "assembly", password: "assembly123" } });
+  const desks = {
+    assembly: await call("/api/login", { method: "POST", body: { username: "assembly", password: "assembly123" } }),
+    nadmo: await call("/api/login", { method: "POST", body: { username: "nadmo", password: "nadmo123" } }),
+    utility: await call("/api/login", { method: "POST", body: { username: "utility", password: "utility123" } })
+  };
   const reviewOnly = process.argv.includes("--review-only");
+
+  // Demo offices and routing rules. Office names match the demo staff accounts' offices (the "(demo)" label is ignored
+  // when matching), so each desk sees only the reports routed to it. Lower priority numbers are checked first.
+  const office = async (name) => (await call("/api/admin/directory", { method: "POST", token: admin.token, body: { kind: "agency", name, configuration: { demo: true } } })).item.id;
+  const offices = { assembly: await office("Accra Metropolitan Assembly (demo)"), nadmo: await office("NADMO (demo)"), utility: await office("Water and Power Response (demo)") };
+  const rules = [
+    ["Flooding to NADMO (demo)", "Flooding or drainage", "nadmo", 100],
+    ["Water supply to the utility desk (demo)", "Water supply", "utility", 100],
+    ["Electricity to the utility desk (demo)", "Electricity", "utility", 100],
+    ["Waste to the assembly (demo)", "Waste or sanitation", "assembly", 100],
+    ["Roads to the assembly (demo)", "Road or bridge", "assembly", 100],
+    ["Anything else in Accra Metro to the assembly (demo)", "", "assembly", 1000]
+  ];
+  for (const [name, category, desk, priority] of rules) {
+    await call("/api/admin/routing-rules", {
+      method: "POST", token: admin.token,
+      body: { name, category, region: "Greater Accra", district: "Accra Metropolitan", agencyId: offices[desk], priority, ruleVersion: "demo-2026-11", rationale: `Demo rule: ${category || "other"} reports in Accra Metropolitan go to this desk.` }
+    });
+  }
+  console.log("Seeded 3 demo offices and 6 demo routing rules");
   for (const item of reviewOnly ? [] : reports) {
     const submissionKey = crypto.randomUUID();
     const trackingSecret = crypto.randomBytes(32).toString("base64url");
@@ -88,21 +112,14 @@ const reports = [
     }
     for (const update of item.updates) {
       if (update.action) {
-        await call(`/api/reports/${ref}/field-action`, { method: "POST", token: responder.token, body: { action: update.action, actionKey: crypto.randomUUID(), publicUpdate: update.publicUpdate } });
+        await call(`/api/reports/${ref}/field-action`, { method: "POST", token: desks[item.desk || "assembly"].token, body: { action: update.action, actionKey: crypto.randomUUID(), publicUpdate: update.publicUpdate } });
       } else {
-        await call(`/api/reports/${ref}`, { method: "PATCH", token: responder.token, body: { status: update.status, publicUpdate: update.publicUpdate, updateKey: crypto.randomUUID() } });
+        await call(`/api/reports/${ref}`, { method: "PATCH", token: desks[item.desk || "assembly"].token, body: { status: update.status, publicUpdate: update.publicUpdate, updateKey: crypto.randomUUID() } });
       }
     }
     console.log(`Seeded ${ref}: ${item.title}${attachmentIds.length ? " (with demo photo)" : ""}`);
   }
 
-  // A demo office and routing rule, so review pages can show where a verified report would be routed.
-  const office = await call("/api/admin/directory", { method: "POST", token: admin.token, body: { kind: "agency", name: "Accra Metropolitan Assembly (demo)", configuration: {} } });
-  await call("/api/admin/routing-rules", {
-    method: "POST", token: admin.token,
-    body: { name: "Accra Metro reports (demo)", region: "Greater Accra", district: "Accra Metropolitan", agencyId: office.item.id, priority: 100, ruleVersion: "demo-2026-11", rationale: "Demo rule: the assembly handles reports inside its own area." }
-  });
-  console.log("Seeded a demo office and routing rule");
 
   // Reports waiting for moderator review: not verified, so they never appear publicly.
   const waiting = [
