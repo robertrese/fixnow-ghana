@@ -2547,6 +2547,10 @@ body.welcome-open{overflow:hidden}
 .emergency-sources li{display:grid;gap:2px;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
 .emergency-sources span{color:var(--muted);font-size:.875rem}
 .toast{z-index:80;border-radius:14px;background:var(--deep);color:#fdfaf1;font-weight:700}
+.modal-back{display:none}
+.modal-backdrop.is-page .modal-back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0 0 8px;padding:6px 18px;border-radius:999px;font-weight:700}
+.similar-lead{margin:0 0 12px;color:var(--muted);font-size:1rem}
+.track-field{display:grid;gap:6px;margin:0;font-weight:700;font-size:.9375rem;color:var(--ink)}
 .topbar-logo{display:none}
 .topbar-exit{display:none}
 .content > *{min-width:0}
@@ -2570,6 +2574,10 @@ body[data-view="report"] .topbar-logo{display:none}
 body[data-view="report"] .topbar-exit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;min-height:44px;padding:0;border:1.5px solid var(--line-strong);border-radius:50%;background:var(--panel);color:var(--ink)}
 body[data-view="report"] .nav{display:none}
 body[data-view="report"] .content{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.app{align-content:start}
+.modal-backdrop.is-page{padding:0;align-items:stretch}
+.modal-backdrop.is-page .modal{width:100%;height:100%;max-height:none;border-radius:0;padding:calc(12px + env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));overflow-y:auto}
+.modal-backdrop.is-page .modal::before{content:none}
 .content{padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
 .topbar, body[data-view="home"] .topbar{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-top:calc(10px + env(safe-area-inset-top));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
 body[data-view="home"] .home-panel{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
@@ -2632,7 +2640,7 @@ body[data-view="home"] .home-panel{background-size:260px auto}
 body[data-view="profile"] .content{max-width:880px}
 .topbar h1{font-size:2.25rem;font-weight:800;letter-spacing:-.025em}
 .home-actions{grid-template-columns:1fr 1fr}
-.track-search{grid-template-columns:1fr 1fr auto}
+.track-search{grid-template-columns:1fr 1fr auto;align-items:end}
 body[data-view="report"] .map-panel, body[data-view="report"] .side-stack{display:none}
 .modal{width:min(600px, 100%)}
 body[data-view="home"] .home-panel{margin:0 0 4px;padding:34px 40px 52px;border-radius:var(--r-hero);background-size:300px auto;background-position:right 28px bottom 22px}
@@ -3155,10 +3163,8 @@ body.map-unavailable [data-focus-public]{display:none}
           <p class="hint">Enter the reference and the private tracking secret you received when your report was submitted.</p>
         </div>
         <div class="track-search">
-          <label class="sr-only" for="trackCaseInput">Case number</label>
-          <input id="trackCaseInput" placeholder="FN-ABC123..." autocomplete="off" />
-          <label class="sr-only" for="trackSecretInput">Tracking secret</label>
-          <input id="trackSecretInput" placeholder="Private tracking secret" autocomplete="off" />
+          <label class="track-field">Reference number<input id="trackCaseInput" placeholder="FN-ABC123..." autocomplete="off" /></label>
+          <label class="track-field">Private tracking secret<input id="trackSecretInput" placeholder="The long secret you saved" autocomplete="off" /></label>
           <button class="primary" id="trackCaseBtn" type="button">Find report</button>
         </div>
         <p class="track-privacy"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>FixNow staff cannot recover a lost tracking secret. Keep it private, like a password.</span></p>
@@ -3729,6 +3735,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
   <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
     <div class="modal">
+      <button class="secondary modal-back" id="modalBackBtn" type="button" hidden>Back</button>
       <h2 id="modalTitle">FixNow Ghana</h2>
       <div id="modalBody"></div>
       <div class="modal-actions" id="modalActions">
@@ -4269,7 +4276,20 @@ body.map-unavailable [data-focus-public]{display:none}
       document.querySelector("#languageHelp").textContent = text;
     }
 
-    function openModal(title, html, actions = [{ label: "Close", className: "secondary", action: closeModal }], trigger = document.activeElement) {
+    // Full-screen pages (Figma: report detail, timeline, results, similar report) use the same dialog, filling the
+    // phone screen with a Back button; on a laptop they are a large centred panel.
+    function openPage(title, html, actions, trigger = document.activeElement) {
+      openModal(title, html, actions, trigger, { page: true });
+    }
+
+    function openModal(title, html, actions = [{ label: "Close", className: "secondary", action: closeModal }], trigger = document.activeElement, options = {}) {
+      modalBackdrop.classList.toggle("is-page", Boolean(options.page));
+      // A full page gets a history entry, so the browser's Back button (and Android's Back) closes it instead of
+      // leaving the app. One entry covers a page that opens another page.
+      if (options.page && !pageHistoryEntry) {
+        try { history.pushState({ fixnowPage: true }, ""); pageHistoryEntry = true; } catch { /* history unavailable */ }
+      }
+      document.querySelector("#modalBackBtn").hidden = !options.page;
       modalReturnFocus = trigger instanceof HTMLElement ? trigger : null;
       modalTitle.textContent = title;
       modalBody.innerHTML = html;
@@ -4293,8 +4313,20 @@ body.map-unavailable [data-focus-public]{display:none}
       modalTitle.focus({ preventScroll: true });
     }
 
+    document.querySelector("#modalBackBtn").addEventListener("click", () => closeModal());
+    let pageHistoryEntry = false;
+    window.addEventListener("popstate", () => {
+      if (!pageHistoryEntry) return;
+      pageHistoryEntry = false; // the entry is already gone, so closing must not go back again
+      closeModal();
+    });
+
     function closeModal() {
-      modalBackdrop.classList.remove("show");
+      if (pageHistoryEntry) {
+        pageHistoryEntry = false;
+        if (history.state && history.state.fixnowPage) history.back();
+      }
+      modalBackdrop.classList.remove("show", "is-page");
       modalBackdrop.hidden = true;
       const welcomeOpen = !document.querySelector("#welcomeScreen").hidden;
       document.querySelector(".app").inert = welcomeOpen;
@@ -4374,7 +4406,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     window.fixNowDismissEmergencyDialog = () => {
-      if (!modalBackdrop.hidden && /^Call |numbers$/.test(modalTitle.textContent)) {
+      if (!modalBackdrop.hidden && (/^Call |numbers$/.test(modalTitle.textContent) || modalBackdrop.classList.contains("is-page"))) {
         closeModal();
         return true;
       }
@@ -5095,7 +5127,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const gallery = images.length
         ? `<div class="issue-photos">${images.map((image) => `<img src="${escapeHtml(publicImageUrl(image))}" alt="Moderator-approved photo of this report" loading="lazy" />`).join("")}</div>`
         : `<div class="issue-photos empty ${art.tint}" role="img" aria-label="No approved public image for ${escapeHtml(report.category)}"><img src="${art.src}" alt="" /><small>No approved photo yet</small></div>`;
-      openModal(report.title, `
+      openPage(report.title, `
         <div class="public-issue-detail">
           <div class="issue-pills"><span class="tag">${escapeHtml(report.category)}</span>${statusPill(report.status)}<span class="tag verified-tag">Moderator verified</span></div>
           <p class="issue-location"><b>${escapeHtml(report.publicLocationLabel)}</b><small>Approximate location shown to protect reporter privacy</small></p>
@@ -5200,6 +5232,7 @@ body.map-unavailable [data-focus-public]{display:none}
       return result.confirmations;
     }
 
+    let similarPromptKey = "";
     async function checkDuplicateReports() {
       const button = document.querySelector("#duplicateCheckBtn");
       const container = document.querySelector("#duplicateSuggestions");
@@ -5251,6 +5284,25 @@ body.map-unavailable [data-focus-public]{display:none}
             control.disabled = false;
           }
         }));
+        const similarKey = [draft.type, draft.community, draft.details].join("|");
+        if (wizardStep === 6 && similarPromptKey !== similarKey) {
+          similarPromptKey = similarKey;
+          const match = suggestions[0].report;
+          openPage("Similar report found nearby", `
+            <p class="similar-lead">A verified report like yours already exists near this place. You can look at it first, or continue with your own report. Nothing is merged automatically.</p>
+            <article class="duplicate-item">
+              <div class="duplicate-head"><small>${escapeHtml(match.id)}</small>${statusPill(match.status)}</div>
+              <b>${escapeHtml(match.title)}</b>
+              <p>${escapeHtml(match.publicLocationLabel || "")}</p>
+            </article>
+          `, [
+            { label: "View existing report", className: "primary", action: () => {
+              if (!nearbyReports.some((candidate) => candidate.id === match.id)) nearbyReports.push(match);
+              openPublicReport(match.id);
+            } },
+            { label: "Continue with new report", className: "secondary", action: closeModal }
+          ]);
+        }
         container.querySelectorAll("[data-inspect-duplicate]").forEach((control) => control.addEventListener("click", () => {
           const match = suggestions.find((candidate) => candidate.report.id === control.dataset.inspectDuplicate);
           if (match) {
@@ -6887,7 +6939,7 @@ body.map-unavailable [data-focus-public]{display:none}
       }).join("");
       const art = categoryArt(report.type);
       const resolution = report.status === "Resolved" ? `<p><b>Resolution evidence:</b> ${report.resolutionEvidence ? "Public evidence available" : "No public evidence has been approved."}</p>` : "";
-      openModal("Report details", `
+      openPage(waiting ? "Report details" : "Report progress", `
         <div class="report-detail-summary">
           <span class="review-art ${art.tint}"><img src="${art.src}" alt="" /></span>
           <div>
@@ -7065,7 +7117,7 @@ body.map-unavailable [data-focus-public]{display:none}
     function showSubmittedResult(report) {
       askToKeepStorage();
       const both = `FixNow Ghana report\nReference: ${report.id}\nTracking secret: ${report.trackingSecret}`;
-      openModal("Report submitted", `
+      openPage("Report submitted", `
         <div class="result-screen">
           <span class="result-icon ok">${ICON_CHECK}</span>
           <p class="result-lead">FixNow has received your report. A moderator will review it and route it to the responsible office.</p>
@@ -7087,7 +7139,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function showQueuedResult(report, route) {
       askToKeepStorage();
-      openModal("Saved and waiting to send", `
+      openPage("Saved and waiting to send", `
         <div class="result-screen">
           <span class="result-icon wait">${ICON_CLOCK}</span>
           <p class="result-lead">FixNow could not be reached, so your report is saved on this phone. It will send automatically when you are back online.</p>

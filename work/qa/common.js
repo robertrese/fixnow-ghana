@@ -76,7 +76,7 @@ async function passWelcome(page) {
 }
 
 // Fills the six report steps with a realistic flooding report and stops on step 6.
-async function fillReportToReview(page) {
+async function fillReportToReview(page, { keepSimilarPage = false } = {}) {
   await page.click(".home-primary");
   await page.click('[data-quick-type="Flooding or drainage"]');
   await page.click('[data-wizard-step="1"] [data-wizard-next]');
@@ -90,6 +90,10 @@ async function fillReportToReview(page) {
   await page.click('[data-wizard-step="4"] [data-wizard-next]');
   await page.click('[data-wizard-step="5"] [data-wizard-next]');
   await page.waitForTimeout(1200);
+  // The demo data has a similar verified report, so step 6 opens the "Similar report found nearby" page first.
+  await page.waitForTimeout(1300);
+  const similarOpen = await page.evaluate(() => document.querySelector("#modalTitle").textContent === "Similar report found nearby" && !document.querySelector("#modalBackdrop").hidden);
+  if (similarOpen && !keepSimilarPage) await page.click("#modalActions button:last-child"); // Continue with new report
 }
 
 module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, fillReportToReview };

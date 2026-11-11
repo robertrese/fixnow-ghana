@@ -466,6 +466,11 @@ body.welcome-open{overflow:hidden}
 .emergency-sources li{display:grid;gap:2px;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
 .emergency-sources span{color:var(--muted);font-size:.875rem}
 .toast{z-index:80;border-radius:14px;background:var(--deep);color:#fdfaf1;font-weight:700}
+/* Full-screen pages built on the dialog */
+.modal-back{display:none}
+.modal-backdrop.is-page .modal-back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0 0 8px;padding:6px 18px;border-radius:999px;font-weight:700}
+.similar-lead{margin:0 0 12px;color:var(--muted);font-size:1rem}
+.track-field{display:grid;gap:6px;margin:0;font-weight:700;font-size:.9375rem;color:var(--ink)}
 .topbar-logo{display:none}
 .topbar-exit{display:none}
 /* Let every page section shrink to the screen instead of widening it (long text wraps or clips inside). */
@@ -495,6 +500,11 @@ body[data-view="report"] .topbar-logo{display:none}
 body[data-view="report"] .topbar-exit{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;min-height:44px;padding:0;border:1.5px solid var(--line-strong);border-radius:50%;background:var(--panel);color:var(--ink)}
 body[data-view="report"] .nav{display:none}
 body[data-view="report"] .content{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+/* Short screens: keep the content at the top instead of giving the spare height to the (empty) sidebar row */
+.app{align-content:start}
+.modal-backdrop.is-page{padding:0;align-items:stretch}
+.modal-backdrop.is-page .modal{width:100%;height:100%;max-height:none;border-radius:0;padding:calc(12px + env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));overflow-y:auto}
+.modal-backdrop.is-page .modal::before{content:none}
 /* iPhone notch, Dynamic Island and landscape sides (viewport-fit=cover). These are 0 everywhere else, including the Android app. */
 .content{padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
 .topbar, body[data-view="home"] .topbar{margin-left:calc(-1 * max(16px, env(safe-area-inset-left)));margin-right:calc(-1 * max(16px, env(safe-area-inset-right)));padding-top:calc(10px + env(safe-area-inset-top));padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
@@ -565,7 +575,7 @@ body:not([data-view="responder"]) .content{max-width:1180px}
 body[data-view="profile"] .content{max-width:880px}
 .topbar h1{font-size:2.25rem;font-weight:800;letter-spacing:-.025em}
 .home-actions{grid-template-columns:1fr 1fr}
-.track-search{grid-template-columns:1fr 1fr auto}
+.track-search{grid-template-columns:1fr 1fr auto;align-items:end}
 body[data-view="report"] .map-panel, body[data-view="report"] .side-stack{display:none}
 .modal{width:min(600px, 100%)}
 body[data-view="home"] .home-panel{margin:0 0 4px;padding:34px 40px 52px;border-radius:var(--r-hero);background-size:300px auto;background-position:right 28px bottom 22px}

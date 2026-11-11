@@ -40,7 +40,7 @@ assert(!/id="affected"[^>]*value=/.test(html), "people affected must not default
 assert(/<select id="severity" required[^>]*>\s*<option value="">Choose<\/option>/.test(html), "severity must be chosen by the reporter, not defaulted");
 
 // Honest result screens: submitted and queued are separate, and no secret is shown before confirmation.
-assert(html.includes('openModal("Report submitted"') && html.includes('openModal("Saved and waiting to send"'), "online and offline results must be separate screens");
+assert(html.includes('openPage("Report submitted"') && html.includes('openPage("Saved and waiting to send"'), "online and offline results must be separate screens");
 const queued = html.slice(html.indexOf("function showQueuedResult"), html.indexOf("form.addEventListener(\"submit\""));
 assert(!queued.includes("trackingSecret"), "the queued screen must not show a tracking secret before the server confirms the report");
 
@@ -166,5 +166,15 @@ assert(/\.nav \.nav-report\{[^}]*margin:0 auto;[^}]*box-shadow:none/.test(v2Css)
 
 // Old WebViews ignore flex gap, so the phone top bar spaces the logo and exit button with margins.
 assert(v2Css.includes(".topbar, body[data-view=\"home\"] .topbar{column-gap:0}") && v2Css.includes(".topbar-logo, body[data-view=\"report\"] .topbar-exit{margin-right:12px}"), "the top bar must not rely on flex gap for the logo spacing");
+
+// Every Figma page has a screen people can reach; the full-page ones are full screens.
+assert(html.includes("function openPage(") && html.includes('id="modalBackBtn"') && v2Css.includes(".modal-backdrop.is-page .modal{width:100%;height:100%"), "full-screen pages need the page mode with a Back button");
+for (const call of ["openPage(report.title, `", 'openPage("Report submitted", `', 'openPage("Saved and waiting to send", `', 'openPage("Similar report found nearby", `', 'openPage(waiting ? "Report details" : "Report progress", `']) {
+  assert(html.includes(call), `missing full-screen page: ${call.slice(0, 40)}`);
+}
+assert(html.includes('{ label: "View existing report", className: "primary"') && html.includes('{ label: "Continue with new report", className: "secondary", action: closeModal }') && !/prioriti[sz]/i.test(html), "the similar report page offers both choices and makes no prioritisation claim");
+assert(html.includes('<label class="track-field">Reference number<input id="trackCaseInput"') && html.includes("track: [\"Find your report\""), "Find your report is a full screen with visible labels");
+assert(html.includes('modalBackdrop.classList.contains("is-page")'), "Android back closes a full-screen page");
+assert(html.includes('history.pushState({ fixnowPage: true }, "")') && html.includes('window.addEventListener("popstate", () => {'), "the browser's Back button closes a full-screen page instead of leaving the app");
 
 console.log("V2 design and safety guard test passed");

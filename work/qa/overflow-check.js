@@ -46,7 +46,12 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
     await page.click('[data-wizard-step="4"] [data-wizard-next]');
     await check("step 5");
     await page.click('[data-wizard-step="5"] [data-wizard-next]');
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(2500);
+    // The demo data has a similar verified report, so the "Similar report found nearby" page opens first.
+    if (await page.evaluate(() => !document.querySelector("#modalBackdrop").hidden)) {
+      await check("similar report page");
+      await page.click("#modalActions button:last-child"); // Continue with new report
+    }
     await check("step 6");
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await page.check("#caseConsent");
