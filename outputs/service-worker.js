@@ -1,4 +1,4 @@
-const CACHE_NAME = "fixnow-ghana-static-v39";
+const CACHE_NAME = "fixnow-ghana-static-v40";
 const ASSETS = [
   "./fixnow-ghana.html",
   "./emergency-contacts.js",
