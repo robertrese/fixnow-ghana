@@ -9,6 +9,7 @@ Read `design/v2-handoff/CLAUDE-CODE-HANDOFF.md` for the full history, decisions 
 ## Repository map
 
 - `outputs/fixnow-ghana.html`: the whole web app. It is a single-page PWA (HTML, CSS and JS in one file, about 0.5 MB) with a `body[data-view]` view system.
+- `outputs/staff.html`, `staff.js`, `staff.css`: the staff area (moderator review queue, responder cases and case pages, admin routing, staff accounts and audit log). It is a separate page so resident pages never load staff code. Contact details and exact locations appear only on a case page, from `GET /api/reports/:id/case`.
 - `outputs/service-worker.js`: the offline cache. Bump `CACHE_NAME` whenever a cached file changes.
 - `outputs/map-foundation.js`, `outputs/emergency-contacts.js`: the map layer, and the emergency numbers (single source of truth).
 - `outputs/fonts/`: bundled typefaces with their OFL licences. `outputs/illustrations/`: SVG artwork.
@@ -26,7 +27,7 @@ npm run check            # all 17 test suites: syntax, 16 front-end guards, back
 npm run build:css        # compile work/design/fixnow-v3.css into the app
 npm run start:api        # local API on http://localhost:4180 with demo accounts (data in work/fixnow-backend/local-data)
 npm run start:web        # serves outputs/ on http://localhost:4173
-npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo photos) through the real API
+npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo photos), 3 waiting for review and a demo routing rule, through the real API
 npm run qa               # layout check + WCAG scan + walkthrough screenshots, in light and then dark (needs Playwright, see work/qa/README.md)
 npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
 ```
@@ -89,6 +90,7 @@ Android notes:
   - Rejecting a photo withdraws it.
   - Never call reports "anonymous": staff can see contact details people choose to give, and the server keeps a hashed network address. Say people don't have to give their name or number. (The internal report-mode value "Anonymous public case" stays, because sync depends on it.)
   - The audit log stores a keyed hash of the IP address (`iphash:…`) for public reports, signals, photo uploads and every other action. Only staff sign-in attempts (`login`, `login_failed`) keep the raw IP, for security review.
+- **Staff area** (`staff.html`): staff lists never show contact details or exact locations; the case page shows the exact location to staff whose area covers the report and contact details only to moderators, admins and the assigned responder, and each opening is audited. Reject and Hide need a reason; Verify needs the privacy confirmation. `staff.html` has a strict content security policy (no inline scripts or style attributes; connections only to the FixNow server). Sign-out removes the session, unsent updates and everything shown. Checked by `npm run qa:staff` and, on Android 11, `work/qa/android-staff-check.js`.
 - **Accessibility:**
   - Keep 0 axe WCAG 2.1 A/AA violations.
   - Touch targets are at least 44 px.

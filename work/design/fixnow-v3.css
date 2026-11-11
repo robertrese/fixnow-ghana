@@ -697,9 +697,9 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
 @media (min-width: 881px){[data-theme="dark"] .rail .nav button.active, [data-theme="dark"] .rail .nav button.active code{color:#0d2a22}}
 /* Older components with hard-coded white or pale backgrounds */
-[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .sync-panel, .action-log, .responder-scope-grid, .responder-case, .case-card, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
-[data-theme="dark"] .responder-case-location strong{color:var(--ink)}
-[data-theme="dark"] :is(.guided-step, .sync-status, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .responder-case-location, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .action-log, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
+
+[data-theme="dark"] :is(.guided-step, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .notice{background:#363322;color:#f3c95a;border-color:#5a5330}
 [data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
 /* 112 and the other call buttons: flag red with a light ring */

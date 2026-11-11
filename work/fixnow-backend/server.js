@@ -2630,16 +2630,74 @@ function listReports(actor, query) {
   const status = sanitizeText(query.get("status"), 60).toLowerCase();
   const category = sanitizeText(query.get("category"), 100).toLowerCase();
   const overdueOnly = query.get("overdue") === "1";
+  if (queue === "review" && !canModerate(actor)) throw Object.assign(new Error("Moderator access required"), { statusCode: 403 });
   const rows = db.prepare("SELECT * FROM reports ORDER BY updated_at DESC LIMIT ?").all(limit);
-  return rows
+  const list = rows
     .filter((row) => (canModerate(actor) || !Number(row.hidden)) && reportInActorScope(actor, row))
+    .filter((row) => queue !== "review" || isAwaitingReview(row))
     .filter((row) => queue !== "assigned" || Number(row.assignment_user_id) === Number(actor.id))
     .filter((row) => queue !== "unassigned" || !row.assignment_user_id)
     .filter((row) => queue !== "escalated" || row.status === "Escalated")
     .filter((row) => !status || String(row.status || "").toLowerCase() === status)
     .filter((row) => !category || String(row.type || "").toLowerCase() === category)
     .filter((row) => !overdueOnly || Boolean(row.sla_due_at && row.sla_due_at < nowIso() && !["Resolved", "Rejected"].includes(row.status)))
-    .map(responderReport);
+    .map(responderListReport);
+  // The review queue puts immediate danger and Critical reports first, then the ones waiting longest.
+  if (queue === "review") list.sort((left, right) => Number(isUrgentReport(right)) - Number(isUrgentReport(left)) || String(left.createdAt).localeCompare(String(right.createdAt)));
+  return list;
+}
+
+// A report waits for moderator review until it is verified for public view, hidden or rejected.
+function isAwaitingReview(row) {
+  return !Number(row.public_verified) && !Number(row.hidden) && row.status !== "Rejected";
+}
+
+function isUrgentReport(report) {
+  return Boolean(report.immediateDanger) || String(report.severity || "").toLowerCase() === "critical";
+}
+
+// Contact details and exact locations are never sent in staff lists: only on the case page (responderCaseDetail).
+const PRIVATE_REPORT_KEYS = ["contact", "trustedContact", "coordinates", "digitalAddress", "exactLatitude", "exactLongitude", "accuracyMetres", "googlePlaceId"];
+
+function responderListReport(row) {
+  const report = responderReport(row);
+  const hasContact = Boolean(report.contact || report.trustedContact);
+  const hasExactLocation = Boolean(report.location && report.location.exactLatitude !== null && report.location.exactLatitude !== undefined);
+  for (const key of PRIVATE_REPORT_KEYS) delete report[key];
+  report.location = publicLocationForReport(row.id);
+  return { ...report, hasContact, hasExactLocation };
+}
+
+// Reporter contact details: moderators, admins and the responder the case is assigned to. Exact location: any staff
+// member whose area covers the report (checked by reportInActorScope before this is called).
+function canSeeReporterContact(actor, row) {
+  return canModerate(actor) || Number(row.assignment_user_id || 0) === Number(actor.id);
+}
+
+function responderCaseDetail(reportId, actor, req) {
+  const row = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
+  if (!row || (Number(row.hidden) && !canModerate(actor))) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
+  if (!reportInActorScope(actor, row)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
+  const report = responderReport(row);
+  const contactAllowed = canSeeReporterContact(actor, row);
+  const hasContact = Boolean(report.contact || report.trustedContact);
+  if (!contactAllowed) { delete report.contact; delete report.trustedContact; }
+  logAudit(actor, "case_viewed", "report", reportId, { contactShown: contactAllowed && hasContact }, req);
+  return { ...report, hasContact, contactAccess: contactAllowed ? "shown" : "assigned-or-moderator-only", awaitingReview: isAwaitingReview(row), routePreview: routePreview(row) };
+}
+
+// Counts for the staff home screen, all from the database for this account's area.
+function staffSummary(actor) {
+  const count = (queue, extra = {}) => listReports(actor, new URLSearchParams({ queue, ...extra })).length;
+  const review = canModerate(actor) ? listReports(actor, new URLSearchParams({ queue: "review" })) : null;
+  return {
+    review: review ? review.length : null,
+    urgentReview: review ? review.filter(isUrgentReport).length : null,
+    assigned: count("assigned"),
+    area: count("institutional"),
+    overdue: count("institutional", { overdue: "1" }),
+    escalated: count("escalated")
+  };
 }
 
 function listAssignableResponders(actor, reportId = "") {
@@ -3222,18 +3280,8 @@ function routeRecommendation(reportId, actor, req) {
   const report = db.prepare("SELECT * FROM reports WHERE id = ?").get(reportId);
   if (!report) throw Object.assign(new Error("Report not found"), { statusCode: 404 });
   if (!reportInActorScope(actor, report)) throw Object.assign(new Error("Report is outside your permitted area"), { statusCode: 403 });
-  const rules = db.prepare("SELECT * FROM routing_rules WHERE active = 1 ORDER BY priority ASC, updated_at DESC").all();
-  const candidates = rules.filter((rule) =>
-    (!rule.category || canonicalScopeLabel(rule.category) === canonicalScopeLabel(report.type)) &&
-    (!rule.region || canonicalScopeLabel(rule.region) === canonicalScopeLabel(report.region)) &&
-    (!rule.district || canonicalScopeLabel(rule.district) === canonicalScopeLabel(report.district))
-  );
-  if (!candidates.length) throw Object.assign(new Error("No active routing rule matches this report; an administrator must review configuration"), { statusCode: 404 });
-  candidates.sort((left, right) => {
-    const specificity = (rule) => [rule.category, rule.region, rule.district].filter(Boolean).length;
-    return Number(left.priority) - Number(right.priority) || specificity(right) - specificity(left);
-  });
-  const rule = candidates[0];
+  const rule = matchRoutingRule(report);
+  if (!rule) throw Object.assign(new Error("No active routing rule matches this report; an administrator must review configuration"), { statusCode: 404 });
   const id = crypto.randomUUID();
   const stamp = nowIso();
   db.prepare(`INSERT INTO routing_recommendations (
@@ -3243,6 +3291,29 @@ function routeRecommendation(reportId, actor, req) {
     .run(id, reportId, rule.id, rule.rule_version, rule.agency_id, rule.response_target_id, rule.rationale, actor.id, stamp);
   logAudit(actor, "routing_recommended", "report", reportId, { recommendationId: id, ruleId: rule.id, ruleVersion: rule.rule_version, agencyId: rule.agency_id }, req);
   return routingState(reportId);
+}
+
+function matchRoutingRule(report) {
+  const rules = db.prepare("SELECT * FROM routing_rules WHERE active = 1 ORDER BY priority ASC, updated_at DESC").all();
+  const candidates = rules.filter((rule) =>
+    (!rule.category || canonicalScopeLabel(rule.category) === canonicalScopeLabel(report.type)) &&
+    (!rule.region || canonicalScopeLabel(rule.region) === canonicalScopeLabel(report.region)) &&
+    (!rule.district || canonicalScopeLabel(rule.district) === canonicalScopeLabel(report.district))
+  );
+  if (!candidates.length) return null;
+  candidates.sort((left, right) => {
+    const specificity = (rule) => [rule.category, rule.region, rule.district].filter(Boolean).length;
+    return Number(left.priority) - Number(right.priority) || specificity(right) - specificity(left);
+  });
+  return candidates[0];
+}
+
+// Which office the active routing rules would choose, without recording anything. Nothing is sent by this.
+function routePreview(report) {
+  const rule = matchRoutingRule(report);
+  if (!rule) return { matched: false, office: "", rule: "", note: "No active routing rule matches this report yet. An administrator needs to add one." };
+  const agency = db.prepare("SELECT name FROM admin_directory_items WHERE id = ?").get(rule.agency_id);
+  return { matched: true, office: agency ? agency.name : "", rule: rule.name, ruleVersion: rule.rule_version, note: "A routing rule recommends this office. Nothing is sent until staff act on it." };
 }
 
 function routingState(reportId) {
@@ -3265,6 +3336,7 @@ function routingState(reportId) {
       ruleId: recommendation.rule_id || "",
       ruleVersion: recommendation.rule_version,
       agencyId: recommendation.override_agency_id || recommendation.agency_id,
+      agencyName: (db.prepare("SELECT name FROM admin_directory_items WHERE id = ?").get(recommendation.override_agency_id || recommendation.agency_id) || {}).name || "",
       originalAgencyId: recommendation.agency_id,
       responseTargetId: recommendation.response_target_id || "",
       rationale: recommendation.rationale,
@@ -3581,6 +3653,7 @@ function moderateReport(reportId, body, actor, req) {
   }
   else if (action === "unflag") flagged = 0;
   else if (action === "hide") {
+    if (!note) throw Object.assign(new Error("A reason is required to hide a report"), { statusCode: 400 });
     hidden = 1;
     publicVerified = 0;
   }
@@ -3588,6 +3661,7 @@ function moderateReport(reportId, body, actor, req) {
   else if (action === "approve") {
     if (isDemoPayload({ id: row.id, source: row.source })) throw Object.assign(new Error("Demo reports cannot be approved for public display"), { statusCode: 400 });
     if (!note) throw Object.assign(new Error("A moderation verification note is required"), { statusCode: 400 });
+    if (body.privacyChecked !== true) throw Object.assign(new Error("Confirm that the public text shows no contact details, exact address or other identifying information"), { statusCode: 400 });
     if (!publicLocationForReport(reportId)) throw Object.assign(new Error("A safe public location is required before approval"), { statusCode: 400 });
     flagged = 0;
     hidden = 0;
@@ -3597,6 +3671,7 @@ function moderateReport(reportId, body, actor, req) {
     verifiedBy = actor.id;
     responsibleInstitution = sanitizeText(body.responsibleInstitution || row.responsible_institution || "", 160);
   } else if (action === "reject") {
+    if (!note) throw Object.assign(new Error("A reason is required to reject a report"), { statusCode: 400 });
     hidden = 1;
     publicVerified = 0;
     status = "Rejected";
@@ -3683,7 +3758,11 @@ function sendPrivateAttachment(req, res, attachment) {
     throw Object.assign(new Error("Private attachment file is unavailable"), { statusCode: 404 });
   }
   const bytes = fs.readFileSync(storagePath);
+  // Same cross-origin rule as every other API response, so the staff page (served from its own origin) can read
+  // the photo with fetch and show it from a temporary blob: URL.
   res.writeHead(200, {
+    "Access-Control-Allow-Origin": PUBLIC_ORIGIN === "*" ? "*" : (String(req.headers.origin || "").trim() || PUBLIC_ORIGIN.split(",")[0].trim()),
+    ...(PUBLIC_ORIGIN === "*" ? {} : { Vary: "Origin" }),
     "Content-Type": attachment.detected_mime,
     "Content-Length": bytes.length,
     "Cache-Control": "private, no-store, max-age=0",
@@ -4232,6 +4311,17 @@ async function handler(req, res) {
     if (req.method === "GET" && pathname === "/api/reports") {
       if (!isResponder(actor)) return send(req, res, 403, { ok: false, error: "Responder account required" });
       return send(req, res, 200, { ok: true, reports: listReports(actor, query) });
+    }
+
+    if (req.method === "GET" && pathname === "/api/staff/summary") {
+      if (!isResponder(actor)) return send(req, res, 403, { ok: false, error: "Responder account required" });
+      return send(req, res, 200, { ok: true, user: publicUser(actor), summary: staffSummary(actor) });
+    }
+
+    const caseDetailMatch = pathname.match(/^\/api\/reports\/([^/]+)\/case$/);
+    if (req.method === "GET" && caseDetailMatch) {
+      if (!isResponder(actor)) return send(req, res, 403, { ok: false, error: "Responder account required" });
+      return send(req, res, 200, { ok: true, report: responderCaseDetail(decodeURIComponent(caseDetailMatch[1]), actor, req) });
     }
 
     if (req.method === "GET" && pathname === "/api/responders") {

@@ -1,6 +1,8 @@
 "use strict";
 
-// Seeds the LOCAL API with four moderated demo reports so Nearby, photos and timelines can be tested.
+// Seeds the LOCAL API with four moderated demo reports so Nearby, photos and timelines can be tested, plus three
+// reports waiting for moderator review and one demo office with a routing rule for the staff screens.
+// Pass --review-only to add just the review reports and routing rule to data that was seeded before.
 // Every step goes through the real API: upload, submit, moderate, review photo, publish photo, responder update.
 // The two photos in demo-photos/ are drawings, not real places. Label any screenshot that uses them as demo data.
 const crypto = require("crypto");
@@ -52,7 +54,8 @@ const reports = [
   const settings = localSettings();
   const admin = await call("/api/login", { method: "POST", body: { username: "admin", password: settings.adminPassword } });
   const responder = await call("/api/login", { method: "POST", body: { username: "assembly", password: "assembly123" } });
-  for (const item of reports) {
+  const reviewOnly = process.argv.includes("--review-only");
+  for (const item of reviewOnly ? [] : reports) {
     const submissionKey = crypto.randomUUID();
     const trackingSecret = crypto.randomBytes(32).toString("base64url");
     const attachmentIds = [];
@@ -77,7 +80,7 @@ const reports = [
     const ref = submitted.reference;
     await call(`/api/reports/${ref}/moderation`, {
       method: "POST", token: admin.token,
-      body: { action: "approve", note: "Checked against the description and location.", ...(item.institution ? { responsibleInstitution: item.institution } : {}) }
+      body: { action: "approve", privacyChecked: true, note: "Checked against the description and location.", ...(item.institution ? { responsibleInstitution: item.institution } : {}) }
     });
     for (const attachmentId of attachmentIds) {
       await call(`/api/admin/citizen-attachments/${attachmentId}/review`, { method: "POST", token: admin.token, body: { action: "clean", note: "Viewed: no people, plates or house numbers." } });
@@ -91,5 +94,35 @@ const reports = [
       }
     }
     console.log(`Seeded ${ref}: ${item.title}${attachmentIds.length ? " (with demo photo)" : ""}`);
+  }
+
+  // A demo office and routing rule, so review pages can show where a verified report would be routed.
+  const office = await call("/api/admin/directory", { method: "POST", token: admin.token, body: { kind: "agency", name: "Accra Metropolitan Assembly (demo)", configuration: {} } });
+  await call("/api/admin/routing-rules", {
+    method: "POST", token: admin.token,
+    body: { name: "Accra Metro reports (demo)", region: "Greater Accra", district: "Accra Metropolitan", agencyId: office.item.id, priority: 100, ruleVersion: "demo-2026-11", rationale: "Demo rule: the assembly handles reports inside its own area." }
+  });
+  console.log("Seeded a demo office and routing rule");
+
+  // Reports waiting for moderator review: not verified, so they never appear publicly.
+  const waiting = [
+    { type: "Electricity", subcategory: "Fallen wire", severity: "Critical", immediateDanger: true, title: "Live wire hanging over the footpath",
+      details: "A power line has come down after the storm and is hanging low over the footpath near the school gate.", community: "Kaneshie, near the school gate", coordinates: "5.5700,-0.2300", contact: "Demo contact 024 000 0000" },
+    { type: "Flooding or drainage", subcategory: "Overflowing drain", severity: "High", title: "Drain overflowing into homes",
+      details: "Water from the main drain is entering houses on the lane every time it rains.", community: "Kaneshie, along the main lane", coordinates: "5.5660,-0.2250" },
+    { type: "Road or bridge", subcategory: "Damaged bridge", severity: "Medium", title: "Loose planks on the footbridge",
+      details: "Two planks on the footbridge are loose and children cross it every morning.", community: "Abossey Okai, at the footbridge", coordinates: "5.5750,-0.2200" }
+  ];
+  for (const item of waiting) {
+    const submitted = await call("/api/public/reports", {
+      method: "POST",
+      body: {
+        submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), type: item.type, subcategory: item.subcategory,
+        severity: item.severity, immediateDanger: Boolean(item.immediateDanger), title: item.title, region: "Greater Accra", district: "Accra Metropolitan",
+        community: item.community, details: item.details, coordinates: item.coordinates, locationSource: "gps", accuracyMetres: 10, exactLocationConsent: true,
+        ...(item.contact ? { contact: item.contact, contactConsent: true } : {}), consentConfirmed: true, attachmentIds: []
+      }
+    });
+    console.log(`Seeded ${submitted.reference} waiting for review: ${item.title}`);
   }
 })().catch((error) => { console.error(error.message); process.exit(1); });

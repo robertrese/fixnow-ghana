@@ -2,7 +2,7 @@
 
 // Checks that no screen scrolls sideways on small phones, including with the app's Large text setting, and that
 // no visible text field uses text under 16 px (iPhone zooms in on those). Exits with 1 and names the screen.
-const { passWelcome, launchBrowser, contextOptions, THEME_LABEL } = require("./common");
+const { passWelcome, launchBrowser, contextOptions, THEME_LABEL, APP_URL } = require("./common");
 
 
 // A hung browser must fail the run, not block it forever.
@@ -64,7 +64,7 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
       await page.waitForTimeout(view === "nearby" ? 1200 : 300);
       await check(view);
     }
-    // Fields that only appear in dialogs: Find report and staff sign-in.
+    // Fields that only appear in a dialog (Find report) or on the separate staff page (staff sign-in).
     await page.click('.nav button[data-app-view="my"]');
     await page.click("#trackAnotherBtn");
     await page.waitForTimeout(300);
@@ -72,7 +72,8 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
     await page.click("#modalActions button:last-child").catch(() => {});
     await page.click('.nav button[data-app-view="profile"]');
     await page.evaluate(() => [...document.querySelectorAll("button")].find((button) => /Verified staff access/.test(button.textContent)).click());
-    await page.waitForTimeout(300);
+    await page.waitForURL(/staff.html/);
+    await page.waitForSelector("#signInUsername");
     await check("staff sign-in");
     await page.close();
   }

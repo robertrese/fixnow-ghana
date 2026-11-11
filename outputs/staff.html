@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <meta name="referrer" content="no-referrer" />
+  <!-- Strict policy: only this site's own scripts, styles, fonts and images; connections only to the FixNow server
+       (and the local development server, which exists only on a developer's own computer). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.fixnowghana.org http://localhost:4180 http://127.0.0.1:4180; base-uri 'none'; form-action 'none'; object-src 'none'" />
+  <title>FixNow Ghana staff</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <script src="staff-boot.js"></script>
+  <link rel="stylesheet" href="staff.css" />
+</head>
+<body>
+  <header class="s-topbar" id="staffTopbar" hidden>
+    <div class="s-brand"><img src="icon.svg" alt="" /><div><strong>FixNow Ghana</strong><span id="topbarWho">Staff</span></div></div>
+    <button class="btn" type="button" data-sign-out>Sign out</button>
+  </header>
+
+  <div class="s-shell">
+    <nav class="s-tabs" id="staffTabs" aria-label="Staff sections" hidden>
+      <div class="s-side-head">
+        <div class="s-brand"><img src="icon.svg" alt="" /><div><strong>FixNow Ghana</strong><span>Staff area</span></div></div>
+        <div class="who" id="sideWho"></div>
+        <button class="btn" type="button" data-sign-out>Sign out</button>
+      </div>
+      <div class="s-tablist" id="tabButtons"></div>
+    </nav>
+
+    <main class="s-main" id="staffMain" tabindex="-1">
+      <section id="signInView" aria-labelledby="signInTitle" hidden>
+        <div class="s-signin">
+          <div class="s-brand"><img src="icon.svg" alt="" /><div><strong>FixNow Ghana</strong><span>Staff area</span></div></div>
+          <div class="s-card">
+            <h1 id="signInTitle" tabindex="-1">Staff sign in</h1>
+            <p class="hint s-intro">For approved moderators, assembly and service staff. The server checks your role and area on every request.</p>
+            <form id="signInForm" novalidate>
+              <label>Username<input id="signInUsername" autocomplete="username" autocapitalize="none" spellcheck="false" required /></label>
+              <label>Password<input id="signInPassword" type="password" autocomplete="current-password" required /></label>
+              <details class="s-more"><summary class="link-btn">Server address</summary>
+                <label>Server address<input id="signInServer" inputmode="url" autocomplete="url" spellcheck="false" /></label>
+              </details>
+              <div class="s-status" id="signInStatus" role="status"></div>
+              <div class="s-actions stack"><button class="btn btn-primary" type="submit">Sign in</button><a class="btn" id="residentLink" href="fixnow-ghana.html">Back to FixNow</a></div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <div id="staffView" hidden></div>
+    </main>
+  </div>
+
+  <div class="s-page" id="staffPage" role="region" aria-labelledby="pageTitle" hidden>
+    <div class="s-page-inner">
+      <button class="btn back" type="button" id="pageBack">Back</button>
+      <div id="pageBody"></div>
+    </div>
+  </div>
+
+  <div class="s-dialog-backdrop" id="dialogBackdrop" hidden>
+    <div class="s-dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <h2 id="dialogTitle" tabindex="-1"></h2>
+      <div id="dialogBody"></div>
+      <div class="s-status" id="dialogStatus" role="status"></div>
+      <div class="s-actions stack" id="dialogActions"></div>
+    </div>
+  </div>
+  <div class="s-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="staff.js"></script>
+</body>
+</html>

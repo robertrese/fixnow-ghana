@@ -37,8 +37,8 @@ assert(backup.includes("pg_dump") && backup.includes("age --recipient") && backu
 assert(restore.includes("pg_restore") && restore.includes("boundary_datasets"), "restore tests should verify restored operational data");
 assert(secretScan.includes("PRIVATE KEY") && secretScan.includes("Potential committed secret"), "a repository secret scan should be available");
 
-assert(html.includes("adminReadinessBtn") && html.includes("adminRetentionBtn"), "admins should be able to inspect readiness and retention dry runs");
-assert(html.includes("openPrivateResponderEvidence") && html.includes("cache: \"no-store\""), "authorised evidence previews should consume signed URLs without caching");
+assert(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes('api("/api/ready")') && fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("execute: false"), "admins should be able to inspect readiness and retention dry runs");
+assert(/async function openPhoto[\s\S]*\/signed-url[\s\S]*cache: "no-store"/.test(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8")), "authorised evidence previews should consume signed URLs without caching");
 assert(/fixnow-ghana-static-v(?:2\d|[3-9]\d)/.test(worker) && worker.includes('url.pathname.startsWith("/api/")'), "Phase 11 should invalidate static assets while excluding every API response from service-worker storage");
 
 // The repository is public: demo staff accounts (with published passwords) must never exist in production.

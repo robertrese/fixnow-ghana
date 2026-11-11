@@ -18,7 +18,7 @@ Run each command in its own terminal:
 ```powershell
 npm run start:api      # local API with demo accounts; data in work/fixnow-backend/local-data
 npm run start:web      # the web app on http://localhost:4173
-npm run qa:seed        # once per fresh local-data folder: 4 moderated demo reports
+npm run qa:seed        # once per fresh local-data folder: 4 moderated demo reports, 3 waiting for review, a demo routing rule
 npm run qa             # Chromium, light and dark, plus the older-browser check
 npm run qa:engines     # the same layout check, WCAG scan and walkthrough in WebKit and Firefox, light and dark
 npm run qa:all         # both of the above
@@ -27,6 +27,7 @@ npm run qa:all         # both of the above
 - `overflow-check.js` fails if any screen scrolls sideways at 320 px, or at 320 or 390 px with Large text, or if a visible text field uses text under 16 px (iPhone zooms in on those).
 - `a11y-scan.js` fails on any axe-core WCAG 2.1 A/AA violation at 320, 390 or 1280 px. Automated checks miss some problems, so also try a keyboard and a screen reader (TalkBack on Android, VoiceOver on iPhone).
 - `walkthrough.js` screenshots every main screen on a phone and a laptop, and fails if the page logs an error.
+- `staff-check.js` signs in as every demo staff role (moderator, assembly, NADMO, utility, admin) on `staff.html` at 390 px, 320 px and laptop size, opens every staff tab, the review page with its Verify, Reject, Escalate and Hide dialogs, a case page, the update dialog and a private photo, and fails on WCAG violations, sideways scrolling, targets under 44 px, page errors, contact details or exact coordinates in a list, or a review queue that is not urgent-first. Screenshots go to `work/qa/screenshots/staff/`.
 - `old-browser-check.js` removes `crypto.randomUUID` before the page loads (as on iOS 15.0 to 15.3 and older Android browsers) and checks that the app still starts and saves a report.
 
 Every script takes `--dark` (phone set to dark mode) and `--engine=webkit` or `--engine=firefox` (default Chromium). WebKit phone runs use Playwright's iPhone SE (320 px) and iPhone 13 (390 px) profiles. Screenshots go to `work/qa/screenshots/`, then `dark/`, `webkit/`, `webkit-dark/`, `firefox/` and `firefox-dark/`.

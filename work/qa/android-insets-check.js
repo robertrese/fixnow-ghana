@@ -131,7 +131,7 @@ async function tapField(ev, selector, name, dpr) {
     await wait(800);
     await ev(`(() => { const row = [...document.querySelectorAll("button, a, [role=button]")].find((e) => /Verified staff access/.test(e.textContent)); row.click(); return true; })()`);
     await wait(1500);
-    const staffField = await ev(`["#responderPortalUsername", "#syncUsername", "#staffUsername"].find((s) => { const e = document.querySelector(s); return e && e.getClientRects().length; }) || ""`);
+    const staffField = await ev(`["#signInUsername", "#responderPortalUsername", "#syncUsername"].find((s) => { const e = document.querySelector(s); return e && e.getClientRects().length; }) || ""`);
     if (staffField) { if (!(await tapField(ev, staffField, `${mode}-staff-sign-in`, dpr))) failures++; }
     else { console.log("  FAIL staff sign-in field not found"); failures++; }
     ws.close();

@@ -4,7 +4,7 @@
 //   node work/qa/style-snapshot.js save <file>      before the change
 //   node work/qa/style-snapshot.js compare <file>   after the change: fails on any difference
 // Needs the local API and web server running. Runs in Chromium with a fixed clock and reduced motion, on phone and
-// laptop, in light and dark, with Large text and High contrast, including dialogs and the staff portal.
+// laptop, in light and dark, with Large text and High contrast, including dialogs.
 const fs = require("fs");
 const { passWelcome, fillReportToReview, loadPlaywright, APP_URL } = require("./common");
 
@@ -113,13 +113,7 @@ const runs = [
     await take("public report detail");
     await closeDialog();
     await page.evaluate(() => setView("profile"));
-    await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => /Verified staff access/.test(b.textContent)).click());
-    await take("staff sign-in");
-    await page.fill("#responderPortalUsername", "assembly");
-    await page.fill("#responderPortalPassword", "assembly123");
-    await page.click("#modalActions button:first-child");
-    await page.waitForTimeout(3500);
-    await take("staff portal");
+    // Staff screens are in staff.html now and are checked by staff-check.js.
     await context.close();
   }
   await browser.close();

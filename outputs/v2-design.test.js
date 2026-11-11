@@ -88,7 +88,7 @@ assert(/body\[data-view="report"\] \.nav\{display:none\}/.test(v2Css) && /body\[
 
 // Public photos only after moderation, with metadata stripped.
 assert(backend.includes("function stripJpegMetadata") && backend.includes('"Cross-Origin-Resource-Policy": "cross-origin"'), "approved public photos are re-written without metadata and served for the app");
-assert(html.includes("Approve photo for public view") && html.includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
+assert(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("Show photo publicly") && fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
 
 // Screen polish found in the November QA pass.
 assert(!html.includes("Citizen reports stay on this device"), "sent reports go to the server, so the sidebar must not say reports stay on the device");

@@ -527,11 +527,54 @@ async function apiFailure(pathname, options = {}) {
     assert(!JSON.stringify(citizenExport).includes(publicSubmission.trackingSecret) && !JSON.stringify(citizenExport).includes("5.525") && !JSON.stringify(citizenExport).includes("private-contact"), "citizen export must exclude tracking secrets, exact GPS, and private contact data");
     const feedBeforeApproval = await api("/api/public/reports");
     assert(!feedBeforeApproval.reports.some((report) => report.id === publicSubmission.reference), "unmoderated reports must not appear in the public feed");
+    // Staff area: moderator review queue, private details only on the case page, reasons and route preview.
+    const urgentSubmission = await api("/api/public/reports", {
+      method: "POST",
+      body: { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), severity: "Critical", immediateDanger: true, attachmentIds: [], details: "Live wire hanging over the flooded road." }
+    });
+    const reviewQueue = await api("/api/reports?queue=review", { token: adminLogin.token });
+    const queueIds = reviewQueue.reports.map((report) => report.id);
+    assert(queueIds.includes(publicSubmission.reference) && queueIds.includes(urgentSubmission.reference), "unverified public reports should wait in the moderator review queue");
+    assert(queueIds.indexOf(urgentSubmission.reference) < queueIds.indexOf(publicSubmission.reference), "immediate danger and Critical reports should come first in the review queue");
+    const queuedReport = reviewQueue.reports.find((report) => report.id === publicSubmission.reference);
+    assert(!JSON.stringify(reviewQueue).includes("private-contact"), "staff lists must not include reporter contact details");
+    assert(queuedReport.coordinates === undefined && queuedReport.location?.exactLatitude === undefined, "staff lists must not include exact coordinates");
+    assert(queuedReport.hasContact === true && queuedReport.hasExactLocation === true, "staff lists should say whether private details exist without showing them");
+    const responderReviewQueue = await apiFailure("/api/reports?queue=review", { token: responderLogin.token });
+    assert(responderReviewQueue.status === 403, "only moderators may open the review queue");
+    const moderatorCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: adminLogin.token });
+    assert(moderatorCase.report.contact === "private-contact" && moderatorCase.report.location.exactLatitude === 5.525, "the case page should show contact and exact location to moderators");
+    assert(moderatorCase.report.awaitingReview === true && moderatorCase.report.routePreview && typeof moderatorCase.report.routePreview.matched === "boolean", "the case page should show review state and the route preview");
+    const responderCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
+    assert(responderCase.report.contact === undefined && responderCase.report.contactAccess === "assigned-or-moderator-only" && responderCase.report.hasContact === true, "unassigned responders must not see reporter contact details");
+    assert(responderCase.report.location.exactLatitude === 5.525, "responders in the report's area should see the exact location on the case page");
+    const outOfScopeCase = await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: outOfScopeLogin.token });
+    assert(outOfScopeCase.status === 403, "responders outside the area must not open the case page");
+    const summary = await api("/api/staff/summary", { token: adminLogin.token });
+    assert(summary.summary.review >= 2 && summary.summary.urgentReview >= 1, "the staff summary should count reports waiting for review from the database");
+    const responderSummary = await api("/api/staff/summary", { token: responderLogin.token });
+    assert(responderSummary.summary.review === null, "responders should not get review counts");
+    const rejectWithoutReason = await apiFailure(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "reject" } });
+    assert(rejectWithoutReason.status === 400, "rejecting a report should require a reason");
+    const hideWithoutReason = await apiFailure(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "hide" } });
+    assert(hideWithoutReason.status === 400, "hiding a report should require a reason");
+    const approveWithoutPrivacy = await apiFailure(`/api/reports/${publicSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "approve", note: "Looks right" } });
+    assert(approveWithoutPrivacy.status === 400, "verifying a report should require the privacy confirmation");
+    const escalated = await api(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "escalate", note: "Live wire: needs ECG and NADMO now" } });
+    assert(escalated.report.status === "Escalated", "moderators should be able to escalate a dangerous report");
+    const rejected = await api(`/api/reports/${urgentSubmission.reference}/moderation`, { method: "POST", token: adminLogin.token, body: { action: "reject", note: "Test report" } });
+    assert(rejected.report.status === "Rejected" && rejected.report.moderationNote === "Test report", "a rejection should keep its reason");
+    const afterReject = await api("/api/reports?queue=review", { token: adminLogin.token });
+    assert(!afterReject.reports.some((report) => report.id === urgentSubmission.reference), "rejected reports should leave the review queue");
+    const caseAudit = await api("/api/audit", { token: adminLogin.token });
+    assert(caseAudit.events.some((event) => event.action === "case_viewed" && event.entityId === publicSubmission.reference), "opening a case page should be audited");
+
     const publicApproval = await api(`/api/reports/${publicSubmission.reference}/moderation`, {
       method: "POST",
       token: adminLogin.token,
       body: {
         action: "approve",
+        privacyChecked: true,
         note: "Location and evidence reviewed for public display",
         responsibleInstitution: "Accra Metropolitan Assembly"
       }
@@ -834,7 +877,8 @@ async function apiFailure(pathname, options = {}) {
       method: "POST", token: responderLogin.token, body: {}
     });
     assert(signedEvidence.attachment.url.startsWith("/api/private/attachments/") && signedEvidence.attachment.state === "clean", "an authorised responder should receive a short-lived relative signed URL without a storage name");
-    const signedEvidenceResponse = await fetch(`${baseUrl}${signedEvidence.attachment.url}`);
+    const signedEvidenceResponse = await fetch(`${baseUrl}${signedEvidence.attachment.url}`, { headers: { Origin: "http://localhost:4173" } });
+    assert(signedEvidenceResponse.headers.get("access-control-allow-origin"), "the staff page must be allowed to read a private photo it was given a signed link for");
     assert(signedEvidenceResponse.ok && signedEvidenceResponse.headers.get("content-type") === "image/png", "a valid signed URL should stream the private image with no-store headers");
     assert((await signedEvidenceResponse.arrayBuffer()).byteLength > 0, "signed attachment response should contain evidence bytes");
     const tamperedSignedUrl = new URL(signedEvidence.attachment.url, baseUrl);

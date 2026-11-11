@@ -87,7 +87,6 @@
     }
 
     body.high-contrast .map,
-    body.high-contrast .case-card,
     body.high-contrast .guided-step,
     body.high-contrast .example-card {
       border-width: 2px;
@@ -652,36 +651,13 @@
       padding-right: 4px;
     }
 
-    .case-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--green);
-      border-radius: 8px;
-      padding: 12px;
-      display: grid;
-      gap: 9px;
-    }
 
-    .case-top {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: start;
-    }
 
-    .case-card h3 {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.25;
-      letter-spacing: 0;
-    }
 
-    .case-meta {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-    }
+
+
+
+
 
     .score {
       display: grid;
@@ -706,12 +682,7 @@
       margin-top: 3px;
     }
 
-    .case-card p {
-      margin: 0;
-      color: #45564f;
-      line-height: 1.38;
-      font-size: 13px;
-    }
+
 
     .tags {
       display: flex;
@@ -835,42 +806,15 @@
       line-height: 1.35;
     }
 
-    .sync-panel {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
-      gap: 14px;
-      align-items: start;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      padding: 16px;
-    }
 
-    .sync-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
 
-    .sync-status {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #f8fbf9;
-      padding: 12px;
-      display: grid;
-      gap: 8px;
-    }
 
-    .sync-status b {
-      display: block;
-    }
 
-    .sync-status span {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
-    }
+
+
+
+
+
 
     .examples-panel {
       display: grid;
@@ -1211,116 +1155,62 @@
     .responder-control,
     .action-log { display: none !important; }
 
-    .responder-portal { display: none; gap: 18px; }
-    body[data-view="responder"] .responder-portal { display: grid; }
+
+
     body[data-view="responder"] .nav,
     body[data-view="responder"] .rail-box,
     body[data-view="responder"] .rail-actions,
     body[data-view="responder"] .rail-links { display: none; }
 
-    .responder-portal-head,
-    .responder-toolbar,
-    .responder-scope-grid,
-    .responder-case-head,
-    .responder-action-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
 
-    .responder-portal-head {
-      border-block: 1px solid var(--line);
-      padding: 18px 0;
-    }
 
-    .responder-portal-head h2,
-    .responder-case h3 { margin: 0; }
-    .responder-portal-head p { margin: 4px 0 0; color: var(--muted); }
 
-    .responder-scope-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 8px;
-    }
 
-    .responder-scope-grid div { padding: 14px; border-right: 1px solid var(--line); }
-    .responder-scope-grid div:last-child { border-right: 0; }
-    .responder-scope-grid span { display: block; color: var(--muted); font-size: 12px; }
-    .responder-scope-grid strong { display: block; margin-top: 4px; overflow-wrap: anywhere; }
 
-    .responder-toolbar {
-      align-items: end;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--line);
-    }
 
-    .responder-toolbar label { min-width: 150px; flex: 1; font-size: 12px; }
-    .responder-toolbar input,
-    .responder-toolbar select { margin-top: 5px; }
-    .responder-queue-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-    .responder-queue-tabs button[aria-pressed="true"] { background: var(--nav); color: #fff; border-color: var(--nav); }
 
-    .responder-map-shell { min-height: 460px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-    .responder-map-canvas { width: 100%; min-height: 460px; }
-    .responder-map-unavailable { min-height: 460px; }
 
-    .responder-case-list { display: grid; gap: 12px; }
-    .responder-case {
-      display: grid;
-      gap: 12px;
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--green);
-      border-radius: 8px;
-      background: #fff;
-    }
 
-    .responder-case.overdue { border-left-color: var(--red); }
-    .responder-case p { margin: 0; color: var(--muted); line-height: 1.5; }
-    .responder-case-location {
-      padding: 10px 12px;
-      border-left: 3px solid #2368aa;
-      background: #eef5fb;
-      color: #17344d;
-      overflow-wrap: anywhere;
-    }
-    .responder-case-location strong { color: #102d47; }
-    .responder-evidence-list { display: flex; gap: 6px; flex-wrap: wrap; }
-    .responder-action-row { justify-content: flex-start; }
-    .responder-action-row .mini { min-height: 44px; }
-    .responder-status-line { min-height: 24px; color: var(--muted); }
 
-    .admin-console {
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-      padding-top: 22px;
-      border-top: 3px solid var(--nav);
-    }
-    .admin-console-head,
-    .admin-summary,
-    .admin-item-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .admin-console-head h2,
-    .admin-console-head p { margin: 0; }
-    .admin-console-head p { color: var(--muted); margin-top: 4px; }
-    .admin-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .admin-summary div { padding: 12px; border-block: 1px solid var(--line); }
-    .admin-summary span { display: block; color: var(--muted); font-size: 12px; }
-    .admin-summary strong { display: block; margin-top: 3px; font-size: 22px; }
-    .admin-config-list { display: grid; }
-    .admin-item-row { padding: 11px 4px; border-bottom: 1px solid var(--line); }
-    .admin-item-row:first-child { border-top: 1px solid var(--line); }
-    .admin-item-row span { color: var(--muted); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     .citizen-band {
       gap: 18px;
@@ -1682,7 +1572,7 @@
     }
 
     @media (forced-colors: active) {
-      button, input, select, textarea, .case-card, .public-report-card, .guided-step, .modal {
+      button, input, select, textarea, .public-report-card, .guided-step, .modal {
         border: 1px solid CanvasText;
       }
       .signal, .tag, .pill i { forced-color-adjust: auto; }
@@ -1734,7 +1624,7 @@
       .status-strip { justify-content: flex-start; min-width: 0; }
       .assist { grid-template-columns: 1fr; }
       .assist-tools { justify-content: flex-start; }
-      .sync-panel, .sync-grid { grid-template-columns: 1fr; }
+
       .workspace, .analytics, .side-stack { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .guided-steps, .examples-grid { grid-template-columns: 1fr 1fr; }
@@ -1744,8 +1634,8 @@
       .home-copy { padding: 28px; }
       body[data-view="responder"] .workspace { grid-template-columns: 1fr; }
       body[data-view="responder"] .side-stack { display: grid; }
-      .responder-scope-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .responder-scope-grid div:nth-child(2) { border-right: 0; }
+
+
       body[data-view="responder"] .content { padding-bottom: 28px; }
     }
 
@@ -1754,7 +1644,7 @@
       .rail { padding: 16px 12px; }
       .row, .checks, .evidence, .stats { grid-template-columns: 1fr; }
       .map { min-height: 315px; }
-      .case-top { grid-template-columns: 1fr; }
+
       .score { width: 100%; height: 40px; }
       .bar-row { grid-template-columns: 92px minmax(0, 1fr) 28px; }
       .status-strip { width: 100%; }
@@ -1778,19 +1668,18 @@
       .map-canvas,
       .map-unavailable { min-height: 420px; }
       .map-toolbar { grid-template-columns: 1fr auto; }
-      .responder-scope-grid { grid-template-columns: 1fr; }
-      .responder-scope-grid div,
-      .responder-scope-grid div:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--line); }
-      .responder-scope-grid div:last-child { border-bottom: 0; }
-      .responder-toolbar { align-items: stretch; }
-      .responder-toolbar label { min-width: 100%; }
-      .responder-queue-tabs { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
-      .responder-queue-tabs button { min-height: 48px; }
-      .responder-action-row { display: grid; grid-template-columns: 1fr 1fr; }
-      .responder-action-row > * { width: 100%; }
-      .admin-summary { grid-template-columns: 1fr 1fr; }
-      .admin-console-head { align-items: stretch; }
-      .admin-console-head .button-row { display: grid; grid-template-columns: 1fr; width: 100%; }
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     .rail {
@@ -2745,9 +2634,8 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 [data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
 @media (min-width: 881px){[data-theme="dark"] .rail .nav button.active, [data-theme="dark"] .rail .nav button.active code{color:#0d2a22}
 }
-[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .sync-panel, .action-log, .responder-scope-grid, .responder-case, .case-card, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
-[data-theme="dark"] .responder-case-location strong{color:var(--ink)}
-[data-theme="dark"] :is(.guided-step, .sync-status, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .responder-case-location, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .action-log, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] :is(.guided-step, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .notice{background:#363322;color:#f3c95a;border-color:#5a5330}
 [data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
 [data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call, [data-theme="dark"] .modal-actions .emergency-dial{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
@@ -2853,96 +2741,6 @@ body.map-unavailable [data-focus-public]{display:none}
       <div class="offline-banner" id="offlineBanner" role="status" hidden>
         <b>You're offline.</b> New reports are saved on this phone and sent when you reconnect.
       </div>
-
-      <section class="responder-portal" id="responderPortal" aria-labelledby="responderPortalHeading">
-        <div class="responder-portal-head">
-          <div>
-            <h2 id="responderPortalHeading">Responder field portal</h2>
-            <p>Private case data appears only after authenticated, server-scoped access.</p>
-          </div>
-          <div class="button-row">
-            <button class="secondary" id="responderBackBtn" type="button">Citizen app</button>
-            <button class="danger" id="responderPortalLogoutBtn" type="button">Sign out</button>
-          </div>
-        </div>
-
-        <div class="honest-state" id="responderPortalGate">
-          <strong>Verified staff sign-in required</strong>
-          <p>The portal will not render case details, exact locations, queues, or actions until the API confirms an active responder account and scope.</p>
-          <button class="primary" id="responderPortalLoginBtn" type="button">Sign in to field portal</button>
-        </div>
-
-        <div id="responderFieldWorkspace" hidden>
-          <div role="group" class="responder-scope-grid" aria-label="Authenticated responder scope">
-            <div><span>Role</span><strong id="fieldRole">Not connected</strong></div>
-            <div><span>Institution</span><strong id="fieldInstitution">Not connected</strong></div>
-            <div><span>Region</span><strong id="fieldRegion">Not connected</strong></div>
-            <div><span>MMDA scope</span><strong id="fieldDistrict">Not connected</strong></div>
-          </div>
-
-          <div role="group" class="responder-toolbar" aria-label="Responder queue controls">
-            <div class="responder-queue-tabs" role="group" aria-label="Choose responder queue">
-              <button class="secondary" type="button" data-responder-queue="assigned" aria-pressed="true">Assigned</button>
-              <button class="secondary" type="button" data-responder-queue="institutional" aria-pressed="false">Institutional</button>
-              <button class="secondary" type="button" data-responder-queue="overdue" aria-pressed="false">Overdue</button>
-              <button class="secondary" type="button" data-responder-queue="escalated" aria-pressed="false">Escalated</button>
-            </div>
-            <label>Search cases
-              <input id="responderCaseSearch" type="search" placeholder="Reference, location, or problem" autocomplete="off" />
-            </label>
-            <label>Category
-              <select id="responderCategoryFilter"><option value="">All categories</option></select>
-            </label>
-            <label>Status
-              <select id="responderStatusFilter">
-                <option value="">All statuses</option><option>Open</option><option>Acknowledged</option><option>Dispatched</option><option>In Progress</option><option>Blocked</option><option>Escalated</option><option>Resolved</option><option>Reopened</option>
-              </select>
-            </label>
-            <div class="segmented" role="group" aria-label="Responder queue display">
-              <button type="button" data-responder-mode="list" aria-pressed="true">List</button>
-              <button type="button" data-responder-mode="map" aria-pressed="false">Map</button>
-            </div>
-            <button class="secondary" id="responderRefreshBtn" type="button">Refresh</button>
-          </div>
-
-          <p class="responder-status-line" id="responderFieldStatus" role="status" aria-live="polite">No authorised cases loaded.</p>
-
-          <div class="responder-map-shell" id="responderMapShell" hidden>
-            <div role="region" class="responder-map-canvas" id="responderMap" aria-label="Exact locations for authorised cases"></div>
-            <div class="honest-state responder-map-unavailable" id="responderMapUnavailable" hidden>
-              <strong>Responder map unavailable</strong>
-              <p>Exact authorised locations remain available in the list. A restricted Google Maps browser key and Map ID are required for the live map.</p>
-            </div>
-          </div>
-
-          <div class="responder-case-list" id="responderCaseList" aria-live="polite"></div>
-
-          <section class="admin-console" id="adminConsole" aria-labelledby="adminConsoleHeading" hidden>
-            <div class="admin-console-head">
-              <div><h2 id="adminConsoleHeading">Administration and routing</h2><p>Durable production configuration. Changes are versioned and audited.</p></div>
-              <div class="button-row">
-                <button class="secondary" id="adminAddItemBtn" type="button">Add configuration</button>
-                <button class="secondary" id="adminAddRuleBtn" type="button">Add routing rule</button>
-                <button class="secondary" id="adminInviteBtn" type="button">Invite responder</button>
-                <button class="secondary" id="adminReadinessBtn" type="button">Readiness</button>
-                <button class="secondary" id="adminRetentionBtn" type="button">Retention check</button>
-                <button class="secondary" id="adminRefreshBtn" type="button">Refresh</button>
-              </div>
-            </div>
-            <div role="group" class="admin-summary" aria-label="Administration totals">
-              <div><span>Configuration items</span><strong id="adminItemCount">0</strong></div>
-              <div><span>Routing rules</span><strong id="adminRuleCount">0</strong></div>
-              <div><span>Open invitations</span><strong id="adminInvitationCount">0</strong></div>
-              <div><span>Boundary datasets</span><strong id="adminBoundaryCount">0</strong></div>
-            </div>
-            <p class="responder-status-line" id="adminConsoleStatus" role="status" aria-live="polite">Administration data has not loaded.</p>
-            <details open><summary>Directory and controls</summary><div class="admin-config-list" id="adminItemList"></div></details>
-            <details><summary>Routing rules</summary><div class="admin-config-list" id="adminRuleList"></div></details>
-            <details><summary>Responder invitations</summary><div class="admin-config-list" id="adminInvitationList"></div></details>
-            <details><summary>Boundary datasets</summary><div class="admin-config-list" id="adminBoundaryList"></div></details>
-          </section>
-        </div>
-      </section>
 
       <section class="home-panel" id="homePanel" aria-labelledby="homeHeading">
         <div class="home-copy">
@@ -3213,38 +3011,6 @@ body.map-unavailable [data-focus-public]{display:none}
 
       <section class="action-log" id="actionLog" aria-live="polite">
         Ready. Use Guided report for a step-by-step path, or Field mode for the shortest form on small phones.
-      </section>
-
-      <section class="sync-panel responder-only" id="syncPanel" aria-label="Responder sync">
-        <div>
-          <h2>Responder sync</h2>
-          <p class="hint">Connect to the verified responder API to upload field reports, pull shared cases, and let official desks update statuses.</p>
-          <div class="sync-grid">
-            <label>Server URL
-              <input id="syncServer" value="https://api.fixnowghana.org" inputmode="url" autocomplete="url" />
-            </label>
-            <label>Username
-              <input id="syncUsername" placeholder="official account" autocomplete="username" />
-            </label>
-            <label>Password
-              <input id="syncPassword" type="password" placeholder="password" autocomplete="current-password" />
-            </label>
-          </div>
-          <div class="button-row" style="margin-top: 10px;">
-            <button class="primary" id="syncLoginBtn" type="button">Login</button>
-            <button class="secondary" id="syncNowBtn" type="button">Sync now</button>
-            <button class="secondary" id="syncPullBtn" type="button">Pull cases</button>
-            <button class="secondary" id="syncLogoutBtn" type="button">Logout</button>
-          </div>
-        </div>
-        <div class="sync-status">
-          <b id="syncAccount">Not connected</b>
-          <span id="syncRole">Use a verified responder account approved by an administrator.</span>
-          <span id="syncInstitution">Institution: not connected</span>
-          <span id="syncScope">Assigned area: not connected</span>
-          <span id="syncLast">No server sync yet.</span>
-          <span id="syncCounts">Local cases only.</span>
-        </div>
       </section>
 
       <section class="guided-panel report-only" id="guidedPanel" hidden>
@@ -3901,7 +3667,6 @@ body.map-unavailable [data-focus-public]{display:none}
     let reports = loadReports();
     const UPDATE_CHECK_INTERVAL_MS = 60000;
     let lastUpdateCheck = 0;
-    let responderReports = loadResponderReports();
     let filter = "All";
     let deferredInstall = null;
     let evidenceItems = [];
@@ -3913,17 +3678,12 @@ body.map-unavailable [data-focus-public]{display:none}
     let nearbyCurrentLocation = null;
     let nearbyLoading = false;
     let accountReportsLoading = false;
-    let responderQueueMode = "assigned";
-    let responderDisplayMode = "list";
-    let adminConfigurationState = null;
     let reportSubmissionActive = false;
     let settings = loadSettings();
     let syncState = loadSyncState();
     let citizenState = loadCitizenState();
-    if (!syncState.token || !syncState.user) {
-      responderReports = [];
-      localStorage.removeItem(RESPONDER_STORE_KEY);
-    }
+    // Staff now work in staff.html. Remove any staff cases cached on this device by older versions of this page.
+    try { localStorage.removeItem(RESPONDER_STORE_KEY); } catch {}
 
     const form = document.querySelector("#reportForm");
     const toast = document.querySelector("#toast");
@@ -4001,10 +3761,6 @@ body.map-unavailable [data-focus-public]{display:none}
       }
       if (["track", "my"].includes(safeView)) render();
       if (safeView === "my" && citizenState.token) loadCitizenAccountReports().catch(() => {});
-      if (safeView === "responder") {
-        renderResponderPortal();
-        if (syncState.token && syncState.user) pullReportsFromServer({ announce: false }).catch((error) => showToast(error.message || "Authorised queue could not be loaded"));
-      }
       window.scrollTo({ top: 0, behavior: "smooth" });
       const focused = document.activeElement;
       if (!focused || focused === document.body || !focused.getClientRects().length) document.querySelector("#viewTitle").focus({ preventScroll: true });
@@ -4101,16 +3857,6 @@ body.map-unavailable [data-focus-public]{display:none}
       }
     }
 
-    function loadResponderReports() {
-      try {
-        const raw = localStorage.getItem(RESPONDER_STORE_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-
     function currentReports() { return reports; }
 
     function loadSettings() {
@@ -4189,8 +3935,9 @@ body.map-unavailable [data-focus-public]{display:none}
     function normalizeSyncState(state) {
       const next = {
         server: IS_DEMO_MODE ? "" : (state.server || DEFAULT_SYNC_SERVER),
-        token: state.token || "",
-        user: state.user || null,
+        // Staff sign in on staff.html now; a staff session saved here by an older version is dropped.
+        token: "",
+        user: null,
         lastSync: state.lastSync || ""
       };
       if (next.server === LEGACY_LOCAL_SYNC_SERVER && !next.token && !next.user) next.server = DEFAULT_SYNC_SERVER;
@@ -4227,12 +3974,6 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function save() {
       if (!writeLocalValue(STORE_KEY, JSON.stringify(reports))) return false;
-      document.querySelector("#lastSaved").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      return true;
-    }
-
-    function saveResponderReports() {
-      if (!writeLocalValue(RESPONDER_STORE_KEY, JSON.stringify(responderReports))) return false;
       document.querySelector("#lastSaved").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       return true;
     }
@@ -4811,41 +4552,11 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function renderSyncState() {
-      document.querySelector("#syncPanel").hidden = true;
       document.body.classList.remove("responder-authenticated");
       document.querySelector("#syncState").textContent = IS_DEMO_MODE ? "Demo data only" : "Offline-ready";
       document.querySelector("#syncDetail").textContent = IS_DEMO_MODE
         ? "Demo reports are isolated in this browser and cannot sync to production."
         : "If you have no signal, your report waits on this device and sends when the connection returns.";
-      return;
-
-      if (IS_DEMO_MODE) {
-        document.querySelector("#syncState").textContent = "Demo data only";
-        document.querySelector("#syncDetail").textContent = "Demo reports are isolated in this browser and cannot sync to production.";
-        return;
-      }
-      document.querySelector("#syncServer").value = syncState.server || DEFAULT_SYNC_SERVER;
-      if (syncState.user) {
-        document.querySelector("#syncAccount").textContent = `${syncState.user.name || syncState.user.username} connected`;
-        document.querySelector("#syncRole").textContent = `Role: ${syncState.user.role}`;
-        document.querySelector("#syncInstitution").textContent = `Institution: ${syncState.user.agency || "Not assigned"}`;
-        document.querySelector("#syncScope").textContent = `Assigned area: ${[syncState.user.district, syncState.user.region].filter(Boolean).join(", ") || "National"}`;
-      } else {
-        document.querySelector("#syncAccount").textContent = "Not connected";
-        document.querySelector("#syncRole").textContent = "Use a verified responder account approved by an administrator.";
-        document.querySelector("#syncInstitution").textContent = "Institution: not connected";
-        document.querySelector("#syncScope").textContent = "Assigned area: not connected";
-      }
-      document.querySelector("#syncLast").textContent = syncState.lastSync ? `Last sync: ${new Date(syncState.lastSync).toLocaleString()}` : "No server sync yet.";
-      document.querySelector("#syncCounts").textContent = `${responderReports.length} authorized cases.`;
-      if (syncState.user) {
-        queuedResponderUpdates().then((items) => {
-          const pending = items.filter((item) => Number(item.actorUserId) === Number(syncState.user?.id)).length;
-          document.querySelector("#syncCounts").textContent = `${responderReports.length} authorized cases, ${pending} queued updates.`;
-        }).catch(() => {});
-      }
-      document.querySelector("#syncState").textContent = syncState.user ? "Responder sync connected" : "Offline-ready";
-      document.querySelector("#syncDetail").textContent = syncState.user ? "Only cases inside this account's assigned scope are available here." : "Citizen reports remain separate from verified responder data.";
     }
 
     async function syncRequest(path, options = {}) {
@@ -5384,58 +5095,10 @@ body.map-unavailable [data-focus-public]{display:none}
       database.close();
     }
 
-    function openResponderQueueDatabase() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(RESPONDER_QUEUE_DB_NAME, 1);
-        request.onupgradeneeded = () => request.result.createObjectStore(RESPONDER_QUEUE_STORE, { keyPath: "updateKey" });
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
 
-    async function queueResponderUpdate(item) {
-      const database = await openResponderQueueDatabase();
-      await new Promise((resolve, reject) => {
-        const transaction = database.transaction(RESPONDER_QUEUE_STORE, "readwrite");
-        transaction.objectStore(RESPONDER_QUEUE_STORE).put(item);
-        transaction.oncomplete = resolve;
-        transaction.onerror = () => reject(transaction.error);
-      });
-      database.close();
-    }
 
-    async function queuedResponderUpdates() {
-      const database = await openResponderQueueDatabase();
-      const items = await new Promise((resolve, reject) => {
-        const request = database.transaction(RESPONDER_QUEUE_STORE).objectStore(RESPONDER_QUEUE_STORE).getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-      database.close();
-      return items;
-    }
 
-    async function removeQueuedResponderUpdate(updateKey) {
-      const database = await openResponderQueueDatabase();
-      await new Promise((resolve, reject) => {
-        const transaction = database.transaction(RESPONDER_QUEUE_STORE, "readwrite");
-        transaction.objectStore(RESPONDER_QUEUE_STORE).delete(updateKey);
-        transaction.oncomplete = resolve;
-        transaction.onerror = () => reject(transaction.error);
-      });
-      database.close();
-    }
 
-    async function clearResponderUpdateQueue() {
-      const database = await openResponderQueueDatabase();
-      await new Promise((resolve, reject) => {
-        const transaction = database.transaction(RESPONDER_QUEUE_STORE, "readwrite");
-        transaction.objectStore(RESPONDER_QUEUE_STORE).clear();
-        transaction.oncomplete = resolve;
-        transaction.onerror = () => reject(transaction.error);
-      });
-      database.close();
-    }
 
     let queueRetryTimer = 0;
     let queueRetryDelay = 30000;
@@ -5529,144 +5192,9 @@ body.map-unavailable [data-focus-public]{display:none}
       }
     }
 
-    function authorizedResponderReport(report, pendingUpdate = null) {
-      return {
-        ...report,
-        _responderAuthorized: true,
-        _responderUserId: syncState.user?.id,
-        pendingResponderUpdate: pendingUpdate ? {
-          updateKey: pendingUpdate.updateKey,
-          nextStatus: pendingUpdate.nextStatus,
-          queuedAt: pendingUpdate.queuedAt
-        } : null
-      };
-    }
 
-    async function replaceResponderReports(serverReports) {
-      const actorId = Number(syncState.user?.id);
-      const queued = await queuedResponderUpdates().catch(() => []);
-      const pendingByReport = new Map(
-        queued
-          .filter((item) => Number(item.actorUserId) === actorId)
-          .map((item) => [String(item.reportId), item])
-      );
-      responderReports = serverReports.map((report) => authorizedResponderReport(report, pendingByReport.get(String(report.id))));
-      saveResponderReports();
-      renderResponderPortal();
-    }
 
-    async function processResponderUpdateQueue() {
-      const result = { sent: 0, rejected: 0, remaining: 0 };
-      if (responderQueueProcessorActive || !navigator.onLine || !syncState.token || !syncState.user) return result;
-      responderQueueProcessorActive = true;
-      try {
-        const actorId = Number(syncState.user.id);
-        for (const item of await queuedResponderUpdates()) {
-          if (Number(item.actorUserId) !== actorId) continue;
-          const report = responderReports.find((candidate) => String(candidate.id) === String(item.reportId));
-          if (!report || !report._responderAuthorized || Number(report._responderUserId) !== actorId) {
-            await removeQueuedResponderUpdate(item.updateKey);
-            result.rejected += 1;
-            continue;
-          }
-          try {
-            const data = await syncRequest(`/api/reports/${encodeURIComponent(item.reportId)}`, {
-              method: "PATCH",
-              body: JSON.stringify({
-                status: item.nextStatus,
-                publicUpdate: item.publicUpdate,
-                privateNote: item.privateNote,
-                resolutionEvidenceId: item.resolutionEvidenceId || "",
-                resolutionException: item.resolutionException || "",
-                updateKey: item.updateKey
-              })
-            });
-            const index = responderReports.findIndex((candidate) => String(candidate.id) === String(item.reportId));
-            if (index >= 0) responderReports[index] = authorizedResponderReport(data.report);
-            await removeQueuedResponderUpdate(item.updateKey);
-            result.sent += 1;
-          } catch (error) {
-            if ([400, 401, 403, 404, 409].includes(Number(error.status))) {
-              const index = responderReports.findIndex((candidate) => String(candidate.id) === String(item.reportId));
-              if (index >= 0 && Number(error.status) === 403) responderReports.splice(index, 1);
-              else if (index >= 0 && item.previousReport) responderReports[index] = authorizedResponderReport(item.previousReport);
-              else report.pendingResponderUpdate = null;
-              await removeQueuedResponderUpdate(item.updateKey);
-              result.rejected += 1;
-              showToast(`Update rejected: ${error.message}`);
-            }
-          }
-        }
-        saveResponderReports();
-        result.remaining = (await queuedResponderUpdates()).filter((item) => Number(item.actorUserId) === Number(syncState.user?.id)).length;
-        renderResponderPortal();
-        renderSyncState();
-        return result;
-      } finally {
-        responderQueueProcessorActive = false;
-      }
-    }
 
-    async function queueResponderStatusUpdate(report, nextStatus) {
-      const actorId = Number(syncState.user?.id);
-      if (!syncState.token || !actorId || !report._responderAuthorized || Number(report._responderUserId) !== actorId) {
-        showToast("Refresh the authorized server queue before updating this case");
-        return;
-      }
-      if (nextStatus === report.status || report.pendingResponderUpdate) return;
-      const cleanEvidence = (report.operations?.evidence || []).filter((item) => item.state === "clean");
-      const resolutionFields = nextStatus === "Resolved" ? `
-        <label>Clean resolution evidence
-          <select id="responderResolutionEvidence">
-            <option value="">No clean evidence selected</option>
-            ${cleanEvidence.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.fileName)} - clean</option>`).join("")}
-          </select>
-        </label>
-        <label>Documented exception
-          <textarea id="responderResolutionException" maxlength="1000" placeholder="Required when no clean evidence is available. Explain why closure can be verified without a photo."></textarea>
-        </label>
-      ` : "";
-      openModal("Add responder update", `
-        <p>Changing the status requires a short explanation for the person who reported the problem.</p>
-        <label>Public update (required)
-          <textarea id="responderPublicUpdate" required maxlength="500" placeholder="Example: A response team has been assigned. This will be visible in citizen tracking."></textarea>
-        </label>
-        <label>Private note (optional)
-          <textarea id="responderPrivateNote" maxlength="1000" placeholder="Operational details visible only to authorized responders."></textarea>
-        </label>
-        ${resolutionFields}
-      `, [{
-        label: "Queue update",
-        className: "primary",
-        action: async () => {
-          const publicUpdate = document.querySelector("#responderPublicUpdate").value.trim();
-          const privateNote = document.querySelector("#responderPrivateNote").value.trim();
-          const resolutionEvidenceId = document.querySelector("#responderResolutionEvidence")?.value || "";
-          const resolutionException = document.querySelector("#responderResolutionException")?.value.trim() || "";
-          if (!publicUpdate) {
-            document.querySelector("#responderPublicUpdate").reportValidity();
-            return;
-          }
-          if (nextStatus === "Resolved" && !resolutionEvidenceId && resolutionException.length < 20) {
-            document.querySelector("#responderResolutionException").setCustomValidity("Add at least 20 characters, or select clean evidence");
-            document.querySelector("#responderResolutionException").reportValidity();
-            return;
-          }
-          const updateKey = makeUuid();
-          const previousReport = { ...report };
-          const queuedAt = new Date().toISOString();
-          await queueResponderUpdate({ reportId: report.id, actorUserId: actorId, updateKey, nextStatus, publicUpdate, privateNote, resolutionEvidenceId, resolutionException, previousReport, queuedAt });
-          const index = responderReports.findIndex((item) => String(item.id) === String(report.id));
-          if (index >= 0) responderReports[index] = authorizedResponderReport(report, { updateKey, nextStatus, queuedAt });
-          saveResponderReports();
-          closeModal();
-          renderResponderPortal();
-          const result = await processResponderUpdateQueue();
-          if (result.sent) showToast(`Update to ${nextStatus} accepted`);
-          else if (result.remaining) showToast(`Update to ${nextStatus} queued for retry`);
-        }
-      }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
     function validateSyncServer(value) {
       const raw = String(value || DEFAULT_SYNC_SERVER).trim();
@@ -5690,562 +5218,32 @@ body.map-unavailable [data-focus-public]{display:none}
       return url.toString().replace(/\/$/, "");
     }
 
-    function canAssignCurrentResponder() {
-      const role = String(syncState.user?.role || "");
-      return /admin|moderator|lead|coordinator|supervisor|manager/i.test(role);
-    }
 
-    function canOperateResponderCase(report) {
-      const assigneeId = Number(report.operations?.assignment?.assignee?.id || 0);
-      return canModerateCurrentUser() || !assigneeId || assigneeId === Number(syncState.user?.id || 0);
-    }
 
-    function responderNextStatuses(status) {
-      return ({
-        Open: ["Acknowledged", "In Progress", "Blocked", "Escalated"],
-        Acknowledged: ["Dispatched", "In Progress", "Blocked", "Escalated"],
-        Dispatched: ["In Progress", "Blocked", "Escalated"],
-        "In Progress": ["Blocked", "Resolved", "Escalated"],
-        Blocked: ["In Progress", "Escalated"],
-        Escalated: ["In Progress", "Blocked", "Resolved"],
-        Reopened: ["Acknowledged", "In Progress", "Escalated"],
-        Resolved: []
-      })[status] || [];
-    }
 
-    async function submitResponderFieldAction(report, action, values) {
-      const data = await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/field-action`, {
-        method: "POST",
-        body: JSON.stringify({ action, actionKey: makeUuid(), ...values })
-      });
-      const index = responderReports.findIndex((item) => String(item.id) === String(report.id));
-      if (index >= 0) responderReports[index] = authorizedResponderReport(data.report);
-      saveResponderReports();
-      renderResponderPortal();
-      return data.report;
-    }
 
-    function openResponderAccept(report) {
-      openModal("Accept this case", `
-        <p>Acceptance assigns this case to your verified responder account and records the action permanently.</p>
-        <label>Public update (required)<textarea id="fieldActionPublic" maxlength="1000" required placeholder="Example: The district response desk has accepted this case."></textarea></label>
-        <label>Private note (optional)<textarea id="fieldActionPrivate" maxlength="1000" placeholder="Shift, crew, or handover detail for authorised staff."></textarea></label>
-        <div class="location-status" id="fieldActionStatus" role="status"></div>
-      `, [{ label: "Accept case", className: "primary", action: async () => {
-        const publicUpdate = document.querySelector("#fieldActionPublic").value.trim();
-        if (!publicUpdate) return document.querySelector("#fieldActionPublic").reportValidity();
-        try {
-          await submitResponderFieldAction(report, "accept", { publicUpdate, privateNote: document.querySelector("#fieldActionPrivate").value.trim() });
-          closeModal(); showToast("Case accepted into your assigned queue");
-        } catch (error) { document.querySelector("#fieldActionStatus").textContent = error.message; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function openResponderEscalation(report) {
-      openModal("Escalate case", `
-        <p>Escalation changes the operational status and creates an immutable escalation record. It does not claim an external agency received it.</p>
-        <label>Reason (required)<textarea id="fieldEscalationReason" maxlength="1000" required></textarea></label>
-        <label>Recommended target (optional)<input id="fieldEscalationTarget" maxlength="160" placeholder="Regional operations centre" /></label>
-        <label>Public update (required)<textarea id="fieldEscalationPublic" maxlength="1000" required></textarea></label>
-        <label>Private note (optional)<textarea id="fieldEscalationPrivate" maxlength="1000"></textarea></label>
-        <div class="location-status" id="fieldEscalationStatus" role="status"></div>
-      `, [{ label: "Record escalation", className: "primary", action: async () => {
-        const reason = document.querySelector("#fieldEscalationReason").value.trim();
-        const publicUpdate = document.querySelector("#fieldEscalationPublic").value.trim();
-        if (!reason) return document.querySelector("#fieldEscalationReason").reportValidity();
-        if (!publicUpdate) return document.querySelector("#fieldEscalationPublic").reportValidity();
-        try {
-          await submitResponderFieldAction(report, "escalate", {
-            reason,
-            target: document.querySelector("#fieldEscalationTarget").value.trim(),
-            publicUpdate,
-            privateNote: document.querySelector("#fieldEscalationPrivate").value.trim()
-          });
-          closeModal(); showToast("Escalation recorded; no external delivery has been claimed");
-        } catch (error) { document.querySelector("#fieldEscalationStatus").textContent = error.message; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    async function openResponderAssignment(report) {
-      try {
-        const data = await syncRequest(`/api/responders?reportId=${encodeURIComponent(report.id)}`, { method: "GET" });
-        const responders = data.responders || [];
-        openModal(report.operations?.assignment?.assignee ? "Reassign case" : "Assign case", `
-          <p>Only active responders inside the permitted case scope are listed.</p>
-          <label>Responder<select id="fieldAssignee" required><option value="">Choose responder</option>${responders.map((item) => `<option value="${item.id}">${escapeHtml(item.name)} - ${escapeHtml(item.institution || item.agency || item.role)}</option>`).join("")}</select></label>
-          <label>Public update (required)<textarea id="fieldAssignmentPublic" maxlength="1000" required></textarea></label>
-          <label>Private note (optional)<textarea id="fieldAssignmentPrivate" maxlength="1000"></textarea></label>
-          <div class="location-status" id="fieldAssignmentStatus" role="status"></div>
-        `, [{ label: "Save assignment", className: "primary", action: async () => {
-          const targetUserId = Number(document.querySelector("#fieldAssignee").value || 0);
-          const publicUpdate = document.querySelector("#fieldAssignmentPublic").value.trim();
-          if (!targetUserId) return document.querySelector("#fieldAssignee").reportValidity();
-          if (!publicUpdate) return document.querySelector("#fieldAssignmentPublic").reportValidity();
-          try {
-            await submitResponderFieldAction(report, report.operations?.assignment?.assignee ? "reassign" : "assign", {
-              targetUserId, publicUpdate, privateNote: document.querySelector("#fieldAssignmentPrivate").value.trim()
-            });
-            closeModal(); showToast("Audited assignment saved");
-          } catch (error) { document.querySelector("#fieldAssignmentStatus").textContent = error.message; }
-        } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-      } catch (error) { showToast(error.message || "Assignable responders could not be loaded"); }
-    }
 
-    function openResponderEvidence(report) {
-      openModal("Add private field evidence", `
-        <p>The image is re-encoded to strip EXIF/GPS, limited to 750 KB, and held in private quarantine until scanning or moderator review.</p>
-        <label>Evidence image<input id="fieldEvidenceFile" type="file" accept="image/jpeg,image/png,image/webp" required /></label>
-        <div class="location-status" id="fieldEvidenceStatus" role="status">No image selected.</div>
-      `, [{ label: "Upload evidence", className: "primary", action: async () => {
-        const file = document.querySelector("#fieldEvidenceFile").files?.[0];
-        if (!file) return document.querySelector("#fieldEvidenceFile").reportValidity();
-        const status = document.querySelector("#fieldEvidenceStatus");
-        try {
-          status.textContent = "Compressing and stripping metadata...";
-          const evidence = await compressEvidenceImage(file);
-          status.textContent = "Uploading to private quarantine...";
-          const data = await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/responder-evidence`, {
-            method: "POST",
-            body: JSON.stringify({ clientAttachmentId: evidence.clientAttachmentId, fileName: evidence.name, mimeType: evidence.mimeType, dataBase64: evidence.dataBase64 })
-          });
-          report.operations.evidence.push(data.evidence);
-          saveResponderReports();
-          closeModal(); renderResponderPortal(); showToast("Evidence saved in private quarantine");
-        } catch (error) { status.textContent = error.message || "Evidence upload failed"; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function openResponderStatusChoice(report) {
-      const statuses = responderNextStatuses(report.status);
-      if (!statuses.length) return showToast("No responder status transition is available");
-      openModal("Choose next status", `
-        <p>The backend validates every transition. Resolving requires clean evidence or a documented exception.</p>
-        <label>Next status<select id="fieldNextStatus">${statuses.map((status) => `<option>${status}</option>`).join("")}</select></label>
-      `, [{ label: "Continue", className: "primary", action: () => {
-        const nextStatus = document.querySelector("#fieldNextStatus").value;
-        closeModal(); queueResponderStatusUpdate(report, nextStatus);
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function renderResponderPortal() {
-      const gate = document.querySelector("#responderPortalGate");
-      const workspace = document.querySelector("#responderFieldWorkspace");
-      const list = document.querySelector("#responderCaseList");
-      const mapShell = document.querySelector("#responderMapShell");
-      if (!gate || !workspace || !list) return;
-      const authenticated = Boolean(syncState.token && syncState.user);
-      gate.hidden = authenticated;
-      workspace.hidden = !authenticated;
-      document.querySelector("#responderPortalLogoutBtn").hidden = !authenticated;
-      if (!authenticated) {
-        list.replaceChildren();
-        mapShell.hidden = true;
-        return;
-      }
 
-      document.querySelector("#fieldRole").textContent = syncState.user.role || "Responder";
-      document.querySelector("#fieldInstitution").textContent = syncState.user.agency || "Not assigned";
-      document.querySelector("#fieldRegion").textContent = syncState.user.region || "National scope";
-      document.querySelector("#fieldDistrict").textContent = syncState.user.district || "All permitted MMDAs";
-      const adminConsole = document.querySelector("#adminConsole");
-      adminConsole.hidden = String(syncState.user.role || "").toLowerCase() !== "admin";
-      if (!adminConsole.hidden && !adminConfigurationState) loadAdminConfiguration().catch((error) => { document.querySelector("#adminConsoleStatus").textContent = error.message; });
-      document.querySelectorAll("[data-responder-queue]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.responderQueue === responderQueueMode)));
-      document.querySelectorAll("[data-responder-mode]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.responderMode === responderDisplayMode)));
 
-      const categorySelect = document.querySelector("#responderCategoryFilter");
-      const selectedCategory = categorySelect.value;
-      const categories = [...new Set(responderReports.map((report) => report.type).filter(Boolean))].sort();
-      categorySelect.innerHTML = `<option value="">All categories</option>${categories.map((item) => `<option ${item === selectedCategory ? "selected" : ""}>${escapeHtml(item)}</option>`).join("")}`;
-      const search = document.querySelector("#responderCaseSearch").value.trim().toLowerCase();
-      const visible = responderReports.filter((report) => !search || [report.id, report.type, report.community, report.district, report.details].some((value) => String(value || "").toLowerCase().includes(search)));
-      const pending = responderReports.filter((report) => report.pendingResponderUpdate).length;
-      document.querySelector("#responderFieldStatus").textContent = `${visible.length} authorised case${visible.length === 1 ? "" : "s"} in ${responderQueueMode} view${pending ? `; ${pending} offline update${pending === 1 ? "" : "s"} waiting` : ""}.`;
 
-      list.hidden = responderDisplayMode !== "list";
-      mapShell.hidden = responderDisplayMode !== "map";
-      if (responderDisplayMode === "map") {
-        if (window.FixNowMaps?.initializeResponder) window.FixNowMaps.initializeResponder({ apiBase: syncState.server, reports: visible, token: syncState.token });
-        else {
-          document.querySelector("#responderMap").hidden = true;
-          document.querySelector("#responderMapUnavailable").hidden = false;
-        }
-      }
 
-      if (!visible.length) {
-        list.innerHTML = `<div class="honest-state"><strong>No authorised cases in this queue.</strong><p>Try another queue or filter. The portal does not substitute cached or out-of-scope reports.</p></div>`;
-        return;
-      }
-      list.innerHTML = visible.map((report) => {
-        const operations = report.operations || {};
-        const assignment = operations.assignment || {};
-        const exact = report.location?.exactLatitude != null && report.location?.exactLongitude != null
-          ? `${Number(report.location.exactLatitude).toFixed(6)}, ${Number(report.location.exactLongitude).toFixed(6)}`
-          : "No exact coordinates supplied";
-        const accuracy = report.location?.accuracyMetres != null ? `; accuracy about ${Math.round(report.location.accuracyMetres)} m` : "";
-        const evidence = operations.evidence || [];
-        const assignedToMe = Number(assignment.assignee?.id || 0) === Number(syncState.user.id);
-        const canOperate = canOperateResponderCase(report);
-        const overdue = operations.overdue;
-        return `<article class="responder-case ${overdue ? "overdue" : ""}" data-field-report="${escapeHtml(report.id)}">
-          <div class="responder-case-head"><div><h3>${escapeHtml(report.id)} - ${escapeHtml(report.type || "Report")}</h3><p>${escapeHtml(report.community || "Location protected")}, ${escapeHtml(report.district || "")}</p></div><div class="tags"><span class="tag">${escapeHtml(report.status)}</span>${overdue ? `<span class="tag">Overdue</span>` : ""}${report.pendingResponderUpdate ? `<span class="tag">Offline update queued</span>` : ""}</div></div>
-          <p>${escapeHtml(report.details || "No description supplied")}</p>
-          <div class="responder-case-location"><strong>Authorised exact location:</strong> ${escapeHtml(exact + accuracy)}<br /><small>${escapeHtml(report.location?.label || report.publicLocationLabel || "Public sharing location not available")}</small></div>
-          <div class="tags"><span class="tag">${escapeHtml(assignment.assignee?.name || "Unassigned")}</span><span class="tag">SLA ${operations.slaDueAt ? escapeHtml(new Date(operations.slaDueAt).toLocaleString()) : "not set"}</span><span class="tag">Resolution: ${escapeHtml(operations.resolutionEvidenceState || "not provided")}</span></div>
-          <div class="responder-evidence-list">${evidence.length ? evidence.map((item) => `<button class="mini" type="button" data-field-view-evidence="${escapeHtml(item.id)}" data-field-evidence-report="${escapeHtml(report.id)}">${escapeHtml(item.fileName)} - ${escapeHtml(item.state)}</button>`).join("") : `<span class="tag">No field evidence</span>`}</div>
-          <div class="responder-action-row">
-            ${!assignment.assignee ? `<button class="mini" type="button" data-field-accept="${escapeHtml(report.id)}">Accept</button>` : ""}
-            ${assignedToMe || canModerateCurrentUser() ? `<button class="mini" type="button" data-field-status="${escapeHtml(report.id)}" ${report.pendingResponderUpdate ? "disabled" : ""}>Update status</button>` : ""}
-            ${canOperate ? `<button class="mini" type="button" data-field-evidence="${escapeHtml(report.id)}">Add evidence</button><button class="mini" type="button" data-field-escalate="${escapeHtml(report.id)}">Escalate</button>` : ""}
-            ${canAssignCurrentResponder() ? `<button class="mini" type="button" data-field-assign="${escapeHtml(report.id)}">${assignment.assignee ? "Reassign" : "Assign"}</button>` : ""}
-            <button class="mini" type="button" data-field-route="${escapeHtml(report.id)}">Routing</button>
-          </div>
-          ${reportHistoryHtml(report, false)}
-        </article>`;
-      }).join("");
-      const findReport = (id) => responderReports.find((report) => String(report.id) === String(id));
-      list.querySelectorAll("[data-field-accept]").forEach((button) => button.addEventListener("click", () => openResponderAccept(findReport(button.dataset.fieldAccept))));
-      list.querySelectorAll("[data-field-status]").forEach((button) => button.addEventListener("click", () => openResponderStatusChoice(findReport(button.dataset.fieldStatus))));
-      list.querySelectorAll("[data-field-evidence]").forEach((button) => button.addEventListener("click", () => openResponderEvidence(findReport(button.dataset.fieldEvidence))));
-      list.querySelectorAll("[data-field-escalate]").forEach((button) => button.addEventListener("click", () => openResponderEscalation(findReport(button.dataset.fieldEscalate))));
-      list.querySelectorAll("[data-field-assign]").forEach((button) => button.addEventListener("click", () => openResponderAssignment(findReport(button.dataset.fieldAssign))));
-      list.querySelectorAll("[data-field-route]").forEach((button) => button.addEventListener("click", () => openReportRouting(findReport(button.dataset.fieldRoute))));
-      list.querySelectorAll("[data-field-view-evidence]").forEach((button) => button.addEventListener("click", () => openPrivateResponderEvidence(button.dataset.fieldEvidenceReport, button.dataset.fieldViewEvidence)));
-    }
 
-    async function openPrivateResponderEvidence(reportId, attachmentId) {
-      try {
-        const signed = await syncRequest(`/api/reports/${encodeURIComponent(reportId)}/attachments/${encodeURIComponent(attachmentId)}/signed-url`, { method: "POST", body: "{}" });
-        const response = await fetch(`${syncState.server}${signed.attachment.url}`, { cache: "no-store", referrerPolicy: "no-referrer" });
-        if (!response.ok) throw new Error("Private evidence link expired or was rejected");
-        const objectUrl = URL.createObjectURL(await response.blob());
-        const caseReport = responderReports.find((item) => String(item.id) === String(reportId));
-        const item = (caseReport?.operations?.evidence || []).find((candidate) => String(candidate.id) === String(attachmentId));
-        const canPublish = canModerateCurrentUser() && item && item.kind === "citizen";
-        const publishControls = !canPublish ? "" : (item.publicImageId
-          ? `<p class="privacy-note"><b>This photo is public.</b><span>It appears on the verified Nearby report with all metadata removed. Withdraw it if anything identifying was missed.</span></p>`
-          : `<div class="privacy-note"><b>Publish to the Nearby report?</b><span>Only publish clean photos of public infrastructure. FixNow removes photo metadata before publishing.</span>
-              <label class="consent-line"><input id="publicPhotoCheck" type="checkbox" /> I checked this photo: no faces, number plates, house numbers or other identifying details are visible.</label>
-              <label>Review note<input id="publicPhotoNote" maxlength="200" placeholder="e.g. Drain photo only, no people" /></label>
-              <div class="location-status" id="publicPhotoStatus" role="status">The report must already be approved for public view, and this photo marked clean.</div></div>`);
-        const publishAction = !canPublish ? [] : [item.publicImageId
-          ? { label: "Withdraw public photo", className: "danger", action: () => setPublicPhotoState(reportId, attachmentId, "withdraw", objectUrl) }
-          : { label: "Approve photo for public view", className: "primary", action: () => setPublicPhotoState(reportId, attachmentId, "approve", objectUrl) }];
-        openModal("Private case evidence", `<p>Temporary authorised preview. This image is not public and is not stored by the service worker.</p><img src="${objectUrl}" alt="Authorised private case evidence" style="display:block;width:100%;max-height:60vh;object-fit:contain;background:#111;border-radius:8px" />${publishControls}`, [
-          ...publishAction,
-          { label: "Close preview", className: "secondary", action: () => { URL.revokeObjectURL(objectUrl); closeModal(); } }
-        ]);
-      } catch (error) { showToast(error.message || "Private evidence could not be opened"); }
-    }
 
-    async function setPublicPhotoState(reportId, attachmentId, action, objectUrl) {
-      const status = document.querySelector("#publicPhotoStatus");
-      try {
-        await syncRequest(`/api/reports/${encodeURIComponent(reportId)}/attachments/${encodeURIComponent(attachmentId)}/public`, {
-          method: "POST",
-          body: JSON.stringify({
-            action,
-            privacyChecked: Boolean(document.querySelector("#publicPhotoCheck")?.checked),
-            note: document.querySelector("#publicPhotoNote")?.value.trim() || ""
-          })
-        });
-        URL.revokeObjectURL(objectUrl);
-        closeModal();
-        showToast(action === "approve" ? "Photo published with metadata removed" : "Public photo withdrawn");
-        pullReportsFromServer({ announce: false }).catch(() => {});
-      } catch (error) {
-        if (status) status.textContent = error.message || "The photo state could not be changed";
-        else showToast(error.message || "The photo state could not be changed");
-      }
-    }
 
-    async function loadAdminConfiguration() {
-      if (String(syncState.user?.role || "").toLowerCase() !== "admin") return;
-      const data = await syncRequest("/api/admin/config", { method: "GET" });
-      adminConfigurationState = data.configuration;
-      renderAdminConsole();
-    }
 
-    function renderAdminConsole() {
-      const config = adminConfigurationState;
-      if (!config) return;
-      document.querySelector("#adminItemCount").textContent = config.items.length;
-      document.querySelector("#adminRuleCount").textContent = config.rules.length;
-      document.querySelector("#adminInvitationCount").textContent = config.invitations.filter((item) => item.status === "pending").length;
-      document.querySelector("#adminBoundaryCount").textContent = config.boundaries.length;
-      document.querySelector("#adminConsoleStatus").textContent = "Configuration loaded from the authenticated API. No delivery is implied by a routing rule.";
-      document.querySelector("#adminItemList").innerHTML = config.items.length ? config.items.map((item) => `
-        <div class="admin-item-row"><div><strong>${escapeHtml(item.name)}</strong><br /><span>${escapeHtml(item.kind)} - version ${item.version}</span></div><span>${item.active ? "Active" : "Inactive"}</span></div>
-      `).join("") : `<div class="empty">No directory configuration has been added.</div>`;
-      document.querySelector("#adminRuleList").innerHTML = config.rules.length ? config.rules.map((rule) => `
-        <div class="admin-item-row"><div><strong>${escapeHtml(rule.name)}</strong><br /><span>${escapeHtml([rule.category, rule.region, rule.district].filter(Boolean).join(" / ") || "All reports")}</span></div><span>${escapeHtml(rule.ruleVersion)} - priority ${rule.priority}</span></div>
-      `).join("") : `<div class="empty">No routing rules have been added.</div>`;
-      document.querySelector("#adminInvitationList").innerHTML = config.invitations.length ? config.invitations.map((item) => `
-        <div class="admin-item-row"><div><strong>${escapeHtml(item.agency)}</strong><br /><span>${escapeHtml(item.role)} - ${escapeHtml(item.region || "National")} / ${escapeHtml(item.district || "all permitted MMDAs")}</span></div><span>${escapeHtml(item.status)} - expires ${escapeHtml(new Date(item.expiresAt).toLocaleDateString())}</span></div>
-      `).join("") : `<div class="empty">No responder invitations.</div>`;
-      document.querySelector("#adminBoundaryList").innerHTML = config.boundaries.map((item) => `
-        <div class="admin-item-row"><div><strong>${escapeHtml(item.publisher)} - ${escapeHtml(item.version)}</strong><br /><span>${item.featureCount} MMDAs; source date ${escapeHtml(item.sourceDate)}</span></div><span>${item.active ? "Active" : "Archived"} - ${escapeHtml(item.licenceStatus)}</span></div>
-      `).join("");
-    }
 
-    function openAdminDirectoryItem() {
-      const kinds = ["agency", "region", "mmda", "jurisdiction", "category", "subcategory", "contact-channel", "escalation-path", "response-target", "role-scope", "retention-policy", "emergency-info", "environment-control"];
-      openModal("Add administration configuration", `
-        <label>Configuration type<select id="adminItemKind">${kinds.map((kind) => `<option>${kind}</option>`).join("")}</select></label>
-        <label>Name<input id="adminItemName" maxlength="160" required /></label>
-        <label>Parent item (optional)<select id="adminItemParent"><option value="">No parent</option>${(adminConfigurationState?.items || []).map((item) => `<option value="${item.id}">${escapeHtml(item.kind)} - ${escapeHtml(item.name)}</option>`).join("")}</select></label>
-        <label>Structured configuration (JSON)<textarea id="adminItemConfiguration" spellcheck="false" placeholder='{"verified": true}'>{}</textarea></label>
-        <div class="location-status" id="adminItemStatus" role="status">Production controls cannot enable demo data. Retention policies require a positive days value.</div>
-      `, [{ label: "Save configuration", className: "primary", action: async () => {
-        const status = document.querySelector("#adminItemStatus");
-        try {
-          const configuration = JSON.parse(document.querySelector("#adminItemConfiguration").value || "{}");
-          await syncRequest("/api/admin/directory", { method: "POST", body: JSON.stringify({
-            kind: document.querySelector("#adminItemKind").value,
-            name: document.querySelector("#adminItemName").value.trim(),
-            parentId: document.querySelector("#adminItemParent").value,
-            configuration
-          }) });
-          closeModal(); await loadAdminConfiguration(); showToast("Audited configuration saved");
-        } catch (error) { status.textContent = error.message || "Configuration could not be saved"; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function openAdminRoutingRule() {
-      const items = adminConfigurationState?.items || [];
-      const options = (kind) => items.filter((item) => item.kind === kind && item.active).map((item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join("");
-      openModal("Add routing rule", `
-        <p>Rules create a recommendation only. They do not send, deliver, or acknowledge a report.</p>
-        <label>Rule name<input id="adminRuleName" maxlength="160" required /></label>
-        <label>Category<input id="adminRuleCategory" maxlength="100" /></label>
-        <label>Region<input id="adminRuleRegion" maxlength="80" /></label>
-        <label>MMDA<input id="adminRuleDistrict" maxlength="120" /></label>
-        <label>Recommended agency<select id="adminRuleAgency" required><option value="">Choose agency</option>${options("agency")}</select></label>
-        <label>Approved response target<select id="adminRuleTarget"><option value="">No target configured</option>${options("response-target")}</select></label>
-        <label>Escalation path<select id="adminRuleEscalation"><option value="">No escalation path</option>${options("escalation-path")}</select></label>
-        <label>Priority<input id="adminRulePriority" type="number" min="1" max="10000" value="100" /></label>
-        <label>Rule version<input id="adminRuleVersion" maxlength="80" value="routing-2026-08" required /></label>
-        <label>Plain-language rationale<textarea id="adminRuleRationale" maxlength="1000" required></textarea></label>
-        <div class="location-status" id="adminRuleStatus" role="status"></div>
-      `, [{ label: "Save rule", className: "primary", action: async () => {
-        const status = document.querySelector("#adminRuleStatus");
-        try {
-          await syncRequest("/api/admin/routing-rules", { method: "POST", body: JSON.stringify({
-            name: document.querySelector("#adminRuleName").value.trim(),
-            category: document.querySelector("#adminRuleCategory").value.trim(),
-            region: document.querySelector("#adminRuleRegion").value.trim(),
-            district: document.querySelector("#adminRuleDistrict").value.trim(),
-            agencyId: document.querySelector("#adminRuleAgency").value,
-            responseTargetId: document.querySelector("#adminRuleTarget").value,
-            escalationPathId: document.querySelector("#adminRuleEscalation").value,
-            priority: Number(document.querySelector("#adminRulePriority").value),
-            ruleVersion: document.querySelector("#adminRuleVersion").value.trim(),
-            rationale: document.querySelector("#adminRuleRationale").value.trim()
-          }) });
-          closeModal(); await loadAdminConfiguration(); showToast("Recommendation rule saved");
-        } catch (error) { status.textContent = error.message || "Routing rule could not be saved"; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function openAdminInvitation() {
-      openModal("Invite verified responder", `
-        <p>The one-time invitation code is shown once. The server stores only its hash and expiry.</p>
-        <label>Contact<input id="adminInviteContact" maxlength="160" required /></label>
-        <label>Institution<input id="adminInviteAgency" maxlength="160" required /></label>
-        <label>Role<input id="adminInviteRole" maxlength="80" required /></label>
-        <label>Region<input id="adminInviteRegion" maxlength="80" /></label>
-        <label>MMDA scope<input id="adminInviteDistrict" maxlength="120" /></label>
-        <label>Expires in days<input id="adminInviteDays" type="number" min="1" max="30" value="7" /></label>
-        <div class="location-status" id="adminInviteStatus" role="status"></div>
-      `, [{ label: "Create invitation", className: "primary", action: async () => {
-        const status = document.querySelector("#adminInviteStatus");
-        try {
-          const data = await syncRequest("/api/admin/invitations", { method: "POST", body: JSON.stringify({
-            contact: document.querySelector("#adminInviteContact").value.trim(), agency: document.querySelector("#adminInviteAgency").value.trim(),
-            role: document.querySelector("#adminInviteRole").value.trim(), region: document.querySelector("#adminInviteRegion").value.trim(),
-            district: document.querySelector("#adminInviteDistrict").value.trim(), expiresDays: Number(document.querySelector("#adminInviteDays").value)
-          }) });
-          closeModal(); await loadAdminConfiguration();
-          openModal("Invitation created", `<p>Share this code through a verified channel. It will not be shown again.</p><div class="location-status"><strong>${escapeHtml(data.inviteCode)}</strong></div>`, [
-            { label: "Copy code", className: "primary", action: () => copyText(data.inviteCode, "Invitation code copied") },
-            { label: "Close", className: "secondary", action: closeModal }
-          ]);
-        } catch (error) { status.textContent = error.message || "Invitation could not be created"; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    async function openAdminReadiness() {
-      try {
-        const data = await syncRequest("/api/ready", { method: "GET" });
-        openModal("Production readiness checks", `
-          <p><b>${data.ready ? "Ready" : "Not ready"}</b> for the configured ${escapeHtml(data.environment)} environment.</p>
-          <div class="admin-config-list">${data.checks.map((check) => `<div class="admin-item-row"><strong>${escapeHtml(check.name)}</strong><span>${check.ok ? "Pass" : "Needs configuration"}</span></div>`).join("")}</div>
-        `, [{ label: "Close", className: "secondary", action: closeModal }]);
-      } catch (error) { showToast(error.message || "Readiness checks could not be loaded"); }
-    }
 
-    async function openAdminRetention() {
-      try {
-        const data = await syncRequest("/api/admin/maintenance/retention", { method: "POST", body: JSON.stringify({ execute: false }) });
-        const result = data.retention.result;
-        openModal("Retention dry run", `
-          <p>No data has been changed. This preview uses the current admin-managed retention policy.</p>
-          <div class="admin-config-list">
-            <div class="admin-item-row"><strong>Private contact reports eligible</strong><span>${result.contactReportsEligible}</span></div>
-            <div class="admin-item-row"><strong>Expired sessions</strong><span>${result.expiredSessions}</span></div>
-            <div class="admin-item-row"><strong>Expired security challenges</strong><span>${result.expiredChallenges}</span></div>
-            <div class="admin-item-row"><strong>Expired invitations</strong><span>${result.expiredInvitations}</span></div>
-          </div>
-        `, [
-          { label: "Run confirmed retention", className: "danger", action: async () => {
-            try {
-              await syncRequest("/api/admin/maintenance/retention", { method: "POST", body: JSON.stringify({ execute: true, confirmation: "RUN RETENTION" }) });
-              closeModal(); showToast("Audited retention job completed");
-            } catch (error) { showToast(error.message || "Retention job failed"); }
-          } },
-          { label: "Close", className: "secondary", action: closeModal }
-        ]);
-      } catch (error) { showToast(error.message || "Retention preview failed"); }
-    }
 
-    async function openRoutingOverride(report, routing) {
-      if (!adminConfigurationState) await loadAdminConfiguration();
-      const agencies = (adminConfigurationState?.items || []).filter((item) => item.kind === "agency" && item.active);
-      openModal("Override routing recommendation", `
-        <p>The original rule, version, and agency remain in history.</p>
-        <label>Override agency<select id="routeOverrideAgency" required><option value="">Choose agency</option>${agencies.map((item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join("")}</select></label>
-        <label>Reason<textarea id="routeOverrideReason" maxlength="1000" required></textarea></label>
-        <div class="location-status" id="routeOverrideStatus" role="status"></div>
-      `, [{ label: "Save override", className: "primary", action: async () => {
-        try {
-          await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/routing/override`, { method: "POST", body: JSON.stringify({ agencyId: document.querySelector("#routeOverrideAgency").value, reason: document.querySelector("#routeOverrideReason").value.trim() }) });
-          closeModal(); showToast("Human routing override recorded");
-        } catch (error) { document.querySelector("#routeOverrideStatus").textContent = error.message; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    function openDeliveryOutcome(report, routing) {
-      openModal("Record delivery outcome", `
-        <p>This records an integration outcome. Sent, Delivered, and Acknowledged require both an integration name and external outcome ID.</p>
-        <label>State<select id="deliveryState"><option>Not sent</option><option>Queued</option><option>Sent</option><option>Delivered</option><option>Failed</option><option>Acknowledged</option></select></label>
-        <label>Channel<input id="deliveryChannel" maxlength="80" value="manual-review" /></label>
-        <label>Integration name<input id="deliveryIntegration" maxlength="120" /></label>
-        <label>External outcome ID<input id="deliveryExternalId" maxlength="200" /></label>
-        <label>Outcome note<textarea id="deliveryOutcomeNote" maxlength="1000"></textarea></label>
-        <div class="location-status" id="deliveryOutcomeStatus" role="status">Current recorded state: ${escapeHtml(routing.deliveryState)}.</div>
-      `, [{ label: "Record outcome", className: "primary", action: async () => {
-        try {
-          await syncRequest(`/api/admin/reports/${encodeURIComponent(report.id)}/deliveries`, { method: "POST", body: JSON.stringify({
-            state: document.querySelector("#deliveryState").value, channel: document.querySelector("#deliveryChannel").value.trim(),
-            integrationName: document.querySelector("#deliveryIntegration").value.trim(), externalOutcomeId: document.querySelector("#deliveryExternalId").value.trim(),
-            outcomeNote: document.querySelector("#deliveryOutcomeNote").value.trim(), targetId: routing.recommendation?.responseTargetId || ""
-          }) });
-          closeModal(); showToast("Delivery outcome recorded without inventing acknowledgement");
-        } catch (error) { document.querySelector("#deliveryOutcomeStatus").textContent = error.message; }
-      } }, { label: "Cancel", className: "secondary", action: closeModal }]);
-    }
 
-    async function openReportRouting(report) {
-      try {
-        let data = await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/routing`, { method: "GET" });
-        const routing = data.routing;
-        const recommendation = routing.recommendation;
-        openModal("Routing and delivery", recommendation ? `
-          <p><b>Recommendation:</b> ${escapeHtml(recommendation.state)} using rule ${escapeHtml(recommendation.ruleVersion)}.</p>
-          <p>${escapeHtml(recommendation.rationale)}</p>
-          <div class="location-status"><b>Delivery state: ${escapeHtml(routing.deliveryState)}</b><br />${routing.deliveries.length ? `${routing.deliveries.length} recorded outcome event${routing.deliveries.length === 1 ? "" : "s"}.` : "No send attempt has been recorded."}</div>
-        ` : `<p>No routing recommendation exists. Creating one evaluates the active versioned rules and records decision support only.</p><div class="location-status"><b>Delivery state: Not sent</b></div>`, [
-          ...(!recommendation ? [{ label: "Create recommendation", className: "primary", action: async () => {
-            try { await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/routing/recommend`, { method: "POST", body: "{}" }); closeModal(); showToast("Routing recommendation recorded; report not sent"); }
-            catch (error) { showToast(error.message); }
-          } }] : []),
-          ...(recommendation && canAssignCurrentResponder() ? [{ label: "Override", className: "secondary", action: () => { closeModal(); openRoutingOverride(report, routing); } }] : []),
-          ...(recommendation && String(syncState.user?.role || "").toLowerCase() === "admin" ? [{ label: "Record delivery", className: "secondary", action: () => { closeModal(); openDeliveryOutcome(report, routing); } }] : []),
-          { label: "Close", className: "secondary", action: closeModal }
-        ]);
-      } catch (error) { showToast(error.message || "Routing state could not be loaded"); }
-    }
 
-    async function loginResponder() {
-      syncState.server = validateSyncServer(document.querySelector("#syncServer").value.trim() || DEFAULT_SYNC_SERVER);
-      const username = document.querySelector("#syncUsername").value.trim();
-      const password = document.querySelector("#syncPassword").value;
-      if (!username || !password) {
-        showToast("Enter sync username and password");
-        return;
-      }
-      const data = await syncRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ username, password })
-      });
-      syncState.token = data.token;
-      syncState.user = data.user;
-      adminConfigurationState = null;
-      syncState.lastSync = new Date().toISOString();
-      responderReports = [];
-      saveSyncState();
-      saveResponderReports();
-      renderSyncState();
-      await pullReportsFromServer({ announce: false });
-      setView("responder", false);
-      showToast("Responder login successful");
-    }
-
-    async function logoutResponder() {
-      responderReports = [];
-      localStorage.removeItem(RESPONDER_STORE_KEY);
-      await clearResponderUpdateQueue().catch(() => {});
-      syncState.token = "";
-      syncState.user = null;
-      adminConfigurationState = null;
-      syncState.lastSync = "";
-      saveSyncState();
-      render();
-      renderSyncState();
-      setView("profile", false);
-      showToast("Responder logged out");
-    }
-
-    async function pushReportsToServer() {
-      if (!syncState.token) throw new Error("Login required");
-      const result = await processResponderUpdateQueue();
-      syncState.lastSync = new Date().toISOString();
-      saveSyncState();
-      renderSyncState();
-      showToast(result.remaining ? `${result.remaining} update${result.remaining === 1 ? "" : "s"} waiting for connection` : `${result.sent} responder update${result.sent === 1 ? "" : "s"} synced`);
-    }
-
-    async function pullReportsFromServer({ announce = true } = {}) {
-      if (!syncState.token) throw new Error("Login required");
-      const params = new URLSearchParams();
-      if (responderQueueMode === "overdue") {
-        params.set("queue", "institutional");
-        params.set("overdue", "1");
-      } else {
-        params.set("queue", responderQueueMode);
-      }
-      const status = document.querySelector("#responderStatusFilter")?.value || "";
-      const category = document.querySelector("#responderCategoryFilter")?.value || "";
-      if (status) params.set("status", status);
-      if (category) params.set("category", category);
-      const data = await syncRequest(`/api/reports?${params}`, { method: "GET" });
-      await replaceResponderReports(data.reports || []);
-      syncState.lastSync = new Date().toISOString();
-      saveSyncState();
-      renderSyncState();
-      if (announce) showToast(`Pulled ${(data.reports || []).length} authorised cases`);
-    }
-
-    async function syncNow() {
-      try {
-        syncState.server = validateSyncServer(document.querySelector("#syncServer").value.trim() || DEFAULT_SYNC_SERVER);
-        saveSyncState();
-        await pushReportsToServer();
-        await pullReportsFromServer();
-      } catch (error) {
-        showToast(error.message || "Sync failed");
-      }
-    }
 
     function clearLocalData() {
       openModal("Delete local data", `
@@ -6269,11 +5267,9 @@ body.map-unavailable [data-focus-public]{display:none}
             citizenState = { token: "", citizen: null, expiresAt: "" };
             await Promise.all([
               clearSubmissionQueue().catch(() => {}),
-              clearResponderUpdateQueue().catch(() => {}),
               clearWizardDraft().catch(() => {})
             ]);
             reports = [];
-            responderReports = [];
             evidenceItems = [];
             renderEvidenceItems();
             settings = loadSettings();
@@ -6301,7 +5297,6 @@ body.map-unavailable [data-focus-public]{display:none}
       localStorage.removeItem(CITIZEN_AUTH_KEY);
       citizenState = { token: "", citizen: null, expiresAt: "" };
       reports = seedReports.map((report) => ({ ...report }));
-      responderReports = [];
       settings = loadSettings();
       syncState = loadSyncState();
       render();
@@ -6351,164 +5346,13 @@ body.map-unavailable [data-focus-public]{display:none}
       ]);
     }
 
-    function caseAge(created) {
-      const timestamp = typeof created === "number" ? created : Date.parse(created || "");
-      if (!Number.isFinite(timestamp)) return "recently";
-      const minutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
-      if (minutes < 60) return `${minutes} min`;
-      const hours = Math.round(minutes / 60);
-      if (hours < 24) return `${hours} hr`;
-      return `${Math.round(hours / 24)} day`;
-    }
 
-    function getClusterKey(report) {
-      return `${report.region}|${report.district}|${report.community}|${report.type}`.toLowerCase();
-    }
 
-    function getClusters() {
-      return currentReports().filter((report) => !report.hidden).reduce((map, report) => {
-        const key = getClusterKey(report);
-        map.set(key, (map.get(key) || 0) + 1);
-        return map;
-      }, new Map());
-    }
 
-    function filteredReports() {
-      const query = document.querySelector("#search").value.trim().toLowerCase();
-      return currentReports()
-        .filter((report) => {
-          if (filter !== "Hidden" && report.hidden) return false;
-          const matchesFilter =
-            filter === "All" ||
-            report.severity === filter ||
-            report.status === filter ||
-            (filter === "Flagged" && report.flagged) ||
-            (filter === "Hidden" && report.hidden);
-          const haystack = `${report.id} ${report.status} ${report.community} ${report.district} ${report.region} ${report.type} ${report.details} ${routeFor(report).primary} ${routeFor(report).support}`.toLowerCase();
-          return matchesFilter && (!query || haystack.includes(query));
-        })
-        .sort((a, b) => {
-          const statusDelta = (statusOrder[a.status] ?? 0) - (statusOrder[b.status] ?? 0);
-          if (a.status === "Resolved" || b.status === "Resolved") return statusDelta;
-          return scoreReport(b) - scoreReport(a) || (b.created || 0) - (a.created || 0);
-        });
-    }
 
-    function renderStats() {
-      const collection = currentReports();
-      const active = collection.filter((report) => report.status !== "Resolved" && !report.hidden);
-      const affected = active.reduce((sum, report) => sum + Number(report.affected || 0), 0);
-      const clusters = [...getClusters().values()].filter((count) => count > 1).length;
-      document.querySelector("#totalReports").textContent = active.length;
-      document.querySelector("#criticalReports").textContent = active.filter((report) => scoreReport(report) >= 80 || report.severity === "Critical").length;
-      document.querySelector("#peopleAffected").textContent = affected.toLocaleString();
-      document.querySelector("#hotspots").textContent = clusters;
-      document.querySelector("#readyBriefs").textContent = collection.length;
-      document.querySelector("#openBadge").textContent = active.length;
-      document.querySelector("#totalTrend").textContent = `${collection.length} total logged`;
-    }
 
-    function renderPins() {
-      map.querySelectorAll(".pin").forEach((pin) => pin.remove());
-      const active = currentReports().filter((report) => report.status !== "Resolved" && !report.hidden);
-      active.forEach((report, index) => {
-        const pin = document.createElement("span");
-        const score = scoreReport(report);
-        pin.className = "pin";
-        pin.title = `${report.id}: ${report.type} - ${report.community}`;
-        pin.style.background = colors[report.severity] || colors.Low;
 
-        const match = String(report.coordinates || "").match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
-        if (match) {
-          const lat = Number(match[1]);
-          const lng = Number(match[2]);
-          pin.style.left = `${clamp(((lng + 3.4) / 4.7) * 100, 12, 84)}%`;
-          pin.style.top = `${clamp(((11.2 - lat) / 6.8) * 100, 13, 78)}%`;
-        } else {
-          pin.style.left = `${16 + ((index * 21 + score) % 68)}%`;
-          pin.style.top = `${15 + ((index * 29 + score) % 58)}%`;
-        }
-        map.appendChild(pin);
-      });
-    }
 
-    function renderQueue() {
-      const list = filteredReports();
-      const clusters = getClusters();
-      if (!list.length) {
-        ticketList.innerHTML = `<div class="empty">No cases match this filter.</div>`;
-        return;
-      }
-      ticketList.innerHTML = list.map((report) => {
-        const route = routeFor(report);
-        const score = scoreReport(report);
-        const clusterCount = clusters.get(getClusterKey(report)) || 1;
-        const residentView = document.body.dataset.view !== "responder";
-        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "no name or number given" : (report.contact || "no contact"));
-        const address = report.digitalAddress ? ` · ${report.digitalAddress}` : "";
-        const evidence = report.evidenceName ? `<span class="tag">Evidence: ${report.evidenceName}</span>` : "";
-        const cluster = clusterCount > 1 ? `<span class="tag">Cluster x${clusterCount}</span>` : "";
-        return `
-          <article class="case-card" style="border-left-color: ${colors[report.severity] || colors.Low}">
-            <div class="case-top">
-              <div>
-                <h3>${report.id} · ${report.type} in ${report.community}</h3>
-                <div class="case-meta">${report.district}, ${report.region}${address} · ${caseAge(report.created || report.createdAt)} old · ${contact}</div>
-              </div>
-              <div class="score" style="background: ${score >= 80 ? colors.Critical : score >= 65 ? colors.High : score >= 45 ? colors.Medium : colors.Low}">${score}</div>
-            </div>
-            <p>${report.details}</p>
-            <div class="tags">
-              <span class="tag">${report.severity}</span>
-              <span class="tag">${report.status}</span>
-              <span class="tag">${responseClock(score)}</span>
-              <span class="tag">${route.primary}</span>
-              <span class="tag">${Number(report.affected || 0).toLocaleString()} affected</span>
-              ${cluster}
-              ${evidence}
-            </div>
-            <div class="case-actions">
-              <button class="mini" type="button" data-copy="${report.id}">Copy brief</button>
-              <a class="mini" target="_blank" rel="noreferrer" href="https://wa.me/?text=${encodeURIComponent(brief(report))}">WhatsApp</a>
-              <button class="mini" type="button" data-note="${report.id}">Copy route note</button>
-              <select class="mini status" data-status="${report.id}" aria-label="Set status for ${report.id}">
-                ${["Open", "Dispatched", "Acknowledged", "Resolved", "Blocked"].map((status) => `<option ${status === report.status ? "selected" : ""}>${status}</option>`).join("")}
-              </select>
-            </div>
-          </article>
-        `;
-      }).join("");
-
-      ticketList.querySelectorAll("[data-copy]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = currentReports().find((item) => item.id === button.dataset.copy);
-          if (report) copyText(brief(report), "Brief copied");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-note]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = responderReports.find((item) => item.id === button.dataset.note);
-          if (!report) return;
-          const route = routeFor(report);
-          copyText(`${report.id}: Send to ${route.primary}. Support: ${route.support}. Utility/other: ${route.utility}. Evidence: ${route.evidence}. Safety: ${route.safety}.`, "Route note copied");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-status]").forEach((select) => {
-        select.addEventListener("change", () => {
-          const report = responderReports.find((item) => String(item.id) === select.dataset.status);
-          if (!report) return;
-          const nextStatus = select.value;
-          select.value = report.status;
-          queueResponderStatusUpdate(report, nextStatus);
-        });
-      });
-    }
-
-    function canModerateCurrentUser() {
-      return ["admin", "moderator"].includes(String(syncState.user?.role || "").toLowerCase());
-    }
 
     function reportHistoryHtml(report, residentView) {
       const entries = residentView ? (Array.isArray(report.updates) ? report.updates : []) : (Array.isArray(report.history) ? report.history : []);
@@ -6533,207 +5377,9 @@ body.map-unavailable [data-focus-public]{display:none}
       `;
     }
 
-    async function moderateResponderReport(report, action) {
-      if (!canModerateCurrentUser() || !report._responderAuthorized) {
-        showToast("Moderator access required");
-        return;
-      }
-      const data = await syncRequest(`/api/reports/${encodeURIComponent(report.id)}/moderation`, {
-        method: "POST",
-        body: JSON.stringify({ action })
-      });
-      const index = responderReports.findIndex((item) => String(item.id) === String(report.id));
-      if (index >= 0) responderReports[index] = authorizedResponderReport({ ...data.report, history: report.history || [] });
-      saveResponderReports();
-      render();
-      showToast(`Moderation action saved: ${action}`);
-    }
 
-    function renderQueueV2() {
-      const list = filteredReports();
-      const clusters = getClusters();
-      const collection = currentReports();
-      if (!list.length) {
-        ticketList.innerHTML = `<div class="empty">No cases match this filter.</div>`;
-        return;
-      }
 
-      ticketList.innerHTML = list.map((report) => {
-        const route = routeFor(report);
-        const score = scoreReport(report);
-        const clusterCount = clusters.get(getClusterKey(report)) || 1;
-        const residentView = document.body.dataset.view !== "responder";
-        const authorizedResponder = !residentView && Boolean(syncState.token && syncState.user) && report._responderAuthorized && Number(report._responderUserId) === Number(syncState.user.id);
-        const contact = residentView ? "reporter identity protected" : (report.reportMode === "Anonymous public case" ? "no name or number given" : (report.contact || "no contact"));
-        const address = report.protectLocation !== false ? " - exact location protected" : (report.digitalAddress ? ` - ${escapeHtml(report.digitalAddress)}` : "");
-        const evidence = report.evidenceName ? `<span class="tag">Evidence: ${escapeHtml(report.evidenceName)}</span>` : "";
-        const cluster = clusterCount > 1 ? `<span class="tag">Cluster x${clusterCount}</span>` : "";
-        const flagged = report.flagged ? `<span class="tag">Flagged for review</span>` : "";
-        const hidden = report.hidden ? `<span class="tag">Hidden locally</span>` : "";
-        const syncLabels = {
-          "queued-offline": "Queued offline",
-          sending: "Sending",
-          submitted: "Submitted",
-          "needs-attention": "Needs attention"
-        };
-        const citizenSyncLabel = residentView ? syncLabels[report.syncStatus] : "";
-        const responderSyncLabel = authorizedResponder && report.pendingResponderUpdate ? `Update to ${report.pendingResponderUpdate.nextStatus} queued` : "";
-        const syncTag = citizenSyncLabel || responderSyncLabel ? `<span class="tag">${escapeHtml(citizenSyncLabel || responderSyncLabel)}</span>` : "";
-        const moderationActions = authorizedResponder && canModerateCurrentUser() ? `
-          <button class="mini" type="button" data-flag="${escapeHtml(report.id)}">${report.flagged ? "Unflag" : "Flag"}</button>
-          <button class="mini" type="button" data-hide="${escapeHtml(report.id)}">${report.hidden ? "Unhide" : "Hide"}</button>
-        ` : "";
-        const actions = residentView ? `
-          <button class="mini" type="button" data-copy="${escapeHtml(report.id)}">Copy report</button>
-          <button class="mini" type="button" data-whatsapp="${escapeHtml(report.id)}">Share by WhatsApp</button>
-          <button class="mini" type="button" data-sms="${escapeHtml(report.id)}">Share by SMS</button>
-          ${["queued-offline", "needs-attention"].includes(report.syncStatus) ? `<button class="mini" type="button" data-retry="${escapeHtml(report.submissionKey || "")}">Retry</button>` : ""}
-        ` : authorizedResponder ? `
-          <button class="mini" type="button" data-copy="${escapeHtml(report.id)}">Copy brief</button>
-          <button class="mini" type="button" data-whatsapp="${escapeHtml(report.id)}">WhatsApp</button>
-          <button class="mini" type="button" data-sms="${escapeHtml(report.id)}">SMS</button>
-          <button class="mini" type="button" data-note="${escapeHtml(report.id)}">Copy route note</button>
-          ${moderationActions}
-          <select class="mini status" data-status="${escapeHtml(report.id)}" aria-label="Set status for ${escapeHtml(report.id)}" ${report.pendingResponderUpdate ? "disabled" : ""}>
-            ${["Open", "Acknowledged", "Dispatched", "In Progress", "Resolved"].map((status) => `<option ${status === report.status ? "selected" : ""}>${status}</option>`).join("")}
-          </select>
-        ` : "";
 
-        return `
-          <article class="case-card" style="border-left-color: ${colors[report.severity] || colors.Low}">
-            <div class="case-top">
-              <div>
-                <h3>${escapeHtml(report.id)} - ${escapeHtml(report.type)} in ${escapeHtml(report.community)}</h3>
-                <div class="case-meta">${escapeHtml(report.district)}, ${escapeHtml(report.region)}${address} - ${caseAge(report.created || report.createdAt)} old - ${escapeHtml(contact)}</div>
-              </div>
-              <div class="score" style="background: ${score >= 80 ? colors.Critical : score >= 65 ? colors.High : score >= 45 ? colors.Medium : colors.Low}">${score}<span class="severity-word">${escapeHtml(severityLabel(report, score))}</span></div>
-            </div>
-            <p>${escapeHtml(report.details)}</p>
-            <div class="tags">
-              <span class="tag">${escapeHtml(report.severity)}</span>
-              <span class="tag">${escapeHtml(report.status)}</span>
-              <span class="tag">${responseClock(score)}</span>
-              <span class="tag">${escapeHtml(route.primary)}</span>
-              <span class="tag">${Number(report.affected || 0).toLocaleString()} affected</span>
-              ${cluster}
-              ${evidence}
-              ${flagged}
-              ${hidden}
-              ${syncTag}
-            </div>
-            <div class="case-actions">
-              ${actions}
-            </div>
-            ${reportHistoryHtml(report, residentView)}
-          </article>
-        `;
-      }).join("");
-
-      ticketList.querySelectorAll("[data-copy]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = collection.find((item) => String(item.id) === button.dataset.copy);
-          if (report) copyText(brief(report), "Brief copied");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-note]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = collection.find((item) => String(item.id) === button.dataset.note);
-          if (!report) return;
-          const route = routeFor(report);
-          copyText(`${report.id}: Send to ${route.primary}. Support: ${route.support}. Utility/other: ${route.utility}. Evidence: ${route.evidence}. Safety: ${route.safety}.`, "Route note copied");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-whatsapp]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = currentReports().find((item) => item.id === button.dataset.whatsapp);
-          if (report) confirmShare(report, "whatsapp");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-sms]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const report = currentReports().find((item) => item.id === button.dataset.sms);
-          if (report) confirmShare(report, "sms");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-retry]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const item = (await queuedSubmissions()).find((candidate) => candidate.submissionKey === button.dataset.retry);
-          if (!item) return;
-          item.retryable = true;
-          await queueSubmission(item);
-          await processSubmissionQueue();
-          showToast("Submission retry started");
-        });
-      });
-
-      ticketList.querySelectorAll("[data-flag]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const report = responderReports.find((item) => String(item.id) === button.dataset.flag);
-          if (!report) return;
-          await moderateResponderReport(report, report.flagged ? "unflag" : "flag").catch((error) => showToast(error.message || "Moderation failed"));
-        });
-      });
-
-      ticketList.querySelectorAll("[data-hide]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const report = responderReports.find((item) => String(item.id) === button.dataset.hide);
-          if (!report) return;
-          await moderateResponderReport(report, report.hidden ? "unhide" : "hide").catch((error) => showToast(error.message || "Moderation failed"));
-        });
-      });
-
-      ticketList.querySelectorAll("[data-status]").forEach((select) => {
-        select.addEventListener("change", () => {
-          const report = responderReports.find((item) => String(item.id) === select.dataset.status);
-          if (!report) return;
-          const nextStatus = select.value;
-          select.value = report.status;
-          queueResponderStatusUpdate(report, nextStatus);
-        });
-      });
-    }
-
-    function topRoutes() {
-      return currentReports().filter((report) => !report.hidden).reduce((map, report) => {
-        const route = routeFor(report).primary;
-        map.set(route, (map.get(route) || 0) + 1);
-        return map;
-      }, new Map());
-    }
-
-    function renderBars() {
-      const collection = currentReports();
-      const routes = [...topRoutes().entries()].sort((a, b) => b[1] - a[1]);
-      const maxRoute = Math.max(1, ...routes.map((item) => item[1]));
-      document.querySelector("#routeBars").innerHTML = routes.length ? routes.map(([name, count]) => `
-        <div class="bar-row">
-          <span>${escapeHtml(name)}</span>
-          <div class="bar"><span style="width:${(count / maxRoute) * 100}%"></span></div>
-          <b>${count}</b>
-        </div>
-      `).join("") : `<div class="empty">No route pressure yet.</div>`;
-
-      const clusters = [...getClusters().entries()]
-        .map(([key, count]) => ({ key, count, report: collection.find((item) => !item.hidden && getClusterKey(item) === key) }))
-        .filter((item) => item.count > 0 && item.report)
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 6);
-      const maxCluster = Math.max(1, ...clusters.map((item) => item.count));
-      document.querySelector("#clusterBars").innerHTML = clusters.length ? clusters.map((item) => `
-        <div class="bar-row">
-          <span>${escapeHtml(item.report.community)}</span>
-          <div class="bar"><span style="width:${(item.count / maxCluster) * 100}%; background:${colors[item.report.severity] || colors.Low}"></span></div>
-          <b>${item.count}</b>
-        </div>
-      `).join("") : `<div class="empty">No community clusters yet.</div>`;
-
-      const top = routes[0];
-      document.querySelector("#topRoute").textContent = top ? `Top route: ${top[0]}` : "Top route: none";
-    }
 
     function mergeCitizenReport(source) {
       const id = source.reference || source.id;
@@ -7721,63 +6367,9 @@ body.map-unavailable [data-focus-public]{display:none}
 
     document.querySelector("#accountAccessBtn").addEventListener("click", (event) => openCitizenAccount(event.currentTarget));
     document.querySelector("[data-open-citizen-account]").addEventListener("click", (event) => openCitizenAccount(event.currentTarget));
-    function openResponderPortalLogin(trigger) {
-      if (syncState.token && syncState.user) {
-        setView("responder");
-        return;
-      }
-      openModal("Verified responder sign in", `
-        <p>This authenticated portal is separate from citizen pages. Your role, institution, region, and MMDA scope are enforced by the FixNow API.</p>
-        <label>Server URL<input id="responderPortalServer" value="${escapeHtml(syncState.server || DEFAULT_SYNC_SERVER)}" inputmode="url" autocomplete="url" /></label>
-        <label>Username<input id="responderPortalUsername" autocomplete="username" /></label>
-        <label>Password<input id="responderPortalPassword" type="password" autocomplete="current-password" /></label>
-        <div class="location-status" id="responderPortalLoginStatus" role="status"></div>
-      `, [
-        { label: "Sign in", className: "primary", action: async () => {
-          const username = document.querySelector("#responderPortalUsername").value.trim();
-          const password = document.querySelector("#responderPortalPassword").value;
-          const status = document.querySelector("#responderPortalLoginStatus");
-          try {
-            syncState.server = validateSyncServer(document.querySelector("#responderPortalServer").value.trim() || DEFAULT_SYNC_SERVER);
-            if (!username || !password) throw new Error("Enter your responder username and password");
-            const data = await syncRequest("/api/login", { method: "POST", body: JSON.stringify({ username, password }) });
-            syncState.token = data.token;
-            syncState.user = data.user;
-            adminConfigurationState = null;
-            syncState.lastSync = new Date().toISOString();
-            responderReports = [];
-            saveSyncState(); saveResponderReports(); closeModal();
-            setView("responder", false);
-            await pullReportsFromServer({ announce: false });
-            showToast("Authenticated responder queue opened");
-          } catch (error) { status.textContent = error.message || "Sign in failed"; }
-        } },
-        { label: "Cancel", className: "secondary", action: closeModal }
-      ], trigger);
-    }
 
-    document.querySelector("#responderAccessBtn").addEventListener("click", (event) => openResponderPortalLogin(event.currentTarget));
-    document.querySelector("#responderPortalLoginBtn").addEventListener("click", (event) => openResponderPortalLogin(event.currentTarget));
-    document.querySelector("#responderBackBtn").addEventListener("click", () => setView("profile"));
-    document.querySelector("#responderPortalLogoutBtn").addEventListener("click", () => logoutResponder());
-    document.querySelector("#responderRefreshBtn").addEventListener("click", () => pullReportsFromServer().catch((error) => showToast(error.message || "Queue refresh failed")));
-    document.querySelector("#responderCaseSearch").addEventListener("input", renderResponderPortal);
-    document.querySelector("#responderCategoryFilter").addEventListener("change", () => pullReportsFromServer().catch((error) => showToast(error.message)));
-    document.querySelector("#responderStatusFilter").addEventListener("change", () => pullReportsFromServer().catch((error) => showToast(error.message)));
-    document.querySelectorAll("[data-responder-queue]").forEach((button) => button.addEventListener("click", () => {
-      responderQueueMode = button.dataset.responderQueue;
-      pullReportsFromServer().catch((error) => showToast(error.message || "Queue could not be loaded"));
-    }));
-    document.querySelectorAll("[data-responder-mode]").forEach((button) => button.addEventListener("click", () => {
-      responderDisplayMode = button.dataset.responderMode;
-      renderResponderPortal();
-    }));
-    document.querySelector("#adminAddItemBtn").addEventListener("click", openAdminDirectoryItem);
-    document.querySelector("#adminAddRuleBtn").addEventListener("click", openAdminRoutingRule);
-    document.querySelector("#adminInviteBtn").addEventListener("click", openAdminInvitation);
-    document.querySelector("#adminReadinessBtn").addEventListener("click", openAdminReadiness);
-    document.querySelector("#adminRetentionBtn").addEventListener("click", openAdminRetention);
-    document.querySelector("#adminRefreshBtn").addEventListener("click", () => loadAdminConfiguration().catch((error) => { document.querySelector("#adminConsoleStatus").textContent = error.message; }));
+    // Staff work in a separate page (staff.html), so resident pages never load staff code or staff data.
+    document.querySelector("#responderAccessBtn").addEventListener("click", () => { window.location.href = `staff.html${window.location.search}`; });
     document.querySelector("#privacySettingsBtn").addEventListener("click", (event) => openModal("Privacy and consent", `
       <p>${hasConsent() ? "Privacy and terms consent is saved on this device." : "Privacy and terms consent has not been saved on this device."}</p>
       <p>Reports, accessibility choices, and any offline submission attempts remain on this device until you delete local data. Confirmed server reports are not deleted by clearing this device.</p>
@@ -8129,7 +6721,6 @@ body.map-unavailable [data-focus-public]{display:none}
     window.addEventListener("offline", updateNetwork);
     window.addEventListener("storage", (event) => {
       if (event.key === STORE_KEY) reports = loadReports();
-      else if (event.key === RESPONDER_STORE_KEY) responderReports = loadResponderReports();
       else if (event.key === SETTINGS_KEY) {
         settings = loadSettings();
         applySettings();
@@ -8185,7 +6776,6 @@ body.map-unavailable [data-focus-public]{display:none}
     save();
     render();
     processSubmissionQueue().catch(() => {});
-    processResponderUpdateQueue().catch(() => {});
     if (navigator.onLine && !IS_DEMO_MODE) loadNearbyReports().catch(() => {});
     if (IS_DEMO_MODE) {
       document.querySelector("#demoBanner").hidden = false;

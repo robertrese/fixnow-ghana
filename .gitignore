@@ -70,3 +70,6 @@ work/fixnow-backend/test-data-browser/
 design/backup-before-v2/
 design/backup-before-v3/
 work/qa/screenshots/
+
+# Old local demo data folders moved aside (local passwords inside)
+work/fixnow-backend/local-data*/
