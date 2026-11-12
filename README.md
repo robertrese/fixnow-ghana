@@ -1,8 +1,18 @@
 # FixNow Ghana
 
-FixNow Ghana is an offline-first civic reporting app. Residents report flooding, damaged roads, waste, water, electricity and safety problems. Moderators check each report before it appears publicly, and authorised responders see exact locations only for cases in their own area.
+**[Try the live demo](https://robertrese.github.io/fixnow-ghana/)** (sample data; nothing you enter is sent anywhere), or **[see every screen](https://robertrese.github.io/fixnow-ghana/screens/)**
 
-It is **not pilot-ready yet**. It has not been deployed, and the live map, SMS sign-in codes and production hosting still need the owner's accounts (see "Before a pilot").
+FixNow Ghana is an offline-first civic reporting app. Residents report flooding, damaged roads, waste, water, electricity and safety problems. Moderators check each report before it appears publicly, and authorised responders see exact locations only for cases routed to their own office.
+
+<p>
+  <img src="design/screens/img/light-phone-02-home.webp" width="200" alt="Home screen, light mode (demo data)" />
+  <img src="design/screens/img/light-phone-04-step-1.webp" width="200" alt="Report step 1, What happened? (demo data)" />
+  <img src="design/screens/img/dark-phone-14-nearby.webp" width="200" alt="Nearby verified reports, dark mode (demo data)" />
+  <img src="design/screens/img/light-phone-31-staff-review.webp" width="200" alt="Staff review queue for moderators (demo data)" />
+</p>
+<p><em>Screens shown with demo data.</em></p>
+
+It is **not pilot-ready yet**. Only the demo is online; the real service has not been deployed, and the live map, SMS sign-in codes and production hosting still need the owner's accounts (see "Before a pilot").
 
 ## Source of truth
 
@@ -29,13 +39,7 @@ Generated Android builds, runtime databases, WAL/SHM files, test data, logs, rel
 - **Demo app:** `docs/` is a generated copy of the app that is always in demo mode, with a browser rule that blocks connections to any other server. Build it with `npm run build:demo` and check it with `node work/qa/demo-check.js`. GitHub Pages serves it from the `docs` folder of `main`.
 - **Screen gallery:** every resident and staff screen, phone and laptop, light and dark, in `design/screens` ([README](design/screens/README.md)), and on the demo site at `/screens/`. Rebuild with `npm run gallery`.
 
-To switch the demo site on (a repository setting only the owner can change):
-
-1. Open the repository on GitHub, then **Settings** (top bar, right).
-2. In the left menu, under **Code and automation**, click **Pages**.
-3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
-4. Under **Branch**, choose **main**, then the folder **/docs**, then **Save**.
-5. After a minute or two the page shows "Your site is live at …". That is the demo link (`https://robertrese.github.io/fixnow-ghana/`), and the gallery is at `…/screens/`.
+GitHub Pages serves the demo site from the `docs/` folder of `main`.
 
 ## Local checks
 
