@@ -11,6 +11,8 @@ npx playwright install chromium webkit firefox
 
 `--no-save` keeps the test tools out of `package.json`, so the app itself has no new dependencies. WebKit is Safari's engine; Firefox is the third engine people use on computers.
 
+Firefox does not start on the owner's PC, so it is tested on GitHub: every push runs `npm run qa`, `npm run qa:webkit` and `npm run qa:firefox` on Linux (`.github/workflows/check.yml`). Playwright has no phone emulation for Firefox, so its phone runs are a narrow window with touch.
+
 ## Each session
 
 Run each command in its own terminal:
@@ -20,7 +22,7 @@ npm run start:api      # local API with demo accounts; data in work/fixnow-backe
 npm run start:web      # the web app on http://localhost:4173
 npm run qa:seed        # once per fresh local-data folder: 4 moderated demo reports, 3 waiting for review, a demo routing rule
 npm run qa             # Chromium, light and dark, plus the older-browser check
-npm run qa:engines     # the same layout check, WCAG scan and walkthrough in WebKit and Firefox, light and dark
+npm run qa:engines     # the same layout check, WCAG scan, walkthrough and staff check in WebKit and Firefox, light and dark
 npm run qa:all         # both of the above
 ```
 

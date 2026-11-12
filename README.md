@@ -1,5 +1,7 @@
 # FixNow Ghana
 
+[![Checks](https://github.com/robertrese/fixnow-ghana/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/robertrese/fixnow-ghana/actions/workflows/check.yml)
+
 **[Try the live demo](https://robertrese.github.io/fixnow-ghana/)** (sample data; nothing you enter is sent anywhere), or **[see every screen](https://robertrese.github.io/fixnow-ghana/screens/)**
 
 FixNow Ghana is an offline-first civic reporting app. Residents report flooding, damaged roads, waste, water, electricity and safety problems. Moderators check each report before it appears publicly, and authorised responders see exact locations only for cases routed to their own office.
@@ -47,7 +49,7 @@ GitHub Pages serves the demo site from the `docs/` folder of `main`.
 npm run check
 ```
 
-This runs the syntax checks, the front-end policy and phase tests, and the backend integration test. The local API, demo data, screenshots and accessibility checks are described in `work/qa/README.md`. `CLAUDE.md` is the working guide for contributors and AI coding assistants.
+This runs the syntax checks, the front-end policy and phase tests, and the backend integration test. On GitHub, every push also runs the browser QA in Chromium, WebKit and Firefox, in light and dark (`.github/workflows/check.yml`, about 15 minutes), and checks that the public demo in `docs/` was rebuilt. The local API, demo data, screenshots and accessibility checks are described in `work/qa/README.md`. `CLAUDE.md` is the working guide for contributors and AI coding assistants.
 
 ## Before a pilot
 
