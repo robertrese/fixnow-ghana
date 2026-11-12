@@ -90,6 +90,12 @@ assert(/body\[data-view="report"\] \.nav\{display:none\}/.test(v2Css) && /body\[
 assert(backend.includes("function stripJpegMetadata") && backend.includes('"Cross-Origin-Resource-Policy": "cross-origin"'), "approved public photos are re-written without metadata and served for the app");
 assert(fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("Show photo publicly") && fs.readFileSync(path.join(__dirname, "staff.js"), "utf8").includes("I checked this photo: no faces, number plates, house numbers or other identifying details are visible."), "moderators must attest before a photo is published");
 
+// Old WebViews (before Chrome 88, such as Android 11's WebView 83) drop every rule that contains :is() or :where(),
+// which once left dark-mode cards light grey with white text. The shipped CSS must not contain them.
+const shippedCss = (html.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join("\n") + fs.readFileSync(path.join(__dirname, "staff.css"), "utf8");
+assert(!/:(is|where)\(/.test(shippedCss), "the built page and staff.css must not contain :is() or :where(); npm run build:css expands them");
+assert(fs.readFileSync(path.join(__dirname, "..", "work", "design", "build-style-layer.js"), "utf8").includes("expandCss(minified)"), "the CSS build must expand :is() and :where()");
+
 // Public demo: nothing leaves the page, no real calls, clear labels, staff sign-in points to the gallery.
 assert(html.includes("<b>Demo.</b> Sample data only. Nothing you enter leaves this page, and calls are switched off."), "the demo banner says plainly that nothing is sent and calls are off");
 assert(html.includes("This is a demo. In a real emergency, dial 112 from your phone.") && html.includes("if (IS_DEMO_MODE || emergencyDiallerOpening"), "demo mode never opens the dialler");

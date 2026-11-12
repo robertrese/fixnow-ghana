@@ -56,10 +56,12 @@ node work/qa/android-insets-check.js android11 work/qa/screenshots/android11 ges
 node work/qa/android-insets-check.js android11-dark work/qa/screenshots/android11 gestural dark
 node work/qa/android-theme-check.js work/qa/screenshots/android11
 node work/qa/android-back-check.js
+node work/qa/android-dark-check.js
 ```
 
 - `android-insets-check.js`: nothing under the status or navigation bar, no extra gap, no double padding, and the keyboard never covers the step 3 description, the step 5 contact field or staff sign-in, in gesture and 3-button navigation.
 - `android-theme-check.js`: dark mode follows the phone, also when it changes while the app is open; the in-app Light and Dark choices override it; the area below the tab bar matches the page.
+- `android-dark-check.js`: dark mode on every main screen, Nearby in map view, a full page, the call dialogs and the staff page, with axe-core's colour-contrast rule run inside the WebView itself; also fails if the page still has `:is()` or `:where()` rules, which WebView 83 drops.
 - `android-back-check.js`: the phone's Back button or gesture closes a full-screen page and stays in the app.
 - If an emulator will not start (for example after a sudden power-off), start it with `-read-only`.
 - The Android 11 emulator needs about 7.5 GB of free disk space to start.

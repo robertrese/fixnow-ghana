@@ -4,6 +4,7 @@
 // <style id="fixnow-v3"> block of outputs/fixnow-ghana.html.
 // Edit the .css file, then run: npm run build:css
 const fs = require("fs");
+const { expandCss } = require("./expand-selectors");
 const path = require("path");
 
 const root = path.join(__dirname, "..", "..");
@@ -11,7 +12,7 @@ const htmlPath = path.join(root, "outputs", "fixnow-ghana.html");
 const cssPath = path.join(__dirname, "fixnow-v3.css");
 const tag = '<style id="fixnow-v3">';
 
-const css = fs.readFileSync(cssPath, "utf8")
+const minified = fs.readFileSync(cssPath, "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "")
   .replace(/\s*\n\s*/g, "\n")
   .replace(/\s*\{\s*/g, "{")
@@ -22,6 +23,9 @@ const css = fs.readFileSync(cssPath, "utf8")
   .replace(/\n+/g, "\n")
   .trim();
 
+// Old WebViews (before Chrome 88) drop any rule containing :is() or :where(), so they are written out in full.
+const css = expandCss(minified);
+if (/:(is|where)\(/.test(css)) throw new Error("The built CSS still contains :is() or :where()");
 const html = fs.readFileSync(htmlPath, "utf8");
 const start = html.indexOf(tag);
 if (start === -1) throw new Error(`Could not find ${tag} in ${htmlPath}`);
