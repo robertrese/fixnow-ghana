@@ -3,7 +3,7 @@
 // Checks the public demo site in docs/ (build it first with npm run build:demo). Serves docs/ on a local port, uses the
 // demo like a visitor on a phone, in light and dark, and fails if any request goes to another server, a call could
 // start, the content security policy blocks something, an axe WCAG 2.1 A/AA violation appears, or a page errors.
-// Needs no API server. Screenshots go to work/qa/screenshots/demo.
+// Needs no API server. Screenshots go to work/qa/screenshots/demo. Add --base=<url> to check the published site.
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -27,9 +27,11 @@ const server = http.createServer((req, res) => {
 });
 
 (async () => {
-  if (!fs.existsSync(path.join(site, "fixnow-ghana.html"))) throw new Error("docs/ is missing: run npm run build:demo first");
-  await new Promise((resolve) => server.listen(4177, "127.0.0.1", resolve));
-  const base = "http://127.0.0.1:4177/";
+  // --base=https://robertrese.github.io/fixnow-ghana/ checks the live site instead of a local copy of docs/.
+  const liveBase = (process.argv.find((arg) => arg.startsWith("--base=")) || "").slice(7);
+  if (!liveBase && !fs.existsSync(path.join(site, "fixnow-ghana.html"))) throw new Error("docs/ is missing: run npm run build:demo first");
+  if (!liveBase) await new Promise((resolve) => server.listen(4177, "127.0.0.1", resolve));
+  const base = liveBase || "http://127.0.0.1:4177/";
   const browser = await loadPlaywright().chromium.launch();
   for (const scheme of ["light", "dark"]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: scheme, isMobile: true, hasTouch: true });
