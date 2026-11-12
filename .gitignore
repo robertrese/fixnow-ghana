@@ -51,6 +51,7 @@ outputs/*.tar
 outputs/*.tar.gz
 outputs/*.tgz
 *.tmp
+*.tmp.js
 *.temp
 *.bak
 
