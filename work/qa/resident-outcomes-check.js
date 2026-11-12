@@ -6,8 +6,10 @@
 //      My reports, Profile, a full page and a dialog) the first heading starts below the banner and is not under it,
 //      and the sticky topbar or laptop sidebar stays below it after scrolling, at 320, 390 and 1280 px and with Large text.
 //   2. My reports search finds a report by its title and its description.
-//   3. The My reports badge shows how many reports are not sent yet, from the same data, and is hidden at 0.
-//   4. A demo report says it is kept only in this browser, never that it will be sent, and has no Retry.
+//   3. The My reports badge shows how many reports will still be sent (never demo reports), from the same data,
+//      and is hidden at 0.
+//   4. A demo report is labelled Demo only and kept only in this browser, never "not sent yet" or that it will be
+//      sent, has no Retry, and is not counted in the badge.
 //   5. Normal mode on the same origin never sends anything made in demo mode (nor an orphaned queued item).
 //   6. Resident screens never show raw errors ("Failed to fetch", "TypeError", "NetworkError"), with the server
 //      unreachable or in the demo, and the location step says plainly what to do.
@@ -197,16 +199,17 @@ async function submitReport(page) {
   // 3. Badge from the same data.
   const badge = await page.evaluate(() => {
     const stored = JSON.parse(localStorage.getItem("fixnow-gh-demo-v1-reports") || "[]");
-    const unsent = stored.filter((r) => ["queued-offline", "sending", "needs-attention", "demo-local"].includes(r.syncStatus)).length;
-    return { unsent, text: document.querySelector("#openBadge").textContent, hidden: document.querySelector("#openBadge").hidden, count: document.querySelector("#myReportCount").textContent };
+    const unsent = stored.filter((r) => ["queued-offline", "sending", "needs-attention"].includes(r.syncStatus)).length;
+    const demo = stored.filter((r) => r.syncStatus === "demo-local").length;
+    return { unsent, demo, text: document.querySelector("#openBadge").textContent, hidden: document.querySelector("#openBadge").hidden, count: document.querySelector("#myReportCount").textContent };
   });
-  check(badge.unsent === 1 && badge.text === "1" && !badge.hidden, `3. the badge shows the number of reports not sent yet (${badge.text}, data says ${badge.unsent})`);
-  check(await page.getByRole("button", { name: "My reports, 1 report not sent yet", exact: true }).count() === 1, "3. the My reports button is named My reports, 1 report not sent yet");
+  check(badge.demo === 1 && badge.unsent === 0 && badge.hidden && badge.text === "", `4. a demo report is not counted as waiting to send: the badge stays hidden (data: ${badge.demo} demo, ${badge.unsent} to send)`);
+  check(await page.getByRole("button", { name: "My reports", exact: true }).count() === 1, "4. the My reports button never says a demo report is not sent yet");
 
   // 4. The demo report never says it will be sent, and has no Retry.
   const card = await page.evaluate(() => [...document.querySelectorAll(".my-report-card")].find((c) => /Floodwater crossing/.test(c.textContent)).innerText);
-  check(/Demo report: kept only in this browser/.test(card) && /Not sent yet/.test(card), "4. the My reports card says Demo report: kept only in this browser");
-  const neverSends = /keep trying|will be sent|sends when|send it|waiting to send|retry/i;
+  check(/Demo report: kept only in this browser/.test(card) && /Demo only/.test(card), "4. the My reports card says Demo only and Demo report: kept only in this browser");
+  const neverSends = /not sent yet|keep trying|will be sent|sends when|send it|waiting to send|retry/i;
   check(!neverSends.test(card), `4. the card never says the demo report will be sent (${card.replace(/\s+/g, " ")})`);
   await page.evaluate(() => [...document.querySelectorAll("[data-details-local]")].find((b) => /Floodwater crossing/.test(b.textContent)).click());
   await page.waitForTimeout(300);
@@ -310,7 +313,14 @@ async function submitReport(page) {
   await page.waitForTimeout(800);
   await keepText();
   await fillReport(page, { onStep: async (step) => { if (step === 2) { await page.waitForTimeout(800); await keepText(); check(/The map could not load\. Type the community and a landmark below/.test(await page.textContent('[data-wizard-step="2"]')), "6. with the server unreachable the location step says the map could not load and what to do"); await page.screenshot({ path: path.join(out, "location-unreachable-390.png") }); } } });
+  await submitReport(page);
   await keepText();
+  await closeOverlay(page);
+  const realBadge = await page.evaluate(() => ({ text: document.querySelector("#openBadge").textContent, hidden: document.querySelector("#openBadge").hidden, unsent: JSON.parse(localStorage.getItem("fixnow-gh-v3-reports") || "[]").filter((r) => ["queued-offline", "sending", "needs-attention"].includes(r.syncStatus)).length }));
+  check(realBadge.unsent === 1 && realBadge.text === "1" && !realBadge.hidden, `3. a real report saved while the server is unreachable shows in the badge (${realBadge.text}, data says ${realBadge.unsent})`);
+  await page.evaluate(() => setView("my")); // the tab bar is hidden during the report form on phones
+  await page.waitForTimeout(200);
+  check(await page.getByRole("button", { name: "My reports, 1 report not sent yet", exact: true }).count() === 1, "3. the My reports button is named My reports, 1 report not sent yet");
   await page.evaluate(() => setView("home"));
   await page.fill("#trackCaseInput", "FN-ABC123");
   if (await page.$("#trackSecretInput")) await page.fill("#trackSecretInput", "not-a-real-secret");

@@ -58,7 +58,8 @@ assert(html.includes('src="illustrations/ghana-map.svg"'), "the welcome screen s
 assert(gradle.includes('include "illustrations/**"'), "Android builds must package the illustrations");
 
 // Unsent reports are labelled honestly and keep retrying on their own.
-assert(html.includes('waiting ? "Not sent yet" : escapeHtml(report.id)'), "My reports must not show a local ID as if it were a reference");
+assert(html.includes('report.syncStatus === "demo-local" ? "Demo report" : waiting ? "Not sent yet" : escapeHtml(report.id)'), "My reports must not show a local ID as if it were a reference; demo reports say Demo report, never Not sent yet");
+assert(html.includes("const unsent = reports.filter(isPendingSend).length;") && html.includes('isUnsent(report) && report.syncStatus !== "demo-local"'), "the My reports badge counts only reports that will still be sent, never demo reports");
 assert(html.includes("function scheduleQueueRetry") && html.includes("if (item.retryable) scheduleQueueRetry();"), "failed sends must retry with backoff while the phone is online");
 assert(html.includes('document.addEventListener("visibilitychange"'), "returning to the app should retry waiting reports");
 assert(!queued.includes("Temporary local reference"), "the queued screen explains what happens next instead of showing a local ID");

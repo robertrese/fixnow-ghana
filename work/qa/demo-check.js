@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
     await shot("3-demo-report-saved"); await axe("demo report saved");
     await page.click("#modalActions button:first-child");
     await page.waitForTimeout(500);
-    check(/Not sent yet/.test(await page.textContent("main")), `${scheme}: the report is labelled Not sent yet in My reports`);
+    check(/Demo only/.test(await page.textContent("main")) && !/not sent yet/i.test(await page.textContent("main")), `${scheme}: the report is labelled Demo only in My reports, never Not sent yet`);
 
     await page.evaluate(() => setView("nearby"));
     await page.waitForTimeout(800);

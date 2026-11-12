@@ -5686,9 +5686,11 @@ body.map-unavailable [data-focus-public]{display:none}
     // only in this browser and is never sent, so it has no Retry and never says it will be sent.
     const UNSENT_SYNC_STATES = ["queued-offline", "sending", "needs-attention", "demo-local"];
     const isUnsent = (report) => UNSENT_SYNC_STATES.includes(report.syncStatus);
+    // Reports that will still be sent. A demo report never will, so it is not counted as "not sent yet".
+    const isPendingSend = (report) => isUnsent(report) && report.syncStatus !== "demo-local";
 
     function updateOpenBadge() {
-      const unsent = reports.filter(isUnsent).length;
+      const unsent = reports.filter(isPendingSend).length;
       const badge = document.querySelector("#openBadge");
       badge.textContent = unsent ? String(unsent) : "";
       badge.hidden = !unsent;
@@ -5738,7 +5740,7 @@ body.map-unavailable [data-focus-public]{display:none}
         const progress = waiting ? 0 : (progressByStatus[report.status] || (report.syncStatus === "submitted" ? 1 : 0));
         const updated = formatPublicTime(report.updatedAt || report.created);
         return `<article class="my-report-card${waiting ? " is-waiting" : ""}" data-my-report="${escapeHtml(report.id)}">
-          <div class="my-report-heading"><small class="ref">${waiting ? "Not sent yet" : escapeHtml(report.id)}</small>${pill}</div>
+          <div class="my-report-heading"><small class="ref">${report.syncStatus === "demo-local" ? "Demo report" : waiting ? "Not sent yet" : escapeHtml(report.id)}</small>${pill}</div>
           <h3><button class="card-link" type="button" data-details-local="${escapeHtml(report.id)}">${escapeHtml(report.title || report.type || "Report")}</button></h3>
           <p>${escapeHtml(location)}</p>
           <div class="my-report-progress" role="img" aria-label="${progress} of 4 report stages complete">${["Sent", "Checked", "Assigned", "Fixed"].map((label, index) => `<span class="${index + 1 <= progress ? "complete" : ""}${index + 1 === progress ? " current" : ""}"><i></i><small>${label}</small></span>`).join("")}</div>
@@ -5870,7 +5872,7 @@ body.map-unavailable [data-focus-public]{display:none}
         openPage("Demo report saved", `
           <div class="result-screen">
             <span class="result-icon wait">${ICON_CLOCK}</span>
-            <p class="result-lead">This is a demo, so nothing was sent. Your report is kept only in this browser and is labelled Not sent yet in My reports.</p>
+            <p class="result-lead">This is a demo, so nothing was sent. Your report is kept only in this browser and is labelled Demo only in My reports.</p>
             <div class="secret-card">
               <b>In the real app</b>
               <ol class="next-steps">
