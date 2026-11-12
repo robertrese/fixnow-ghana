@@ -47,7 +47,7 @@ const otpProvider = http.createServer((req, res) => {
 });
 otpProvider.listen(4198, "127.0.0.1");
 
-const { startServer, REPORT_TYPES } = require("./server");
+const { startServer, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition } = require("./server");
 const server = startServer();
 
 function assert(condition, message) {
@@ -397,9 +397,18 @@ async function apiFailure(pathname, options = {}) {
 
     // Report types: the server's list must match the app's list exactly.
     const appHtml = fs.readFileSync(path.join(root, "..", "..", "outputs", "fixnow-ghana.html"), "utf8");
-    const appTypeOptions = appHtml.match(/<select id="type" required>([\s\S]*?)<\/select>/)[1];
-    const appTypes = [...appTypeOptions.matchAll(/<option>([^<]+)<\/option>/g)].map((match) => match[1]);
+    // The page defines both lists once (REPORT_TYPES, REPORT_STATUSES) and fills the wizard and every filter from them.
+    const pageList = (name) => JSON.parse(appHtml.match(new RegExp("const " + name + " = (\\[[^\\]]*\\]);"))[1]);
+    const appTypes = pageList("REPORT_TYPES");
     assert(appTypes.length === 11 && [...appTypes].sort().join("|") === [...REPORT_TYPES].sort().join("|"), "server report types must match the app's problem type list");
+    assert(pageList("REPORT_STATUSES").join("|") === REPORT_STATUSES.join("|"), "the app's status list must match the server's REPORT_STATUSES");
+    // Every status a report can reach is in the shared list, so every status can be filtered.
+    const reachable = new Set(["Open", "Reopened"]); // new reports start Open; reopening is a reporter action
+    for (const from of REPORT_STATUSES) for (const to of REPORT_STATUSES) { try { validateResponderTransition(from, to); if (from !== to) reachable.add(to); } catch { /* not allowed */ } }
+    assert([...reachable].sort().join("|") === [...REPORT_STATUSES].sort().join("|"), "REPORT_STATUSES must list exactly the statuses a report can reach");
+    for (const id of ["type", "nearbyCategoryFilter", "myReportCategoryFilter"]) assert(new RegExp('<select id="' + id + '" data-option-list="types"').test(appHtml), "#" + id + " must be filled from the shared type list");
+    for (const id of ["nearbyStatusFilter", "myReportStatusFilter"]) assert(new RegExp('<select id="' + id + '" data-option-list="statuses"').test(appHtml), "#" + id + " must be filled from the shared status list");
+    assert(!/<option>(Flooding or drainage|Open)<\/option>/.test(appHtml), "no hand-written copy of the type or status lists is left in the page");
     const quickTypes = [...appHtml.matchAll(/data-quick-type="([^"]+)"/g)].map((match) => match[1]);
     assert(quickTypes.length > 0 && quickTypes.every((type) => REPORT_TYPES.includes(type)), "every Home and wizard shortcut must use a listed report type");
 

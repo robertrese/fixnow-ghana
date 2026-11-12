@@ -677,10 +677,25 @@ body.large-text .appearance-options label + label{border-left:0;border-top:1.5px
 .track-status{margin:10px 0 0;font-weight:700;color:var(--brand-emergency)}
 .track-status:empty{display:none}
 
-/* Public demo (demo mode only) */
-.demo-banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:calc(6px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 6px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.95rem;line-height:1.4}
-.demo-banner span{margin:4px 12px 4px 0}
-.demo-banner button{min-height:44px;margin:4px 0;padding:6px 16px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700}
+/* Public demo (demo mode only). The banner is fixed to the top and kept short; its measured height (--demo-banner-h,
+   set by the page script and updated when it changes, for example with Large text) is reserved on every view: the page,
+   the sticky topbar, the laptop sidebar, the welcome steps, dialogs and full-screen pages all start below it.
+   The banner holds the iPhone notch space, so the surfaces below it drop their own. */
+.demo-banner{position:fixed;top:0;right:0;left:0;z-index:80;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;padding:calc(4px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 4px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.9rem;font-weight:400;line-height:1.35;text-align:left;border-bottom:1px solid rgba(255,253,248,.3)}
+.demo-banner span{flex:1 1 auto;min-width:0;margin:4px 12px 4px 0}
+.demo-banner b{color:inherit;font-weight:700}
+.demo-banner button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700;white-space:nowrap}
+html.demo-mode{scroll-padding-top:var(--demo-banner-h, 0px)}
+html.demo-mode body{padding-top:var(--demo-banner-h, 0px)}
+html.demo-mode body .welcome-screen, html.demo-mode body .modal-backdrop{top:var(--demo-banner-h, 0px)}
+html.demo-mode body .topbar, html.demo-mode body[data-view="home"] .topbar{top:var(--demo-banner-h, 0px);padding-top:10px}
+html.demo-mode body .skip-link{top:calc(12px + var(--demo-banner-h, 0px))}
+html.demo-mode body .welcome-intro, html.demo-mode body .welcome-consent{padding-top:26px}
+html.demo-mode body .modal-backdrop.is-page .modal{padding-top:12px}
+@media (min-width: 881px){
+html.demo-mode body .rail{top:var(--demo-banner-h, 0px);height:calc(100vh - var(--demo-banner-h, 0px));height:calc(100dvh - var(--demo-banner-h, 0px))}
+html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo-banner-h, 0px))}
+}
 .demo-call-number{margin:0 0 6px}
 .demo-call-number b{font-family:var(--font-display);font-size:2.6rem;line-height:1.1;color:var(--brand-emergency)}
 .honest-state a.primary{display:inline-flex;align-items:center;min-height:44px;margin-top:12px;padding:10px 16px;border-radius:14px;background:var(--deep);color:#fffdf8;font-weight:700;text-decoration:none}

@@ -31,6 +31,7 @@ npm run qa:seed          # adds 4 moderated demo reports (2 with drawn demo phot
 npm run qa               # layout check + WCAG scan + walkthrough screenshots, in light and then dark (needs Playwright, see work/qa/README.md)
 npm run gallery          # rebuilds design/screens (every resident and staff screen, phone and laptop, light and dark) on fresh seeded data
 npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
+npm run qa:outcomes      # resident outcome checks (part of npm run qa): demo banner, My reports search and badge, demo reports never sent, no raw errors, filters, plain words
 ```
 
 Open the app at `http://localhost:4173/fixnow-ghana.html?api=http%3A%2F%2Flocalhost%3A4180`.
@@ -99,6 +100,11 @@ Android notes:
   - Focus moves to the step heading on each wizard step and to the page title when a view changes.
   - Dialogs focus their title.
   - Respect reduced motion.
+- **Resident wording and data:**
+  - Resident screens never show raw errors ("Failed to fetch", "TypeError"): show messages through `plainError()`. Staff screens may keep precise terms.
+  - Resident screens say photos have "hidden location information" removed and that a moderator checks them; never "re-encoded", "EXIF" or "quarantine".
+  - Problem types and statuses come from one list (`REPORT_TYPES`, `REPORT_STATUSES` in the page, matching the server); never write the options out by hand.
+  - Demo reports have the `demo-local` state, are never queued, and the demo has its own queue name. The demo banner's height is reserved on every view (`--demo-banner-h`).
 - **Page size:** the page must stay under 120 KiB gzipped and 600 KiB raw (Phase 12 test).
 
 ## Design system (V3, November 2026)

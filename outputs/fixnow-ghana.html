@@ -2622,9 +2622,20 @@ body.large-text .appearance-options{grid-template-columns:1fr}
 body.large-text .appearance-options label + label{border-left:0;border-top:1.5px solid var(--line-strong)}
 .track-status{margin:10px 0 0;font-weight:700;color:var(--brand-emergency)}
 .track-status:empty{display:none}
-.demo-banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:calc(6px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 6px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.95rem;line-height:1.4}
-.demo-banner span{margin:4px 12px 4px 0}
-.demo-banner button{min-height:44px;margin:4px 0;padding:6px 16px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700}
+.demo-banner{position:fixed;top:0;right:0;left:0;z-index:80;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;padding:calc(4px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 4px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.9rem;font-weight:400;line-height:1.35;text-align:left;border-bottom:1px solid rgba(255,253,248,.3)}
+.demo-banner span{flex:1 1 auto;min-width:0;margin:4px 12px 4px 0}
+.demo-banner b{color:inherit;font-weight:700}
+.demo-banner button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700;white-space:nowrap}
+html.demo-mode{scroll-padding-top:var(--demo-banner-h, 0px)}
+html.demo-mode body{padding-top:var(--demo-banner-h, 0px)}
+html.demo-mode body .welcome-screen, html.demo-mode body .modal-backdrop{top:var(--demo-banner-h, 0px)}
+html.demo-mode body .topbar, html.demo-mode body[data-view="home"] .topbar{top:var(--demo-banner-h, 0px);padding-top:10px}
+html.demo-mode body .skip-link{top:calc(12px + var(--demo-banner-h, 0px))}
+html.demo-mode body .welcome-intro, html.demo-mode body .welcome-consent{padding-top:26px}
+html.demo-mode body .modal-backdrop.is-page .modal{padding-top:12px}
+@media (min-width: 881px){html.demo-mode body .rail{top:var(--demo-banner-h, 0px);height:calc(100vh - var(--demo-banner-h, 0px));height:calc(100dvh - var(--demo-banner-h, 0px))}
+html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo-banner-h, 0px))}
+}
 .demo-call-number{margin:0 0 6px}
 .demo-call-number b{font-family:var(--font-display);font-size:2.6rem;line-height:1.1;color:var(--brand-emergency)}
 .honest-state a.primary{display:inline-flex;align-items:center;min-height:44px;margin-top:12px;padding:10px 16px;border-radius:14px;background:var(--deep);color:#fffdf8;font-weight:700;text-decoration:none}
@@ -2691,7 +2702,7 @@ body.map-unavailable [data-focus-public]{display:none}
 </head>
 <body data-view="home">
   <a class="skip-link" href="#main">Skip to main content</a>
-  <div class="demo-banner" id="demoBanner" role="note" hidden><span><b>Demo.</b> Sample data only. Nothing you enter leaves this page, and calls are switched off.</span><button id="demoResetBtn" type="button">Reset demo data</button></div>
+  <div class="demo-banner" id="demoBanner" role="note" hidden><span><b>Demo</b> with sample data. Nothing you enter leaves this page, and calls are off.</span><button id="demoResetBtn" type="button">Reset demo</button></div>
   <div class="app">
     <aside class="rail">
       <div class="brand">
@@ -2706,7 +2717,7 @@ body.map-unavailable [data-focus-public]{display:none}
         <button class="active" type="button" data-app-view="home"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Home</span><code>Start</code></button>
         <button type="button" data-app-view="nearby"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Nearby</span><code>Feed</code></button>
         <button class="nav-report" type="button" data-app-view="report"><span>Report</span><code>6 steps</code></button>
-        <button type="button" data-app-view="my"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>My reports</span><code id="openBadge">0</code></button>
+        <button type="button" data-app-view="my"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>My reports</span><code id="openBadge" aria-hidden="true" hidden></code></button>
         <button type="button" data-app-view="profile"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span><code>Optional</code></button>
       </nav>
 
@@ -2813,27 +2824,13 @@ body.map-unavailable [data-focus-public]{display:none}
           <button class="secondary nearby-filter-toggle" id="nearbyFiltersBtn" type="button" aria-expanded="false" aria-controls="nearbyFilters"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filters</button>
           <div class="nearby-filters" id="nearbyFilters">
             <label>Category
-              <select id="nearbyCategoryFilter">
+              <select id="nearbyCategoryFilter" data-option-list="types">
                 <option value="">All categories</option>
-                <option>Flooding or drainage</option>
-                <option>Waste or sanitation</option>
-                <option>Water supply</option>
-                <option>Electricity</option>
-                <option>Road or bridge</option>
-                <option>Fire risk</option>
-                <option>Clinic access</option>
-                <option>Public safety</option>
-                <option>School facility</option>
-                <option>Other</option>
               </select>
             </label>
             <label>Status
-              <select id="nearbyStatusFilter">
+              <select id="nearbyStatusFilter" data-option-list="statuses">
                 <option value="">All statuses</option>
-                <option>Open</option>
-                <option>Acknowledged</option>
-                <option>In Progress</option>
-                <option>Resolved</option>
               </select>
             </label>
             <label>Region
@@ -2903,8 +2900,8 @@ body.map-unavailable [data-focus-public]{display:none}
         <div class="my-report-tools">
           <label class="search-field"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="myReportSearch" type="search" placeholder="Find my report (e.g. FN-A8D241)" aria-label="Find my report" /></label>
           <p class="my-report-count" id="myReportCount">On this device</p>
-          <select id="myReportCategoryFilter" aria-label="Filter my reports by category"><option value="">All categories</option><option>Flooding or drainage</option><option>Waste or sanitation</option><option>Water supply</option><option>Electricity</option><option>Road or bridge</option><option>Public safety</option><option>Other</option></select>
-          <select id="myReportStatusFilter" aria-label="Filter my reports by status"><option value="">All statuses</option><option>Open</option><option>Acknowledged</option><option>In Progress</option><option>Resolved</option><option>Reopened</option></select>
+          <select id="myReportCategoryFilter" data-option-list="types" aria-label="Filter my reports by category"><option value="">All categories</option></select>
+          <select id="myReportStatusFilter" data-option-list="statuses" aria-label="Filter my reports by status"><option value="">All statuses</option></select>
           <button class="secondary" id="trackAnotherBtn" type="button">Find a report with its secret</button>
           <button class="secondary" id="refreshAccountReportsBtn" type="button">Refresh</button>
         </div>
@@ -3106,19 +3103,7 @@ body.map-unavailable [data-focus-public]{display:none}
               <details class="more-types">
                 <summary>Other problem types</summary>
                 <label>Problem type
-                  <select id="type" required>
-                    <option>Flooding or drainage</option>
-                    <option>Waste or sanitation</option>
-                    <option>Water supply</option>
-                    <option>Electricity</option>
-                    <option>Road or bridge</option>
-                    <option>Fire risk</option>
-                    <option>Clinic access</option>
-                    <option>Public safety</option>
-                    <option>Food or market price</option>
-                    <option>School facility</option>
-                    <option>Other</option>
-                  </select>
+                  <select id="type" data-option-list="types" required></select>
                 </label>
               </details>
               <div class="wizard-actions">
@@ -3306,7 +3291,7 @@ body.map-unavailable [data-focus-public]{display:none}
                     <input id="evidenceLibrary" type="file" accept="image/jpeg,image/png,image/webp" multiple />
                   </label>
                 </div>
-                <div class="location-status">Images are resized and re-encoded on this device to remove EXIF and GPS metadata. They upload privately into quarantine for validation and moderation.</div>
+                <div class="location-status">We remove hidden location information from photos on this phone before they are sent. A moderator checks photos before anything is shown publicly.</div>
                 <div id="evidenceProgress" role="status" aria-live="polite">No images selected. You can continue without one.</div>
                 <div class="evidence-gallery" id="evidenceGallery"></div>
               </div>
@@ -3357,7 +3342,7 @@ body.map-unavailable [data-focus-public]{display:none}
               </details>
               <div class="privacy-preview">
                 <b>Who can see what?</b>
-                <span>The public can see an approximate MMDA location and approved report updates. Authorised responders may see exact location, contact details, and quarantined evidence only when required for the case.</span>
+                <span>The public can see an approximate MMDA location and approved report updates. Authorised responders may see exact location, contact details, and photos that are not public only when required for the case.</span>
               </div>
               <div class="wizard-actions split-actions">
                 <button class="secondary" type="button" data-wizard-back>Back</button>
@@ -3378,7 +3363,7 @@ body.map-unavailable [data-focus-public]{display:none}
               <div class="privacy-preview" id="finalPrivacyPreview" aria-live="polite">
                 <b>What the public can see</b>
                 <span id="publicPreviewText">Only category, title, approved summary, status, and approximate MMDA location can become public after moderation.</span>
-                <span>Never public: exact GPS, GhanaPostGPS, contact details, private tracking secret, EXIF metadata, or internal notes.</span>
+                <span>Never public: exact GPS, GhanaPostGPS, contact details, private tracking secret, hidden location information in photos, or internal notes.</span>
               </div>
               <div class="route-box review-route" aria-live="polite">
                 <div class="route-line route-score"><span>Live score</span><b id="previewScore">74</b></div>
@@ -3530,6 +3515,18 @@ body.map-unavailable [data-focus-public]{display:none}
   <script src="map-foundation.js"></script>
   <script>
     const IS_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+    // One definition of the problem types and report statuses. It matches the server (REPORT_TYPES and
+    // REPORT_STATUSES in work/fixnow-backend/server.js, checked by a test) and fills the wizard's type list and
+    // every category and status filter (Nearby and My reports), so no list can fall behind.
+    const REPORT_TYPES = ["Flooding or drainage", "Waste or sanitation", "Water supply", "Electricity", "Road or bridge", "Fire risk", "Clinic access", "Public safety", "Food or market price", "School facility", "Other"];
+    const REPORT_STATUSES = ["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Reopened"];
+    document.querySelectorAll("select[data-option-list]").forEach((select) => {
+      (select.dataset.optionList === "types" ? REPORT_TYPES : REPORT_STATUSES).forEach((value) => {
+        const option = document.createElement("option");
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    });
     const INITIAL_VIEW = new URLSearchParams(window.location.search).get("view") || "home";
     const storageNamespace = IS_DEMO_MODE ? "fixnow-gh-demo-v1" : "fixnow-gh-v3";
     const STORE_KEY = `${storageNamespace}-reports`;
@@ -3689,6 +3686,7 @@ body.map-unavailable [data-focus-public]{display:none}
     let nearbyFeedMode = "nearby";
     let nearbyCurrentLocation = null;
     let nearbyLoading = false;
+    let nearbyReloadPending = false; // a filter changed while a list was loading: load again with the new filters
     let accountReportsLoading = false;
     let reportSubmissionActive = false;
     let settings = loadSettings();
@@ -3806,6 +3804,7 @@ body.map-unavailable [data-focus-public]{display:none}
       });
       if (wizardStep === 2 && document.body.dataset.view === "report" && window.FixNowMaps) {
         window.FixNowMaps.initializeLocationPicker({
+          demo: IS_DEMO_MODE,
           apiBase: validateSyncServer(DEFAULT_SYNC_SERVER),
           onSelect: handleMapLocationSelection
         });
@@ -3991,7 +3990,22 @@ body.map-unavailable [data-focus-public]{display:none}
       return true;
     }
 
+    // Residents never see a browser's or programme's raw error ("Failed to fetch", "TypeError", "NetworkError",
+    // "QuotaExceededError"...). plainError() keeps the app's own messages (plain sentences from FixNow or its server)
+    // and replaces anything raw with a plain sentence. showToast() applies the same rule as a safety net.
+    const RAW_ERROR_PATTERN = /failed to fetch|networkerror|network error|load failed|typeerror|referenceerror|syntaxerror|rangeerror|domexception|quotaexceeded|aborterror|unexpected token|is not a function|is not defined|cannot read propert|undefined|\bnull\b|\[object /i;
+    function isRawErrorText(text) { return RAW_ERROR_PATTERN.test(String(text || "")); }
+    function plainError(error, fallback) {
+      const message = String((error && error.message) || "");
+      if (error instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(message)) {
+        return navigator.onLine ? "FixNow could not be reached. Check your connection and try again." : "You are offline. Check your connection and try again.";
+      }
+      if (!message || isRawErrorText(message) || (error && error.name && error.name !== "Error")) return fallback;
+      return message;
+    }
+
     function showToast(message) {
+      if (isRawErrorText(message)) message = "That did not work. Please try again.";
       toast.textContent = message;
       toast.classList.add("show");
       clearTimeout(showToast.timer);
@@ -4032,6 +4046,18 @@ body.map-unavailable [data-focus-public]{display:none}
 
     // Full-screen pages (Figma: report detail, timeline, results, similar report) use the same dialog, filling the
     // phone screen with a Back button; on a laptop they are a large centred panel.
+    // The demo banner is fixed to the top. Its height changes with the screen width and Large text, so it is measured
+    // and kept in --demo-banner-h, which the styles reserve on every view (page, topbar, welcome, dialogs, full pages).
+    function reserveDemoBannerSpace() {
+      const banner = document.querySelector("#demoBanner");
+      document.documentElement.classList.add("demo-mode");
+      const update = () => document.documentElement.style.setProperty("--demo-banner-h", `${Math.ceil(banner.getBoundingClientRect().height)}px`);
+      update();
+      if ("ResizeObserver" in window) new ResizeObserver(update).observe(banner);
+      window.addEventListener("resize", update);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(update).catch(() => {});
+    }
+
     function openPage(title, html, actions, trigger = document.activeElement) {
       openModal(title, html, actions, trigger, { page: true });
     }
@@ -4797,7 +4823,7 @@ body.map-unavailable [data-focus-public]{display:none}
           showToast("Community observation saved");
         } catch (error) {
           button.disabled = false;
-          showToast(error.message || "Observation could not be saved");
+          showToast(plainError(error, "Observation could not be saved"));
         }
       }));
     }
@@ -4884,7 +4910,7 @@ body.map-unavailable [data-focus-public]{display:none}
             closeModal();
             renderNearbyReports();
             showToast("Thank you. You are counted as affected.");
-          } catch (error) { showToast(error.message || "Your signal could not be saved"); }
+          } catch (error) { showToast(plainError(error, "Your signal could not be saved")); }
         } },
         { label: "Share", className: "secondary", action: () => copyText(`${report.title} (${report.category}), ${report.publicLocationLabel}. Status: ${report.status}. Verified on FixNow Ghana.`, "Safe summary copied to share") },
         { label: "Close", className: "secondary", action: closeModal }
@@ -4898,7 +4924,7 @@ body.map-unavailable [data-focus-public]{display:none}
           showToast("Thank you. Your observation was saved.");
         } catch (error) {
           button.disabled = false;
-          showToast(error.message || "Your observation could not be saved");
+          showToast(plainError(error, "Your observation could not be saved"));
         }
       }));
     }
@@ -4930,7 +4956,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     async function loadNearbyReports() {
       if (IS_DEMO_MODE) { showDemoNearby(); return; }
-      if (nearbyLoading) return;
+      if (nearbyLoading) { nearbyReloadPending = true; return; }
       nearbyLoading = true;
       const summary = document.querySelector("#nearbyResultSummary");
       summary.innerHTML = "<span>Loading moderator-verified reports...</span>";
@@ -4956,6 +4982,7 @@ body.map-unavailable [data-focus-public]{display:none}
         document.querySelector("[data-nearby-retry]").addEventListener("click", loadNearbyReports);
       } finally {
         nearbyLoading = false;
+        if (nearbyReloadPending) { nearbyReloadPending = false; loadNearbyReports(); }
       }
     }
 
@@ -5018,7 +5045,7 @@ body.map-unavailable [data-focus-public]{display:none}
               { label: "Keep editing draft", className: "secondary", action: closeModal }
             ]);
           } catch (error) {
-            showToast(error.message || "Could not confirm report");
+            showToast(plainError(error, "Could not confirm report"));
             control.disabled = false;
           }
         }));
@@ -5049,14 +5076,17 @@ body.map-unavailable [data-focus-public]{display:none}
           }
         }));
       } catch (error) {
-        container.innerHTML = `<div class="location-status">Duplicate check unavailable: ${escapeHtml(error.message || "try again later")}. You can still submit; no automatic merge will occur.</div>`;
+        container.innerHTML = `<div class="location-status">The similar-report check could not run (${escapeHtml(plainError(error, "try again later").replace(/\.$/, ""))}). You can still submit; reports are never merged automatically.</div>`;
       } finally {
         button.disabled = false;
         button.textContent = "Check again for similar reports";
       }
     }
 
-    const QUEUE_DB_NAME = "fixnow-citizen-queue";
+    // The demo never queues reports (they stay in this browser only). Its queue still has its own name, so nothing
+    // made in demo mode can ever reach the real send queue, even on the same origin (for example localhost).
+    // The real name is unchanged so reports already waiting on phones still send.
+    const QUEUE_DB_NAME = IS_DEMO_MODE ? `${storageNamespace}-citizen-queue` : "fixnow-citizen-queue";
     const QUEUE_STORE = "submissions";
     const RESPONDER_QUEUE_DB_NAME = "fixnow-responder-update-queue";
     const RESPONDER_QUEUE_STORE = "updates";
@@ -5172,7 +5202,7 @@ body.map-unavailable [data-focus-public]{display:none}
           });
           attachment.serverAttachmentId = uploaded.attachment.attachmentId;
           attachmentIds.push(attachment.serverAttachmentId);
-          updateEvidenceUploadState(attachment.clientAttachmentId, `Image ${index + 1} quarantined for validation`);
+          updateEvidenceUploadState(attachment.clientAttachmentId, `Photo ${index + 1} sent privately. A moderator checks it before anything is public.`);
           await queueSubmission(item);
         }
         item.payload.attachmentIds = attachmentIds;
@@ -5212,6 +5242,10 @@ body.map-unavailable [data-focus-public]{display:none}
       queueProcessorActive = true;
       try {
         for (const item of await queuedSubmissions()) {
+          // Only send what this mode saved: a demo report, or a queued item with no report on this phone (for example
+          // one left by an older demo on the same origin), is never sent.
+          if (item.payload && item.payload.demo) { await removeQueuedSubmission(item.submissionKey); continue; }
+          if (!reports.some((candidate) => candidate.submissionKey === item.submissionKey)) continue;
           if (item.retryable !== false) await submitQueuedReport(item);
         }
       } finally {
@@ -5442,7 +5476,7 @@ body.map-unavailable [data-focus-public]{display:none}
         if (status) status.textContent = `${result.count} account-linked report${result.count === 1 ? "" : "s"}; reports made without an account remain on this device.`;
         if (announce) showToast("Account reports refreshed");
       } catch (error) {
-        if (status) status.textContent = `Account reports could not refresh: ${error.message || "try again later"}. Local reports remain available.`;
+        if (status) status.textContent = `Account reports could not refresh. ${plainError(error, "Try again later.")} Reports on this phone are still here.`;
       } finally {
         accountReportsLoading = false;
       }
@@ -5548,7 +5582,7 @@ body.map-unavailable [data-focus-public]{display:none}
               save();
             }
             closeModal(); renderMyReports(); showToast("In-app preferences saved");
-          } catch (error) { document.querySelector("#myNotificationStatus").textContent = error.message; }
+          } catch (error) { document.querySelector("#myNotificationStatus").textContent = plainError(error, "Notification settings could not be saved. Please try again."); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ]);
@@ -5579,14 +5613,14 @@ body.map-unavailable [data-focus-public]{display:none}
         <p>Explain what is still wrong. The reason is private to authorised case staff; the public timeline shows only that reopening was requested.</p>
         <label>Reason<textarea id="reopenReason" required placeholder="What happened after the reported fix?"></textarea></label>
         <label>New evidence (optional)<input id="reopenEvidence" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" ${report.trackingSecret ? "" : "disabled"} /></label>
-        <div class="location-status" id="reopenStatus">${report.trackingSecret ? "Optional evidence is stripped of EXIF/GPS and uploaded privately." : "Account access can reopen with a reason. To add evidence on this device, import the private tracking secret first."}</div>
+        <div class="location-status" id="reopenStatus">${report.trackingSecret ? "Photos you add have their hidden location information removed and are sent privately." : "Account access can reopen with a reason. To add evidence on this device, import the private tracking secret first."}</div>
       `, [
         { label: "Request reopening", className: "primary", action: async () => {
           const status = document.querySelector("#reopenStatus");
           try {
             await sendReporterAction(report, "reopen", document.querySelector("#reopenReason").value.trim(), document.querySelector("#reopenEvidence").files?.[0] || null);
             closeModal();
-          } catch (error) { status.textContent = error.message || "Reopening could not be recorded"; }
+          } catch (error) { status.textContent = plainError(error, "Reopening could not be recorded"); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ]);
@@ -5594,8 +5628,8 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function openMyReportDetails(report) {
       if (!report) return;
-      const waiting = ["queued-offline", "sending", "needs-attention"].includes(report.syncStatus);
-      const stages = [waiting ? "Saved on this phone" : "Submitted", "Under review", "Assigned", "Resolved"];
+      const waiting = isUnsent(report);
+      const stages = [report.syncStatus === "demo-local" ? "Saved in this browser" : waiting ? "Saved on this phone" : "Submitted", "Under review", "Assigned", "Resolved"];
       const stageByStatus = { Open: 1, Acknowledged: 2, Dispatched: 3, "In Progress": 3, Blocked: 3, Escalated: 3, Resolved: 4, Reopened: 2 };
       const currentStage = report.syncStatus === "submitted" ? (stageByStatus[report.status] || 1) : 0;
       const location = report.publicLocationLabel || [report.community, report.district, report.region].filter(Boolean).join(", ") || "Location not provided";
@@ -5616,10 +5650,10 @@ body.map-unavailable [data-focus-public]{display:none}
         <div class="report-detail-summary">
           <span class="review-art ${art.tint}"><img src="${art.src}" alt="" /></span>
           <div>
-            <small class="detail-ref">${waiting ? "No reference yet. You get one when it sends." : `Reference <b>${escapeHtml(report.id)}</b>`}</small>
+            <small class="detail-ref">${report.syncStatus === "demo-local" ? "No reference. Demo reports are never sent." : waiting ? "No reference yet. You get one when it sends." : `Reference <b>${escapeHtml(report.id)}</b>`}</small>
             <h3>${escapeHtml(report.title || report.type || "Community report")}</h3>
             <p>${escapeHtml(location)}</p>
-            ${waiting ? `<span class="status-pill status-waiting">Waiting to send</span>` : statusPill(report.status)}
+            ${waiting ? `<span class="status-pill status-waiting">${report.syncStatus === "demo-local" ? "Demo only" : "Waiting to send"}</span>` : statusPill(report.status)}
           </div>
         </div>
         <h4>Progress</h4>
@@ -5641,13 +5675,32 @@ body.map-unavailable [data-focus-public]{display:none}
             const index = reports.findIndex((item) => String(item.id) === String(report.id));
             reports[index] = mergeTrackedReport(result.report, report);
             save(); closeModal(); renderMyReports(); showToast("Stored contact details removed");
-          } catch (error) { showToast(error.message || "Contact details could not be removed"); }
+          } catch (error) { showToast(plainError(error, "Contact details could not be removed")); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ]);
     }
 
+    // Reports that have not reached the FixNow server. "demo-local" is a report made in the public demo: it is kept
+    // only in this browser and is never sent, so it has no Retry and never says it will be sent.
+    const UNSENT_SYNC_STATES = ["queued-offline", "sending", "needs-attention", "demo-local"];
+    const isUnsent = (report) => UNSENT_SYNC_STATES.includes(report.syncStatus);
+
+    function updateOpenBadge() {
+      const unsent = reports.filter(isUnsent).length;
+      const badge = document.querySelector("#openBadge");
+      badge.textContent = unsent ? String(unsent) : "";
+      badge.hidden = !unsent;
+      // The visible number is hidden from screen readers; the button says it in words instead.
+      document.querySelectorAll('[data-app-view="my"]').forEach((button) => {
+        if (!button.closest(".nav")) return;
+        if (unsent) button.setAttribute("aria-label", `My reports, ${unsent} ${unsent === 1 ? "report" : "reports"} not sent yet`);
+        else button.removeAttribute("aria-label");
+      });
+    }
+
     function waitingNote(report) {
+      if (report.syncStatus === "demo-local") return "Demo report: kept only in this browser";
       if (report.syncStatus === "needs-attention") return "Could not be sent. Open it to try again";
       if (report.syncStatus === "sending") return "Sending now";
       return navigator.onLine ? "Online. FixNow will keep trying to send it" : "Sends when you are back online";
@@ -5660,7 +5713,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const category = document.querySelector("#myReportCategoryFilter").value;
       const statusFilter = document.querySelector("#myReportStatusFilter").value;
       const visibleReports = reports.filter((report) => {
-        const summary = `${report.id} ${report.type} ${report.status} ${report.community} ${report.district} ${report.region} ${report.publicLocationLabel}`.toLowerCase();
+        const summary = [report.id, report.title, report.details, report.type, report.status, report.community, report.district, report.region, report.publicLocationLabel].filter(Boolean).join(" ").toLowerCase();
         if (query && !summary.includes(query)) return false;
         if (category && report.type !== category) return false;
         if (statusFilter && report.status !== statusFilter) return false;
@@ -5668,15 +5721,16 @@ body.map-unavailable [data-focus-public]{display:none}
       }).sort((left, right) => new Date(right.updatedAt || right.created || 0) - new Date(left.updatedAt || left.created || 0));
       const countLabel = document.querySelector("#myReportCount");
       if (countLabel) countLabel.textContent = `${reports.length} ${reports.length === 1 ? "report" : "reports"} on this phone`;
+      updateOpenBadge();
       if (!visibleReports.length) {
         list.innerHTML = `<div class="honest-state"><strong>${reports.length ? "No reports match this search." : "No reports yet."}</strong><p>${reports.length ? "Try a different word or clear the filters." : "Reports you make on this phone appear here, with their progress. You can also find a report with its reference and private secret."}</p><button class="primary" type="button" data-app-view="report">Report a problem</button></div>`;
         list.querySelector("[data-app-view]").addEventListener("click", () => setView("report"));
         return;
       }
       list.innerHTML = visibleReports.map((report) => {
-        const waiting = ["queued-offline", "sending", "needs-attention"].includes(report.syncStatus);
+        const waiting = isUnsent(report);
         const pill = waiting
-          ? `<span class="status-pill status-waiting">${report.syncStatus === "needs-attention" ? "Needs attention" : "Waiting to send"}</span>`
+          ? `<span class="status-pill status-waiting">${report.syncStatus === "needs-attention" ? "Needs attention" : report.syncStatus === "demo-local" ? "Demo only" : "Waiting to send"}</span>`
           : statusPill(report.status);
         const location = report.publicLocationLabel || [report.community, report.district, report.region].filter(Boolean).join(", ") || "Location not yet provided";
         const progressByStatus = { Open: 1, Acknowledged: 2, Dispatched: 3, "In Progress": 3, Blocked: 3, Escalated: 3, Resolved: 4, Reopened: 2 };
@@ -5700,7 +5754,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const contactState = report.contactDataState || (report.contact || report.trustedContact ? "stored-private" : "none");
       return `<div class="case-actions report-actions">
         ${["queued-offline", "needs-attention"].includes(report.syncStatus) ? `<button class="mini" type="button" data-retry-local="${escapeHtml(report.submissionKey || "")}">Retry sending</button>` : ""}
-        ${!["queued-offline", "sending", "needs-attention"].includes(report.syncStatus) ? `<button class="mini" type="button" data-refresh-local="${id}">Refresh timeline</button>
+        ${!isUnsent(report) ? `<button class="mini" type="button" data-refresh-local="${id}">Refresh timeline</button>
         <button class="mini" type="button" data-notify-local="${id}">Notifications</button>
         <button class="mini" type="button" data-copy-local="${id}">Copy safe summary</button>
         <button class="mini" type="button" data-whatsapp-local="${id}">Share on WhatsApp</button>
@@ -5715,9 +5769,9 @@ body.map-unavailable [data-focus-public]{display:none}
       list.querySelectorAll("[data-copy-local]").forEach((button) => button.addEventListener("click", () => { const report = find(button.dataset.copyLocal); if (report) copyText(brief(report), "Safe report brief copied"); }));
       list.querySelectorAll("[data-whatsapp-local]").forEach((button) => button.addEventListener("click", () => { const report = find(button.dataset.whatsappLocal); if (report) confirmShare(report, "whatsapp"); }));
       list.querySelectorAll("[data-sms-local]").forEach((button) => button.addEventListener("click", () => { const report = find(button.dataset.smsLocal); if (report) confirmShare(report, "sms"); }));
-      list.querySelectorAll("[data-refresh-local]").forEach((button) => button.addEventListener("click", async () => { try { await refreshMyReport(find(button.dataset.refreshLocal)); } catch (error) { showToast(error.message); } }));
+      list.querySelectorAll("[data-refresh-local]").forEach((button) => button.addEventListener("click", async () => { try { await refreshMyReport(find(button.dataset.refreshLocal)); } catch (error) { showToast(plainError(error, "That did not work. Please try again.")); } }));
       list.querySelectorAll("[data-notify-local]").forEach((button) => button.addEventListener("click", () => openMyReportNotifications(find(button.dataset.notifyLocal))));
-      list.querySelectorAll("[data-confirm-local]").forEach((button) => button.addEventListener("click", async () => { try { await sendReporterAction(find(button.dataset.confirmLocal), "confirm-resolution"); } catch (error) { showToast(error.message); } }));
+      list.querySelectorAll("[data-confirm-local]").forEach((button) => button.addEventListener("click", async () => { try { await sendReporterAction(find(button.dataset.confirmLocal), "confirm-resolution"); } catch (error) { showToast(plainError(error, "That did not work. Please try again.")); } }));
       list.querySelectorAll("[data-reopen-local]").forEach((button) => button.addEventListener("click", () => openReporterReopen(find(button.dataset.reopenLocal))));
       list.querySelectorAll("[data-remove-contact-local]").forEach((button) => button.addEventListener("click", () => openRemoveContact(find(button.dataset.removeContactLocal))));
       list.querySelectorAll("[data-retry-local]").forEach((button) => button.addEventListener("click", async () => {
@@ -5779,7 +5833,7 @@ body.map-unavailable [data-focus-public]{display:none}
         updateTriagePreview();
       } catch (error) {
         status.textContent = navigator.onLine
-          ? `Location could not be verified: ${String(error.message || "unknown error")}. Check the point before submitting.`
+          ? `Location could not be checked. ${plainError(error, "Check the point before submitting.")}`
           : "Offline: the point is saved on this device. Official region and MMDA verification will happen when the report synchronises.";
       }
     }
@@ -5907,7 +5961,8 @@ body.map-unavailable [data-focus-public]{display:none}
       report.trackingSecret = createTrackingSecret();
       report.created = Date.now();
       report.status = "Open";
-      report.syncStatus = "queued-offline";
+      report.syncStatus = IS_DEMO_MODE ? "demo-local" : "queued-offline";
+      if (IS_DEMO_MODE) report.demo = true;
       const queuedEvidence = evidenceItems.filter((item) => item.state === "ready").map((item) => ({ ...item }));
       reports.unshift(report);
       if (!save()) {
@@ -5915,6 +5970,7 @@ body.map-unavailable [data-focus-public]{display:none}
         throw new Error("The report could not be stored safely on this device.");
       }
       render();
+      if (!IS_DEMO_MODE) {
       try {
         await queueSubmission({
           submissionKey: report.submissionKey,
@@ -5937,6 +5993,7 @@ body.map-unavailable [data-focus-public]{display:none}
         save();
         render();
       }
+      }
       form.reset();
       duplicateCheckedKey = "";
       document.querySelector("#duplicateSuggestions").innerHTML = `<div class="location-status">No duplicate check has run. FixNow never merges reports automatically.</div>`;
@@ -5953,9 +6010,9 @@ body.map-unavailable [data-focus-public]{display:none}
       setWizardStep(1);
       const route = routeFor(report);
       if (report.syncStatus !== "submitted") showQueuedResult(report, route);
-      announce(report.syncStatus === "submitted" ? "Report submitted" : "Report saved and waiting to send");
+      announce(report.syncStatus === "submitted" ? "Report submitted" : report.syncStatus === "demo-local" ? "Demo report saved in this browser" : "Report saved and waiting to send");
       } catch (error) {
-        openModal("Report not saved", `<div class="honest-state"><strong>Your report was not submitted.</strong><p>${escapeHtml(error.message || "Check device storage and try again.")}</p></div>`, [
+        openModal("Report not saved", `<div class="honest-state"><strong>Your report was not submitted.</strong><p>${escapeHtml(plainError(error, "Check device storage and try again."))}</p></div>`, [
           { label: "Return to report", className: "primary", action: closeModal }
         ]);
       } finally {
@@ -6094,7 +6151,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const gallery = document.querySelector("#evidenceGallery");
       const ready = evidenceItems.filter((item) => item.state === "ready");
       document.querySelector("#evidenceProgress").textContent = ready.length
-        ? `${ready.length} of 5 images ready. EXIF and GPS metadata removed.`
+        ? `${ready.length} of 5 photos ready. Hidden location information removed.`
         : "No images selected. You can continue without one.";
       gallery.innerHTML = evidenceItems.map((item) => item.state === "ready" ? `
         <article class="evidence-item" data-evidence-item="${escapeHtml(item.clientAttachmentId)}">
@@ -6134,7 +6191,7 @@ body.map-unavailable [data-focus-public]{display:none}
         try {
           evidenceItems.push(await compressEvidenceImage(file));
         } catch (error) {
-          evidenceItems.push({ clientAttachmentId: makeUuid(), name: file.name, state: "error", error: error.message || "Could not process image" });
+          evidenceItems.push({ clientAttachmentId: makeUuid(), name: file.name, state: "error", error: plainError(error, "This photo could not be prepared. Try another photo.") });
         }
         renderEvidenceItems();
       }
@@ -6168,7 +6225,7 @@ body.map-unavailable [data-focus-public]{display:none}
           return;
         } catch (error) {
           if (error.status !== 401) {
-            showToast(error.message || "Account could not be loaded");
+            showToast(plainError(error, "Account could not be loaded"));
             return;
           }
         }
@@ -6178,7 +6235,7 @@ body.map-unavailable [data-focus-public]{display:none}
       try {
         config = (await publicRequest("/api/public/config", { citizenAuth: false })).citizenAccounts;
       } catch (error) {
-        openModal("Citizen account", `<div class="honest-state"><strong>Account service unavailable.</strong><p>${escapeHtml(error.message || "Try again later")}</p></div>`, undefined, trigger);
+        openModal("Citizen account", `<div class="honest-state"><strong>Account service unavailable.</strong><p>${escapeHtml(plainError(error, "Try again later."))}</p></div>`, undefined, trigger);
         return;
       }
       const otp = config?.phoneOtp || {};
@@ -6215,7 +6272,7 @@ body.map-unavailable [data-focus-public]{display:none}
           });
           openCitizenOtpVerification(result.challenge, config, trigger);
         } catch (error) {
-          status.textContent = error.message || "A security code could not be sent";
+          status.textContent = plainError(error, "A security code could not be sent");
         }
       });
       document.querySelector("#citizenPasswordLoginBtn")?.addEventListener("click", async () => {
@@ -6234,7 +6291,7 @@ body.map-unavailable [data-focus-public]{display:none}
           saveCitizenState();
           await openCitizenAccountDashboard(trigger);
         } catch (error) {
-          status.textContent = error.message || "Sign-in failed";
+          status.textContent = plainError(error, "Sign-in failed");
         }
       });
       document.querySelector("#citizenPasswordResetBtn")?.addEventListener("click", () => openCitizenPasswordReset(document.querySelector("#citizenPhone").value.trim(), trigger));
@@ -6266,7 +6323,7 @@ body.map-unavailable [data-focus-public]{display:none}
             saveCitizenState();
             await openCitizenAccountDashboard(trigger);
           } catch (error) {
-            status.textContent = error.message || "The code could not be verified";
+            status.textContent = plainError(error, "The code could not be verified");
           }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
@@ -6287,7 +6344,7 @@ body.map-unavailable [data-focus-public]{display:none}
               body: JSON.stringify({ phone, deviceKey: citizenDeviceKey })
             });
             openCitizenPasswordResetCode(requested.challenge, trigger);
-          } catch (error) { status.textContent = error.message || "Reset code unavailable"; }
+          } catch (error) { status.textContent = plainError(error, "Reset code unavailable"); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ], trigger);
@@ -6303,7 +6360,7 @@ body.map-unavailable [data-focus-public]{display:none}
               body: JSON.stringify({ challengeId: challenge.challengeId, code: document.querySelector("#citizenResetCode").value.trim(), deviceKey: citizenDeviceKey })
             });
             openCitizenNewPassword(verified.resetToken, trigger);
-          } catch (error) { status.textContent = error.message || "Reset code invalid"; }
+          } catch (error) { status.textContent = plainError(error, "Reset code invalid"); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ], trigger);
@@ -6321,7 +6378,7 @@ body.map-unavailable [data-focus-public]{display:none}
             clearCitizenState();
             closeModal();
             showToast("Password reset. Sign in again.");
-          } catch (error) { status.textContent = error.message || "Password could not be reset"; }
+          } catch (error) { status.textContent = plainError(error, "Password could not be reset"); }
         } },
         { label: "Cancel", className: "secondary", action: closeModal }
       ], trigger);
@@ -6372,33 +6429,33 @@ body.map-unavailable [data-focus-public]{display:none}
         try {
           const result = await citizenRequest("/api/citizen/me", { method: "PATCH", body: JSON.stringify({ displayName: document.querySelector("#citizenDisplayName").value, avatarUrl: document.querySelector("#citizenAvatarUrl").value }) });
           citizenState.citizen = result.citizen; saveCitizenState(); await openCitizenAccountDashboard(trigger);
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       });
       document.querySelector("#linkCitizenReportBtn").addEventListener("click", async () => {
         try {
           const result = await citizenRequest("/api/citizen/reports/link", { method: "POST", body: JSON.stringify({ reference: document.querySelector("#citizenLinkReference").value.trim(), secret: document.querySelector("#citizenLinkSecret").value.trim() }) });
           status().textContent = `${result.report.reference} linked to this account.`;
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       });
       document.querySelector("#setCitizenPasswordBtn").addEventListener("click", async () => {
         try {
           const result = await citizenRequest("/api/citizen/password", { method: "POST", body: JSON.stringify({ currentPassword: document.querySelector("#citizenCurrentPassword")?.value || "", newPassword: document.querySelector("#citizenNewPassword").value }) });
           citizenState.citizen = result.citizen; saveCitizenState(); await openCitizenAccountDashboard(trigger);
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       });
       document.querySelectorAll("[data-revoke-citizen-session]").forEach((button) => button.addEventListener("click", async () => {
         try {
           const result = await citizenRequest(`/api/citizen/sessions/${encodeURIComponent(button.dataset.revokeCitizenSession)}`, { method: "DELETE" });
           if (result.currentSessionRevoked) { clearCitizenState(); closeModal(); showToast("Signed out"); }
           else await openCitizenAccountDashboard(trigger);
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       }));
       document.querySelector("#exportCitizenDataBtn").addEventListener("click", async () => {
         try {
           const result = await citizenRequest("/api/citizen/export");
           downloadBlob(`fixnow-account-${new Date().toISOString().slice(0, 10)}.json`, "application/json", JSON.stringify(result.export, null, 2));
           status().textContent = "Account export downloaded without tracking secrets or private case data.";
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       });
       document.querySelector("#logoutCitizenBtn").addEventListener("click", async () => {
         try { await citizenRequest("/api/citizen/logout", { method: "POST", body: "{}" }); } catch {}
@@ -6408,7 +6465,7 @@ body.map-unavailable [data-focus-public]{display:none}
         try {
           await citizenRequest("/api/citizen/account", { method: "DELETE", body: JSON.stringify({ confirmation: document.querySelector("#deleteCitizenConfirmation").value, password: document.querySelector("#deleteCitizenPassword")?.value || "" }) });
           clearCitizenState(); closeModal(); showToast("Citizen account deleted");
-        } catch (error) { status().textContent = error.message; }
+        } catch (error) { status().textContent = plainError(error, "That did not work. Please try again."); }
       });
     }
 
@@ -6516,8 +6573,7 @@ body.map-unavailable [data-focus-public]{display:none}
     // Network failures arrive as a TypeError with a browser message ("Failed to fetch"); say it in plain words.
     function friendlyRequestError(error, fallback) {
       if (!navigator.onLine) return "You are offline. Check your connection and try again.";
-      if (error instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(String(error && error.message))) return "FixNow could not be reached. Check your connection and try again.";
-      return (error && error.message) || fallback;
+      return plainError(error, fallback);
     }
 
     async function findTrackedCase() {
@@ -6571,7 +6627,7 @@ body.map-unavailable [data-focus-public]{display:none}
       } catch (error) {
         // The server answers the same way for a wrong reference and a wrong secret, so the message cannot say which.
         trackStatus.textContent = error.status === 404 ? "No report matches that reference and secret. Check both and try again." : friendlyRequestError(error, "The report could not be found.");
-        showToast(error.message || "Could not retrieve report");
+        showToast(plainError(error, "Could not retrieve report"));
       }
     }
 
@@ -6848,6 +6904,7 @@ body.map-unavailable [data-focus-public]{display:none}
     if (navigator.onLine && !IS_DEMO_MODE) loadNearbyReports().catch(() => {});
     if (IS_DEMO_MODE) {
       document.querySelector("#demoBanner").hidden = false;
+      reserveDemoBannerSpace();
       document.querySelector("#sampleBtn").hidden = false;
     }
     showConsentIfNeeded();

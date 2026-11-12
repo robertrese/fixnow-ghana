@@ -218,7 +218,9 @@
     if (!initializePromise) {
       initializePromise = initialize(options).catch((error) => {
         initializePromise = null;
-        showUnavailable("Live map could not be loaded.", `${String(error.message || "Unknown map error")}. Manual reporting and GhanaPostGPS still work.`);
+        // Residents never see the browser's raw error ("Failed to fetch", "TypeError"); developers find it in the console.
+        console.info("FixNow: the live map could not load.", error);
+        showUnavailable("The map could not load.", "Every verified report is still in the list. You can report a problem by describing the place or entering a GhanaPostGPS address.");
       });
     }
     return initializePromise;
@@ -318,7 +320,21 @@
     unavailable.hidden = true;
   }
 
+  // Plain sentences for residents: the raw error never reaches the screen.
+  const PICKER_FAILED_MESSAGE = "The map could not load. Type the community and a landmark below, use your GPS location, or enter a GhanaPostGPS address.";
+  const PICKER_DEMO_MESSAGE = "The map is switched off in the demo. Type the community and a landmark below.";
+
   function initializeLocationPicker(options) {
+    if (options && options.demo) {
+      // The public demo has no server, so it never asks for the map configuration.
+      const unavailable = document.querySelector("#reportMapUnavailable");
+      const canvas = document.querySelector("#reportLocationMap");
+      const search = document.querySelector("#reportPlaceSearch");
+      if (canvas) canvas.hidden = true;
+      if (search) search.hidden = true;
+      if (unavailable) { unavailable.hidden = false; unavailable.textContent = PICKER_DEMO_MESSAGE; }
+      return Promise.resolve();
+    }
     if (!locationPickerPromise) {
       locationPickerPromise = createLocationPicker(options).catch((error) => {
         locationPickerPromise = null;
@@ -327,9 +343,10 @@
         const search = document.querySelector("#reportPlaceSearch");
         if (canvas) canvas.hidden = true;
         if (search) search.hidden = true;
+        console.info("FixNow: map search could not load.", error);
         if (unavailable) {
           unavailable.hidden = false;
-          unavailable.textContent = `${String(error.message || "Map search could not load")}. Manual location entry remains available.`;
+          unavailable.textContent = PICKER_FAILED_MESSAGE;
         }
       });
     }

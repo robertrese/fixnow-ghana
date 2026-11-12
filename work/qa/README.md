@@ -24,6 +24,8 @@ npm run qa:seed        # once per fresh local-data folder: 4 moderated demo repo
 npm run qa             # Chromium, light and dark, plus the older-browser check
 npm run qa:engines     # the same layout check, WCAG scan, walkthrough and staff check in WebKit and Firefox, light and dark
 npm run qa:all         # both of the above
+npm run qa:outcomes    # what a visitor sees: demo banner never covers a heading (320, 390, 1280 px, Large text), My reports
+                       # search, badge and demo reports, no demo report ever sent, no raw errors, every filter, plain photo words
 ```
 
 - `overflow-check.js` fails if any screen scrolls sideways at 320 px, or at 320 or 390 px with Large text, or if a visible text field uses text under 16 px (iPhone zooms in on those).

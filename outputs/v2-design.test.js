@@ -97,7 +97,7 @@ assert(!/:(is|where)\(/.test(shippedCss), "the built page and staff.css must not
 assert(fs.readFileSync(path.join(__dirname, "..", "work", "design", "build-style-layer.js"), "utf8").includes("expandCss(minified)"), "the CSS build must expand :is() and :where()");
 
 // Public demo: nothing leaves the page, no real calls, clear labels, staff sign-in points to the gallery.
-assert(html.includes("<b>Demo.</b> Sample data only. Nothing you enter leaves this page, and calls are switched off."), "the demo banner says plainly that nothing is sent and calls are off");
+assert(html.includes("<b>Demo</b> with sample data. Nothing you enter leaves this page, and calls are off."), "the demo banner says plainly that nothing is sent and calls are off");
 assert(html.includes("This is a demo. In a real emergency, dial 112 from your phone.") && html.includes("if (IS_DEMO_MODE || emergencyDiallerOpening"), "demo mode never opens the dialler");
 assert(html.includes('openModal("Staff sign-in is not in the demo"') && html.includes('window.location.href = "screens/"'), "demo staff access explains and links to the screen gallery");
 assert(html.includes('if (IS_DEMO_MODE) throw new Error("This is a demo, so nothing is sent from this page.");') && html.includes('if (IS_DEMO_MODE) throw new Error("Demo data cannot sync to production");'), "every request helper refuses to send in demo mode");
@@ -199,5 +199,37 @@ assert(html.includes('{ label: "View existing report", className: "primary"') &&
 assert(html.includes('<label class="track-field">Reference number<input id="trackCaseInput"') && html.includes("track: [\"Find your report\""), "Find your report is a full screen with visible labels");
 assert(html.includes('modalBackdrop.classList.contains("is-page")'), "Android back closes a full-screen page");
 assert(html.includes('history.pushState({ fixnowPage: true }, "")') && html.includes('window.addEventListener("popstate", () => {'), "the browser's Back button closes a full-screen page instead of leaving the app");
+
+// Outside review of the public demo (November 2026). The outcome tests are in work/qa/resident-outcomes-check.js
+// (npm run qa:outcomes); these guards keep the fixes from being undone.
+const mapCode = fs.readFileSync(path.join(__dirname, "map-foundation.js"), "utf8");
+// 1. The demo banner's height is reserved on every view, including the welcome steps, dialogs and full pages.
+assert(html.includes("function reserveDemoBannerSpace()") && html.includes("reserveDemoBannerSpace();"), "the demo measures its banner and reserves the space");
+for (const rule of ["html.demo-mode body{padding-top:var(--demo-banner-h, 0px)}", "html.demo-mode body .welcome-screen, html.demo-mode body .modal-backdrop{top:var(--demo-banner-h, 0px)}", "html.demo-mode body .topbar, html.demo-mode body[data-view=\"home\"] .topbar{top:var(--demo-banner-h, 0px)", "html.demo-mode{scroll-padding-top:var(--demo-banner-h, 0px)}"]) {
+  assert(html.includes(rule), `the demo banner space is reserved: ${rule}`);
+}
+// 2. My reports search covers the title and the description.
+assert(/const summary = \[report\.id, report\.title, report\.details,/.test(html), "My reports search includes the title and description");
+// 3. The badge comes from the data, never a hard-coded number.
+assert(!html.includes('<code id="openBadge">0</code>') && html.includes("function updateOpenBadge()") && html.includes("updateOpenBadge();"), "the My reports badge counts unsent reports");
+// 4 and 5. Demo reports have their own state, are never queued, and the demo has its own queue name.
+assert(html.includes('report.syncStatus = IS_DEMO_MODE ? "demo-local" : "queued-offline";') && html.includes('if (report.syncStatus === "demo-local") return "Demo report: kept only in this browser";'), "demo reports have their own state that never says they will be sent");
+assert(html.includes('const QUEUE_DB_NAME = IS_DEMO_MODE ? `${storageNamespace}-citizen-queue` : "fixnow-citizen-queue";'), "the demo never shares the real send queue");
+assert(/render\(\);\n      if \(!IS_DEMO_MODE\) \{\n      try \{\n        await queueSubmission\(/.test(html), "the demo never queues a report");
+assert(html.includes("if (item.payload && item.payload.demo)") && html.includes("if (!reports.some((candidate) => candidate.submissionKey === item.submissionKey)) continue;"), "normal mode never sends a demo item or a queued item with no report on this phone");
+assert(!/\["queued-offline", "needs-attention"\]\.includes\(report\.syncStatus\)[^\n]*demo-local/.test(html), "a demo report has no Retry");
+// 6. No raw errors on resident screens.
+assert(html.includes("function plainError(error, fallback)") && html.includes('if (isRawErrorText(message)) message = "That did not work. Please try again.";'), "resident messages go through plainError and the toast filters raw errors");
+const rawUses = (html.match(/error\.message/g) || []).length;
+assert(rawUses === 4, `error.message is only read by plainError and the send queue's internal records (found ${rawUses})`);
+assert((mapCode.match(/error\.message/g) || []).length === 1 && mapCode.includes("showResponderMapUnavailable(`${String(error.message"), "the resident map and location picker never show a raw error (only the staff map does)");
+assert(mapCode.includes('const PICKER_DEMO_MESSAGE = "The map is switched off in the demo. Type the community and a landmark below.";') && html.includes("demo: IS_DEMO_MODE,"), "the demo location step says the map is off, without asking the server");
+// 7. One list of types and statuses fills every filter and the wizard.
+assert(html.includes('<select id="type" data-option-list="types" required></select>') && !/<option>(Flooding or drainage|Open|Fire risk|Dispatched)<\/option>/.test(html), "type and status lists are not written out by hand");
+assert(html.includes("let nearbyReloadPending = false;") && html.includes("if (nearbyLoading) { nearbyReloadPending = true; return; }"), "a Nearby filter changed while loading is applied");
+// 8. Plain words about photos on resident screens (staff screens keep the precise terms).
+for (const [name, text] of [["fixnow-ghana.html", html], ["map-foundation.js", mapCode]]) {
+  assert(!/re-?encod|\bexif\b|quarantin/i.test(text), `${name} uses plain words about photo privacy (no re-encoded, EXIF or quarantine)`);
+}
 
 console.log("V2 design and safety guard test passed");

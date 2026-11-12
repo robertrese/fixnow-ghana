@@ -21,7 +21,7 @@ for (const id of [
 ]) assert(html.includes(`id="${id}"`), `Phase 5 control ${id} should exist`);
 
 assert(html.includes('accept="image/jpeg,image/png,image/webp"') && html.includes("multiple"), "evidence selection should accept multiple supported image formats");
-assert(html.includes("canvas.toBlob") && html.includes("remove EXIF and GPS metadata"), "evidence must be re-encoded on device with clear metadata-removal language");
+assert(html.includes("canvas.toBlob") && html.includes("remove hidden location information from photos"), "evidence must be re-encoded on device with clear metadata-removal language");
 assert(html.includes("5 - evidenceItems.filter") && html.includes("files.slice(0, remaining)") && html.includes("750_000"), "evidence count and compressed upload size must be bounded");
 assert(html.includes("indexedDB.open(WIZARD_DRAFT_DB_NAME") && html.includes('excluded = new Set(["evidence", "caseConsent", "contactConsent", "exactLocationConsent"])'), "drafts should be resumable without persisting consent checkboxes");
 assert(html.includes("/api/public/reports/duplicates") && html.includes("No report will be merged automatically"), "duplicate checking should be advisory and explicit");

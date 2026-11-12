@@ -859,6 +859,8 @@ const REPORT_TYPES = Object.freeze([
   "School facility",
   "Other"
 ]);
+// Every status a report can have (the keys of validateResponderTransition). The web app's filters use the same list.
+const REPORT_STATUSES = Object.freeze(["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Reopened"]);
 const UNLISTED_REPORT_TYPE_MESSAGE = "Choose one of the listed problem types";
 
 function createPublicReport(input, req, citizen = null) {
@@ -4583,4 +4585,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { startServer, handler, REPORT_TYPES };
+module.exports = { startServer, handler, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition };
