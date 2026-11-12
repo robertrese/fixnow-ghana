@@ -36,7 +36,7 @@
     "qa:old-browsers": "node work/qa/old-browser-check.js && node work/qa/old-browser-check.js --engine=webkit",
     "qa:engines": "npm run qa:webkit && npm run qa:firefox",
     "qa:webkit": "node work/qa/overflow-check.js --engine=webkit && node work/qa/a11y-scan.js --engine=webkit && node work/qa/walkthrough.js --engine=webkit && node work/qa/overflow-check.js --engine=webkit --dark && node work/qa/a11y-scan.js --engine=webkit --dark && node work/qa/walkthrough.js --engine=webkit --dark && node work/qa/staff-check.js --engine=webkit && node work/qa/staff-check.js --engine=webkit --dark",
-    "qa:firefox": "node work/qa/overflow-check.js --engine=firefox && node work/qa/a11y-scan.js --engine=firefox && node work/qa/walkthrough.js --engine=firefox && node work/qa/overflow-check.js --engine=firefox --dark && node work/qa/a11y-scan.js --engine=firefox --dark && node work/qa/walkthrough.js --engine=firefox --dark",
+    "qa:firefox": "node work/qa/overflow-check.js --engine=firefox && node work/qa/a11y-scan.js --engine=firefox && node work/qa/walkthrough.js --engine=firefox && node work/qa/overflow-check.js --engine=firefox --dark && node work/qa/a11y-scan.js --engine=firefox --dark && node work/qa/walkthrough.js --engine=firefox --dark && node work/qa/staff-check.js --engine=firefox && node work/qa/staff-check.js --engine=firefox --dark",
     "qa:all": "npm run qa && npm run qa:engines",
     "qa:pages": "node work/qa/pages-check.js",
     "gallery": "node work/qa/gallery.js",

@@ -1,23 +1,89 @@
-# Runs the project's checks on every push and pull request: syntax checks, the front-end policy and phase tests,
-# and the backend integration test (npm run check). No secrets are used. The browser QA (Chromium, WebKit, Firefox)
-# is not here yet; see design/v2-handoff/WEBSITE-GITHUB-STAFF-AND-SCREENS.md, step 9.
+# Checks on every push and pull request (and on demand from the Actions tab):
+#   check: syntax checks, front-end policy and phase tests, the backend integration test (npm run check), and a
+#          rebuild of the public demo that must match the committed docs/ folder.
+#   qa:    the browser QA against a local API and web server, in Chromium, WebKit (Safari's engine) and Firefox, in
+#          light and dark. Firefox cannot start on the owner's PC, so this is where it is tested.
+# No secrets, tokens or third-party actions. The local admin password is generated fresh in each run and never printed.
 name: Checks
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: npm run check
         run: npm run check
+      - name: The public demo in docs/ is up to date
+        run: |
+          npm run build:demo
+          git diff --exit-code -- docs || { echo "::error::docs/ is out of date. Run npm run build:demo and commit docs/."; exit 1; }
+
+  qa:
+    needs: check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit, firefox]
+    name: qa (${{ matrix.engine }})
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install the test tools (not saved to package.json)
+        run: npm install --no-save playwright@1.63.0 axe-core@4.10.2
+      - name: Install the browser
+        # npm run qa also runs the old-browser check in WebKit, so the Chromium job needs WebKit too.
+        run: npx playwright install --with-deps ${{ matrix.engine == 'chromium' && 'chromium webkit' || matrix.engine }}
+      - name: Start the local API and web server
+        run: |
+          nohup npm run start:api > api.log 2>&1 &
+          nohup npm run start:web > web.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:4180/api/health > /dev/null && curl -fsS http://localhost:4173/fixnow-ghana.html > /dev/null; then echo "Servers are up"; exit 0; fi
+            sleep 1
+          done
+          echo "::error::The local servers did not start"; tail -n 40 api.log web.log; exit 1
+      - name: Seed demo data
+        run: npm run qa:seed
+      - name: QA in Chromium, and the public demo check
+        if: matrix.engine == 'chromium'
+        run: |
+          npm run qa
+          node work/qa/demo-check.js
+      - name: QA in WebKit
+        if: matrix.engine == 'webkit'
+        run: npm run qa:webkit
+      - name: QA in Firefox
+        if: matrix.engine == 'firefox'
+        run: npm run qa:firefox
+      - name: Keep the screenshots of a failed run for 7 days
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qa-screenshots-${{ matrix.engine }}
+          path: work/qa/screenshots/
+          retention-days: 7
+          if-no-files-found: ignore
