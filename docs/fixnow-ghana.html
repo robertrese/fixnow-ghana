@@ -3332,7 +3332,7 @@ body.map-unavailable [data-focus-public]{display:none}
                       <option>Resident</option>
                       <option>Assembly member</option>
                       <option>Unit committee</option>
-                      <option>NADMO volunteer</option>
+                      <option>Emergency volunteer</option>
                       <option>Health worker</option>
                       <option>Utility worker</option>
                     </select>
@@ -3416,23 +3416,7 @@ body.map-unavailable [data-focus-public]{display:none}
           </ol>
           <p class="report-aside-note"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Your exact location and contact details are never shown publicly.</span></p>
         </aside>
-        <div class="side-stack" id="routing">
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <h2>Routing engine</h2>
-                <p class="hint">The active case route updates as the intake changes.</p>
-              </div>
-            </div>
-            <div class="route-box">
-              <div class="route-line"><span>Primary desk</span><b id="routePrimary">District Assembly</b></div>
-              <div class="route-line"><span>Support desk</span><b id="routeSupport">NADMO / volunteers</b></div>
-              <div class="route-line"><span>Utility desk</span><b id="routeUtility">Not needed</b></div>
-              <div class="route-line"><span>Evidence needed</span><b id="routeEvidence">Photo + location</b></div>
-              <div class="route-line"><span>Safety note</span><b id="routeSafety">Keep distance from hazard</b></div>
-            </div>
-          </div>
-
+        <div class="side-stack">
           <div class="panel">
             <div class="panel-head">
               <div>
@@ -3601,12 +3585,11 @@ body.map-unavailable [data-focus-public]{display:none}
     };
     const severityWeight = { Critical: 55, High: 40, Medium: 25, Low: 10 };
     const statusOrder = { Open: 0, Acknowledged: 1, Dispatched: 2, "In Progress": 3, Resolved: 4, Blocked: 5 };
-    const northernRegions = new Set(["Northern", "Upper East", "Upper West", "Savannah", "North East"]);
 
     const seedReports = [
       {
         id: "FN-2401",
-        role: "NADMO volunteer",
+        role: "Emergency volunteer",
         reportMode: "Named contact",
         region: "Greater Accra",
         district: "Korle Klottey",
@@ -4214,7 +4197,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function privacyHtml() {
       return `
-        <p><b>FixNow Ghana Command Privacy Policy</b></p>
+        <p><b>FixNow Ghana Privacy Policy</b></p>
         <p>The current citizen report flow stores a draft on this device. It is not an official submission until a future public submission service confirms receipt. The interim responder sync service processes authenticated responder data only.</p>
         <h3>Data the app may store locally</h3>
         <ul>
@@ -4372,32 +4355,27 @@ body.map-unavailable [data-focus-public]{display:none}
       const primary = routeFor(report).primary;
       return {
         label: "Usually handled by",
-        office: /^(District Assembly|Water provider|Market authority)$/.test(primary) ? `the ${primary}` : primary,
+        office: `the ${primary}`,
         note: "General information only. FixNow is not yet connected to any agency, so it does not send reports to this office."
       };
     }
 
+    // Who usually handles each kind of problem in Ghana: general information for the "Usually handled by" hint only.
+    const USUAL_OFFICE = {
+      "Flooding or drainage": "District Assembly",
+      "Waste or sanitation": "District Assembly",
+      "Water supply": "water provider",
+      Electricity: "electricity distribution company",
+      "Road or bridge": "District Assembly",
+      "Fire risk": "Ghana National Fire Service",
+      "Clinic access": "district health directorate",
+      "Public safety": "Ghana Police Service",
+      "Food or market price": "market authority",
+      "School facility": "district education directorate",
+      Other: "District Assembly"
+    };
     function routeFor(report) {
-      const utility = northernRegions.has(report.region) ? "NEDCo desk" : "ECG desk";
-      const base = {
-        "Flooding or drainage": ["District Assembly", "NADMO + works department", "Waste/drainage contractor", "Photo, GPS, water level"],
-        "Waste or sanitation": ["District Assembly", "Waste management unit", "Sanitation contractor", "Photo, location, repeat evidence"],
-        "Water supply": ["Water provider", "Assembly water desk", "Community water focal person", "Location, duration, affected homes"],
-        Electricity: [utility, "Assembly focal person", "Emergency crew if live wires", "Meter/pole ID, GPS, safety distance"],
-        "Road or bridge": ["District Assembly", "Urban roads/feeder roads desk", "Police MTTD if traffic danger", "Photo, landmark, traffic impact"],
-        "Fire risk": ["Ghana National Fire Service", "District Assembly", "NADMO", "Photo only from safe distance"],
-        "Clinic access": ["District health directorate", "Assembly social welfare", "Ambulance if urgent", "Clinic name, patient impact"],
-        "Public safety": ["Ghana Police Service", "Assembly security committee", "Community leaders", "Location, witnesses, avoid exposure"],
-        "Food or market price": ["Market authority", "Assembly trade desk", "Consumer protection desk", "Market, commodity, price evidence"],
-        "School facility": ["District education directorate", "Assembly works department", "School management committee", "School name, photo, learner impact"],
-        Other: ["District Assembly", "Unit committee", "Relevant local desk", "Location, photo, contact"]
-      };
-      const [primary, support, utilityDesk, evidence] = base[report.type] || base.Other;
-      let safety = "Keep distance from hazard";
-      if (report.type === "Electricity") safety = "Do not approach fallen or sagging conductors";
-      if (report.type === "Fire risk") safety = "Call Fire Service before taking evidence";
-      if (report.type === "Public safety") safety = "Do not expose reporter identity publicly";
-      return { primary, support, utility: utilityDesk, evidence, safety };
+      return { primary: USUAL_OFFICE[report.type] || USUAL_OFFICE.Other };
     }
 
     function buildDraft() {
@@ -4455,11 +4433,6 @@ body.map-unavailable [data-focus-public]{display:none}
       document.querySelector("#previewRoute").textContent = hint.office;
       document.querySelector("#previewRouteNote").textContent = hint.note;
       document.querySelector("#previewClock").textContent = responseClock(score);
-      document.querySelector("#routePrimary").textContent = route.primary;
-      document.querySelector("#routeSupport").textContent = route.support;
-      document.querySelector("#routeUtility").textContent = route.utility;
-      document.querySelector("#routeEvidence").textContent = route.evidence;
-      document.querySelector("#routeSafety").textContent = route.safety;
       document.querySelector("#safetyWarning").hidden = !(draft.immediateDanger || ["Public safety", "Fire risk", "Electricity"].includes(draft.type));
       document.querySelector("#publicPreviewText").textContent = `${draft.type || "Problem"}: ${draft.title || "Untitled report"} near ${[draft.community, draft.district, draft.region].filter(Boolean).join(", ") || "location not entered"}. This can appear publicly only after moderation and without a precise point.`;
       document.querySelectorAll("[data-quick-type]").forEach((button) => {
@@ -4615,7 +4588,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function exportJson() {
       const payload = {
-        app: "FixNow Ghana Command",
+        app: "FixNow Ghana",
         exportedAt: new Date().toISOString(),
         reports: reports.map(safeExportReport),
         exclusions: ["tracking secrets", "exact GPS", "GhanaPostGPS", "contact information", "private notes", "internal routing metadata"]
@@ -6086,7 +6059,7 @@ body.map-unavailable [data-focus-public]{display:none}
     });
 
     document.querySelector("#sampleBtn").addEventListener("click", () => {
-      document.querySelector("#role").value = "NADMO volunteer";
+      document.querySelector("#role").value = "Emergency volunteer";
       document.querySelector("#reportMode").value = "Named contact";
       document.querySelector("#region").value = "Greater Accra";
       document.querySelector("#district").value = "Ga South";

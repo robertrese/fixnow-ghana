@@ -265,4 +265,15 @@ for (const page of ["index.html", "fixnow-ghana.html"]) {
   assert((text.match(/<meta name="description"/g) || []).length === 1, `docs/${page} has exactly one meta description`);
 }
 
+// The app is called FixNow Ghana. The old name "FixNow Ghana Command" never appears in resident-facing text; the
+// manifest id and the Android package keep "command" so installed copies stay the same app.
+const manifestText = fs.readFileSync(path.join(__dirname, "manifest.webmanifest"), "utf8");
+for (const file of ["fixnow-ghana.html", "privacy.html", "terms.html", "support.html", "map-foundation.js", "emergency-contacts.js"]) {
+  assert(!/FixNow Ghana Command/i.test(fs.readFileSync(path.join(__dirname, file), "utf8")), `${file} never says "FixNow Ghana Command"`);
+}
+assert(!/FixNow Ghana Command/i.test(journey) && JSON.parse(manifestText).name === "FixNow Ghana" && JSON.parse(manifestText).id === "fixnow-ghana-command", "the manifest name is FixNow Ghana and its id is unchanged");
+// The retired "Routing engine" panel is gone, and the page names no utility company or agency desk.
+assert(!/id="routing"|routePrimary|routeSupport|routeUtility|Routing engine/.test(html), "the old routing panel and its code are removed");
+assert(!/\b(NADMO|ECG|NEDCo)\b/.test(html), "the resident page never names NADMO, ECG or NEDCo");
+
 console.log("V2 design and safety guard test passed");
