@@ -233,4 +233,20 @@ for (const [name, text] of [["fixnow-ghana.html", html], ["map-foundation.js", m
   assert(!/re-?encod|\bexif\b|quarantin/i.test(text), `${name} uses plain words about photo privacy (no re-encoded, EXIF or quarantine)`);
 }
 
+// The public demo's simulated journey (work/demo/demo-journey.js) is demo-only: the real app, its offline cache and the
+// Android app never contain or load it, and the real app never shows a simulated update.
+assert(!/demo-journey/.test(html) && !/demo-journey/.test(worker) && !/demo-journey/.test(gradle), "the real page, its offline cache and the Android build never mention the demo journey file");
+assert(html.includes(".filter((entry) => !(entry && entry.simulated))"), "the real app ignores any update marked simulated");
+for (const hook of ["if (IS_DEMO_MODE && window.fixNowDemo) { window.fixNowDemo.openSample(reportId); return; }", "IS_DEMO_MODE && window.fixNowDemo ? window.fixNowDemo.duplicates(draft) :", "if (IS_DEMO_MODE && window.fixNowDemo && report.syncStatus === \"demo-local\") { window.fixNowDemo.openJourney(report); return; }", "if (IS_DEMO_MODE && window.fixNowDemo) return window.fixNowDemo.officeHint(report);"]) {
+  assert(html.includes(hook), `demo hooks are active only in demo mode: ${hook.slice(0, 60)}`);
+}
+const demoBuildScript = fs.readFileSync(path.join(root, "work", "demo", "build-demo-site.js"), "utf8");
+const journey = fs.readFileSync(path.join(root, "work", "demo", "demo-journey.js"), "utf8");
+assert(demoBuildScript.includes('"./demo-journey.js",\\n  "./demo-journey.css",') && demoBuildScript.includes("-demo-${demoHash}"), "the public demo's offline cache keeps the journey files and changes name when they change");
+assert(journey.includes('if (typeof IS_DEMO_MODE === "undefined" || !IS_DEMO_MODE) return;'), "the journey file does nothing outside demo mode");
+assert(!/\b(AMA|NADMO|ECG|NEDCo|GWCL|Ghana Police Service|Ghana National Fire Service|Metropolitan Assembly|Municipal Assembly)\b/.test(journey), "the demo journey names only sample offices, never a real agency");
+assert(journey.includes("Planned: the real app doesn\\'t show this yet") && journey.includes('<span class="tag demo-sim-tag">Simulated</span>'), "simulated steps say Simulated and the work-done photo says Planned");
+// The real app's office hint is general information: FixNow is not connected to any agency yet.
+assert(!html.includes("Likely responsible office") && !html.includes("route it to the responsible office") && html.includes("FixNow is not yet connected to any agency, so it does not send reports to this office."), "the office hint never says FixNow sends reports to an agency");
+
 console.log("V2 design and safety guard test passed");

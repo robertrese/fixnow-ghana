@@ -46,7 +46,21 @@ let app = fs.readFileSync(path.join(site, "fixnow-ghana.html"), "utf8");
 app = replaceOnce(app, `const IS_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";`, `const IS_DEMO_MODE = true; // Public demo build: always demo mode, nothing is sent.`, "fixnow-ghana.html");
 app = replaceOnce(app, `new URLSearchParams(location.search).get("demo") === "1" ? "fixnow-gh-demo-v1-settings"`, `true ? "fixnow-gh-demo-v1-settings"`, "fixnow-ghana.html");
 app = replaceOnce(app, `<meta charset="utf-8" />`, `<meta charset="utf-8" />\n  ${DEMO_CSP}`, "fixnow-ghana.html");
+// The demo journey (sample Nearby reports, the similar-report match, the simulated report journey) lives in demo-only
+// files in work/demo/. Only this site gets them: outputs/ and the Android app never contain or load them. The script
+// loads after the page's own script, which defines IS_DEMO_MODE and the functions it uses.
+const DEMO_FILES = ["demo-journey.js", "demo-journey.css"];
+for (const file of DEMO_FILES) fs.copyFileSync(path.join(root, "work", "demo", file), path.join(site, file));
+app = replaceOnce(app, `</head>`, `  <link rel="stylesheet" href="demo-journey.css" />\n</head>`, "fixnow-ghana.html");
+app = replaceOnce(app, `</body>`, `  <script src="demo-journey.js"></script>\n</body>`, "fixnow-ghana.html");
 fs.writeFileSync(path.join(site, "fixnow-ghana.html"), app);
+
+// The site's offline cache also keeps the demo files, and its name changes whenever they change.
+const demoHash = require("crypto").createHash("sha256").update(DEMO_FILES.map((file) => fs.readFileSync(path.join(site, file), "utf8")).join("\n")).digest("hex").slice(0, 10);
+let worker = fs.readFileSync(path.join(site, "service-worker.js"), "utf8");
+worker = worker.replace(/const CACHE_NAME = "([^"]+)";/, (match, name) => `const CACHE_NAME = "${name}-demo-${demoHash}";`);
+worker = replaceOnce(worker, `  "./fixnow-ghana.html",\n`, `  "./fixnow-ghana.html",\n  "./demo-journey.js",\n  "./demo-journey.css",\n`, "service-worker.js");
+fs.writeFileSync(path.join(site, "service-worker.js"), worker);
 
 // The staff page: demo too (it explains that sign-in needs a real server), and it may connect only to its own site.
 let staff = fs.readFileSync(path.join(site, "staff.js"), "utf8");

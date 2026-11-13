@@ -42,7 +42,8 @@
     "gallery": "node work/qa/gallery.js",
     "build:demo": "node work/demo/build-demo-site.js",
     "qa:staff": "node work/qa/staff-check.js && node work/qa/staff-check.js --dark",
-    "qa:outcomes": "node work/qa/resident-outcomes-check.js"
+    "qa:outcomes": "node work/qa/resident-outcomes-check.js",
+    "qa:journey": "node work/qa/demo-journey-check.js"
   },
   "dependencies": {
     "@googlemaps/markerclusterer": "2.6.2"

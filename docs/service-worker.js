@@ -1,6 +1,8 @@
-const CACHE_NAME = "fixnow-ghana-static-v51";
+const CACHE_NAME = "fixnow-ghana-static-v52-demo-abc9b483c9";
 const ASSETS = [
   "./fixnow-ghana.html",
+  "./demo-journey.js",
+  "./demo-journey.css",
   "./emergency-contacts.js",
   "./map-foundation.js",
   "./vendor/markerclusterer-2.6.2.min.js",

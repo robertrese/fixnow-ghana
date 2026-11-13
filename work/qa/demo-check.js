@@ -97,13 +97,13 @@ const server = http.createServer((req, res) => {
     await page.waitForTimeout(1500);
     check(await page.textContent("#modalTitle") === "Demo report saved" && /nothing was sent/.test(await page.textContent("#modalBackdrop")), `${scheme}: sending a report says nothing was sent`);
     await shot("3-demo-report-saved"); await axe("demo report saved");
-    await page.click("#modalActions button:first-child");
+    await page.click('#modalActions button:text-is("View in My reports")');
     await page.waitForTimeout(500);
     check(/Demo only/.test(await page.textContent("main")) && !/not sent yet/i.test(await page.textContent("main")), `${scheme}: the report is labelled Demo only in My reports, never Not sent yet`);
 
     await page.evaluate(() => setView("nearby"));
     await page.waitForTimeout(800);
-    check(/Nearby is not available in the demo/.test(await page.textContent("#nearbyReportList")), `${scheme}: Nearby explains the demo has no server`);
+    check(/sample reports? for the demo/i.test(await page.textContent("#nearbyResultSummary")) && (await page.$$("#nearbyReportList .demo-sample-card")).length > 0, `${scheme}: Nearby shows sample reports (the demo has no server)`);
     await shot("4-nearby"); await axe("nearby");
 
     await page.evaluate(() => setView("profile"));

@@ -2700,6 +2700,7 @@ body.map-unavailable [data-focus-public]{display:none}
 [data-theme="dark"] .demo-banner button{background:transparent;color:#fffdf8;border-color:rgba(255,253,248,.7)}
 [data-theme="dark"] .honest-state a.primary{background:#fcd116;color:#0d2a22}
 </style>
+  <link rel="stylesheet" href="demo-journey.css" />
 </head>
 <body data-view="home">
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -3353,7 +3354,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
             <fieldset class="wizard-step" data-wizard-step="6" hidden>
               <legend><span class="wizard-step-count">Step 6 of 6</span>Review and submit</legend>
-              <p class="step-help">Check your report. FixNow will review it and route it to the responsible office.</p>
+              <p class="step-help">Check your report. A FixNow moderator reviews every report before anything is public.</p>
               <div class="review-summary" id="reviewSummary" aria-live="polite"></div>
               <div class="duplicate-block">
                 <div class="duplicate-list" id="duplicateSuggestions" role="status" aria-live="polite">
@@ -3369,9 +3370,9 @@ body.map-unavailable [data-focus-public]{display:none}
               <div class="route-box review-route" aria-live="polite">
                 <div class="route-line route-score"><span>Live score</span><b id="previewScore">74</b></div>
                 <div class="meter route-score"><span id="previewMeter"></span></div>
-                <div class="route-line"><span>Likely responsible office</span><b id="previewRoute">District Assembly + NADMO</b></div>
+                <div class="route-line"><span id="previewRouteLabel">Usually handled by</span><b id="previewRoute">the District Assembly</b></div>
                 <div class="route-line route-clock"><span>Response clock</span><b id="previewClock">Same day</b></div>
-                <small>A FixNow moderator confirms the route. No response time is promised.</small>
+                <small id="previewRouteNote">General information only. FixNow is not yet connected to any agency, so it does not send reports to this office. No response time is promised.</small>
               </div>
               <label class="consent-line review-consent">
                 <input id="caseConsent" type="checkbox" required />
@@ -4353,6 +4354,18 @@ body.map-unavailable [data-focus-public]{display:none}
       return "Routine";
     }
 
+    // Who usually handles this kind of problem in Ghana: general information for residents. FixNow is not connected to
+    // any agency yet, so this never says FixNow sends the report there. The public demo shows its sample offices instead.
+    function officeHint(report) {
+      if (IS_DEMO_MODE && window.fixNowDemo) return window.fixNowDemo.officeHint(report);
+      const primary = routeFor(report).primary;
+      return {
+        label: "Usually handled by",
+        office: /^(District Assembly|Water provider|Market authority)$/.test(primary) ? `the ${primary}` : primary,
+        note: "General information only. FixNow is not yet connected to any agency, so it does not send reports to this office."
+      };
+    }
+
     function routeFor(report) {
       const utility = northernRegions.has(report.region) ? "NEDCo desk" : "ECG desk";
       const base = {
@@ -4426,7 +4439,10 @@ body.map-unavailable [data-focus-public]{display:none}
       const route = routeFor(draft);
       document.querySelector("#previewScore").textContent = score;
       document.querySelector("#previewMeter").style.width = `${score}%`;
-      document.querySelector("#previewRoute").textContent = `${route.primary} + ${route.support}`;
+      const hint = officeHint(draft);
+      document.querySelector("#previewRouteLabel").textContent = hint.label;
+      document.querySelector("#previewRoute").textContent = hint.office;
+      document.querySelector("#previewRouteNote").textContent = hint.note;
       document.querySelector("#previewClock").textContent = responseClock(score);
       document.querySelector("#routePrimary").textContent = route.primary;
       document.querySelector("#routeSupport").textContent = route.support;
@@ -4876,6 +4892,7 @@ body.map-unavailable [data-focus-public]{display:none}
     }
 
     function openPublicReport(reportId) {
+      if (IS_DEMO_MODE && window.fixNowDemo) { window.fixNowDemo.openSample(reportId); return; }
       const report = nearbyReports.find((candidate) => candidate.id === reportId);
       if (!report) return;
       const counts = report.confirmations || {};
@@ -4950,6 +4967,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     // The public feed and the map come from the FixNow server, which the demo never contacts.
     function showDemoNearby() {
+      if (window.fixNowDemo) { window.fixNowDemo.showNearby(); return; } // demo build: sample reports
       setNearbyMode("list");
       document.querySelector("#nearbyResultSummary").innerHTML = "<span>Demo: the verified public feed needs the FixNow server.</span>";
       document.querySelector("#nearbyReportList").innerHTML = `<div class="honest-state"><strong>Nearby is not available in the demo.</strong><p>It shows moderator-verified reports from the FixNow server, and the demo never contacts a server. The screen gallery shows what it looks like.</p><a class="primary" href="screens/">Open the screen gallery</a></div>`;
@@ -5007,7 +5025,7 @@ body.map-unavailable [data-focus-public]{display:none}
       button.textContent = "Checking for similar reports...";
       container.innerHTML = `<div class="location-status">Comparing category, MMDA, locality, time, and description. No report will be merged automatically.</div>`;
       try {
-        const result = await publicRequest("/api/public/reports/duplicates", {
+        const result = IS_DEMO_MODE && window.fixNowDemo ? window.fixNowDemo.duplicates(draft) : await publicRequest("/api/public/reports/duplicates", {
           method: "POST",
           body: JSON.stringify({
             type: draft.type,
@@ -5417,7 +5435,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
 
     function reportHistoryHtml(report, residentView) {
-      const entries = residentView ? (Array.isArray(report.updates) ? report.updates : []) : (Array.isArray(report.history) ? report.history : []);
+      const entries = (residentView ? (Array.isArray(report.updates) ? report.updates : []) : (Array.isArray(report.history) ? report.history : [])).filter((entry) => !(entry && entry.simulated));
       if (!entries.length) return "";
       const label = residentView ? "Updates from the response team" : "Case history and notes";
       return `
@@ -5629,6 +5647,7 @@ body.map-unavailable [data-focus-public]{display:none}
 
     function openMyReportDetails(report) {
       if (!report) return;
+      if (IS_DEMO_MODE && window.fixNowDemo && report.syncStatus === "demo-local") { window.fixNowDemo.openJourney(report); return; }
       const waiting = isUnsent(report);
       const stages = [report.syncStatus === "demo-local" ? "Saved in this browser" : waiting ? "Saved on this phone" : "Submitted", "Under review", "Assigned", "Resolved"];
       const stageByStatus = { Open: 1, Acknowledged: 2, Dispatched: 3, "In Progress": 3, Blocked: 3, Escalated: 3, Resolved: 4, Reopened: 2 };
@@ -5850,7 +5869,7 @@ body.map-unavailable [data-focus-public]{display:none}
       openPage("Report submitted", `
         <div class="result-screen">
           <span class="result-icon ok">${ICON_CHECK}</span>
-          <p class="result-lead">FixNow has received your report. A moderator will review it and route it to the responsible office.</p>
+          <p class="result-lead">FixNow has received your report. A moderator will review it before anything is public.</p>
           ${iphoneStorageTip()}
           <div class="secret-card">
             <div class="secret-line"><span>Reference number</span><strong>${escapeHtml(report.id)}</strong><button class="mini" type="button" data-copy-value="${escapeHtml(report.id)}" data-copy-label="Reference copied">Copy</button></div>
@@ -5883,7 +5902,9 @@ body.map-unavailable [data-focus-public]{display:none}
             </div>
           </div>
         `, [
-          { label: "View in My reports", className: "primary", action: () => { closeModal(); setView("my"); } },
+          // The public demo build adds a simulated journey for this report (a demo-only file in work/demo/).
+          ...(window.fixNowDemo ? [{ label: "Follow this report (simulated)", className: "primary", action: () => window.fixNowDemo.openJourney(report) }] : []),
+          { label: "View in My reports", className: window.fixNowDemo ? "secondary" : "primary", action: () => { closeModal(); setView("my"); } },
           { label: "Done", className: "secondary", action: () => { closeModal(); setView("home"); } }
         ]);
         return;
@@ -5902,7 +5923,7 @@ body.map-unavailable [data-focus-public]{display:none}
               <li>Then you get a reference number and a private tracking secret in My reports.</li>
             </ol>
           </div>
-          <p class="result-route"><b>Likely responsible office:</b> ${escapeHtml(route.primary)} with ${escapeHtml(route.support)}. A moderator confirms the route.</p>
+          <p class="result-route"><b>${escapeHtml(officeHint(report).label)}:</b> ${escapeHtml(officeHint(report).office)}. ${escapeHtml(officeHint(report).note)}</p>
         </div>
       `, [
         { label: "Retry now", className: "primary", action: async () => {
@@ -6912,5 +6933,6 @@ body.map-unavailable [data-focus-public]{display:none}
     }
     showConsentIfNeeded();
   </script>
+  <script src="demo-journey.js"></script>
 </body>
 </html>

@@ -2,7 +2,8 @@
 #   check: syntax checks, front-end policy and phase tests, the backend integration test (npm run check), and a
 #          rebuild of the public demo that must match the committed docs/ folder.
 #   qa:    the browser QA against a local API and web server, in Chromium, WebKit (Safari's engine) and Firefox, in
-#          light and dark. Firefox cannot start on the owner's PC, so this is where it is tested.
+#          light and dark, and the public demo's complete journey (work/qa/demo-journey-check.js) in all three.
+#          Firefox cannot start on the owner's PC, so this is where it is tested.
 # No secrets, tokens or third-party actions. The local admin password is generated fresh in each run and never printed.
 name: Checks
 
@@ -73,12 +74,17 @@ jobs:
         run: |
           npm run qa
           node work/qa/demo-check.js
+          node work/qa/demo-journey-check.js
       - name: QA in WebKit
         if: matrix.engine == 'webkit'
-        run: npm run qa:webkit
+        run: |
+          npm run qa:webkit
+          node work/qa/demo-journey-check.js --engine=webkit
       - name: QA in Firefox
         if: matrix.engine == 'firefox'
-        run: npm run qa:firefox
+        run: |
+          npm run qa:firefox
+          node work/qa/demo-journey-check.js --engine=firefox
       - name: Keep the screenshots of a failed run for 7 days
         if: failure()
         uses: actions/upload-artifact@v7

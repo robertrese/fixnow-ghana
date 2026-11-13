@@ -293,6 +293,31 @@ async function submitReport(page) {
   await page.evaluate(() => setView("my"));
   check(!/Floodwater crossing|Old demo report/.test(await page.textContent("main")), "5. demo reports do not appear in normal mode");
 
+  // Normal mode can never show a simulated update from the public demo's journey, even one planted in its own storage,
+  // and never loads the demo-only journey file.
+  const journeyRequests = [];
+  page.on("request", (r) => { if (/demo-journey/.test(r.url())) journeyRequests.push(r.url()); });
+  await page.evaluate(() => {
+    const planted = { id: "FN-PLANTED1", title: "Planted report with a simulated update", type: "Flooding or drainage", status: "In Progress", syncStatus: "submitted", community: "Test area", district: "Accra Metropolitan", region: "Greater Accra", created: Date.now(), trackingSecret: "planted-secret",
+      updates: [{ status: "Acknowledged", note: "Real update from the office", createdAt: new Date().toISOString() }, { status: "In Progress", note: "Simulated: Progress update", simulated: true }],
+      demoJourneyStep: 5, demoStatus: "In Progress" };
+    const key = "fixnow-gh-v3-reports";
+    const stored = JSON.parse(localStorage.getItem(key) || "[]");
+    localStorage.setItem(key, JSON.stringify([planted].concat(stored)));
+  });
+  await page.reload({ waitUntil: "load" });
+  await page.waitForTimeout(600);
+  await page.evaluate(() => { setView("my"); openMyReportDetails(reports.find((r) => r.id === "FN-PLANTED1")); });
+  await page.waitForTimeout(400);
+  await page.evaluate(() => document.querySelectorAll("#modalBackdrop details").forEach((d) => { d.open = true; }));
+  const plantedText = await page.textContent("#modalBackdrop");
+  check(/Real update from the office/.test(plantedText) && !/Simulated/.test(plantedText), "normal mode shows real updates and never a simulated one");
+  await page.evaluate(() => closeModal());
+  const normalState = await page.evaluate(() => ({ demo: typeof window.fixNowDemo, scripts: [...document.scripts].map((s) => s.src).filter((s) => /demo-journey/.test(s)).length, hint: officeHint({ type: "Flooding or drainage" }), simulatedAnywhere: /Simulated/.test(document.body.innerText) }));
+  check(normalState.demo === "undefined" && normalState.scripts === 0 && journeyRequests.length === 0 && !normalState.simulatedAnywhere, "normal mode never loads the demo journey and never shows the word Simulated");
+  check(normalState.hint.label === "Usually handled by" && normalState.hint.office === "the District Assembly" && /not yet connected to any agency/.test(normalState.hint.note), `the real app words the office hint as general information ("${normalState.hint.label} ${normalState.hint.office}")`);
+  await page.evaluate(() => { localStorage.setItem("fixnow-gh-v3-reports", JSON.stringify(reports.filter((r) => r.id !== "FN-PLANTED1"))); reports = reports.filter((r) => r.id !== "FN-PLANTED1"); render(); });
+
   // 7. Nearby asks the server for each type and status.
   const asked = [];
   page.on("request", (r) => { if (r.url().includes("/api/public/reports?")) asked.push(new URL(r.url()).searchParams); });
