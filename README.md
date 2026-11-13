@@ -39,6 +39,7 @@ Generated Android builds, runtime databases, WAL/SHM files, test data, logs, rel
 ## Public demo and screen gallery
 
 - **Demo app:** `docs/` is a generated copy of the app that is always in demo mode, with a browser rule that blocks connections to any other server. Build it with `npm run build:demo` and check it with `node work/qa/demo-check.js`. GitHub Pages serves it from the `docs` folder of `main`.
+- **Demo journey:** in the demo, Nearby lists sample reports with working filters, a report next to a sample one gets "Similar report found nearby", and after sending a report you can follow it through seven simulated steps (moderator check, routed to a sample office, accepted, progress update, work done, then confirm the fix or reopen it). Every simulated step is labelled Simulated, offices are clearly samples (no real agency uses FixNow yet), and the one step the real app cannot do yet (showing residents a photo of the finished work) is labelled Planned. The journey is a demo-only file (`work/demo/demo-journey.js`) that the real app and the Android app never load; `node work/qa/demo-journey-check.js` walks it end to end.
 - **Screen gallery:** every resident and staff screen, phone and laptop, light and dark, in `design/screens` ([README](design/screens/README.md)), and on the demo site at `/screens/`. Rebuild with `npm run gallery`.
 
 GitHub Pages serves the demo site from the `docs/` folder of `main`.

@@ -2264,9 +2264,9 @@ function seedDatabase() {
   if (!SEED_DEMO_ACCOUNTS) return;
 
   const demoUsers = [
-    ["assembly", "assembly123", "District Assembly", "Assembly Desk", "Accra Metropolitan Assembly", "Greater Accra", "Accra Metropolitan"],
-    ["nadmo", "nadmo123", "NADMO", "NADMO Desk", "NADMO", "Greater Accra", "Accra Metropolitan"],
-    ["utility", "utility123", "Utility Desk", "Utility Desk", "Water and Power Response", "Greater Accra", "Accra Metropolitan"],
+    ["assembly", "assembly123", "District Assembly", "Sample Assembly Desk", "Sample District Assembly", "Greater Accra", "Accra Metropolitan"],
+    ["nadmo", "nadmo123", "Disaster Response Desk", "Sample Flood Response Desk", "Sample Flood Response Desk", "Greater Accra", "Accra Metropolitan"],
+    ["utility", "utility123", "Utility Desk", "Sample Utility Desk", "Sample Water and Power Desk", "Greater Accra", "Accra Metropolitan"],
     ["moderator", "moderator123", "Moderator", "Moderation Desk", "FixNow Moderation", "", ""]
   ];
 

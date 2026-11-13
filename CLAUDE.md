@@ -32,11 +32,12 @@ npm run qa               # layout check + WCAG scan + walkthrough screenshots, i
 npm run gallery          # rebuilds design/screens (every resident and staff screen, phone and laptop, light and dark) on fresh seeded data
 npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
 npm run qa:outcomes      # resident outcome checks (part of npm run qa): demo banner, My reports search and badge, demo reports never sent, no raw errors, filters, plain words
+npm run qa:journey       # the public demo's complete journey, end to end, on docs/ (run npm run build:demo first)
 ```
 
 Open the app at `http://localhost:4173/fixnow-ghana.html?api=http%3A%2F%2Flocalhost%3A4180`.
 
-Demo staff logins on the local server are `assembly/assembly123`, `nadmo/nadmo123`, `utility/utility123` and `moderator/moderator123`. The local admin password is generated into `work/fixnow-backend/local-data/local-dev-settings.json`.
+Demo staff logins on the local server are `assembly/assembly123` (Sample District Assembly), `nadmo/nadmo123` (Sample Flood Response Desk), `utility/utility123` (Sample Water and Power Desk) and `moderator/moderator123`. Demo offices are always clearly samples: no real agency uses FixNow yet. The local admin password is generated into `work/fixnow-backend/local-data/local-dev-settings.json`.
 
 To build the Android debug app, run this from `work\fixnow-android`:
 
@@ -105,6 +106,11 @@ Android notes:
   - Resident screens say photos have "hidden location information" removed and that a moderator checks them; never "re-encoded", "EXIF" or "quarantine".
   - Problem types and statuses come from one list (`REPORT_TYPES`, `REPORT_STATUSES` in the page, matching the server); never write the options out by hand.
   - Demo reports have the `demo-local` state, are never queued, and the demo has its own queue name. The demo banner's height is reserved on every view (`--demo-banner-h`).
+- **Public demo journey** (`work/demo/demo-journey.js` and `.css`, brief: `design/v2-handoff/DEMO-JOURNEY-PLAN.md`):
+  - Demo only: `npm run build:demo` copies it into `docs/` and that site's offline cache. The real page, `outputs/service-worker.js` and the Gradle list never mention it; the page reaches it only through `window.fixNowDemo` hooks guarded by `IS_DEMO_MODE`. The real app ignores any update marked `simulated`.
+  - Every simulated step says "Simulated" and must be something the real app does today; anything it cannot do yet says "Planned". No invented times, numbers or outcomes.
+  - Only sample offices (Sample District Assembly, Sample Water and Power Desk, Sample Safety Desk). Sample reports are labelled "Sample" and name general areas only, never real businesses, schools, clinics or people. Never a real photo of a real place.
+  - The real app's office hint is general information ("Usually handled by the District Assembly"): FixNow is not connected to any agency yet, so never say it sends reports to one.
 - **Page size:** the page must stay under 120 KiB gzipped and 600 KiB raw (Phase 12 test).
 
 ## Design system (V3, November 2026)

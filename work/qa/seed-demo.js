@@ -26,9 +26,9 @@ const reports = [
     type: "Flooding or drainage", subcategory: "Blocked drain", severity: "High", title: "Blocked drain floods the road after rain",
     details: "The roadside drain is packed with plastic waste. After rain, water spreads across the road and into shop fronts.",
     community: "Kaneshie, near the market road", coordinates: "5.5689,-0.2365", worsening: true, accessBlocked: true, problemDuration: "weeks",
-    photo: "drain.jpg", institution: "NADMO", desk: "nadmo",
+    photo: "drain.jpg", institution: "Sample Flood Response Desk", desk: "nadmo",
     updates: [
-      { action: "accept", publicUpdate: "The NADMO desk has received this report and is arranging a site visit." },
+      { action: "accept", publicUpdate: "The flood response desk has received this report and is arranging a site visit." },
       { status: "In Progress", publicUpdate: "A site visit to inspect the drain is planned." }
     ]
   },
@@ -36,7 +36,7 @@ const reports = [
     type: "Road or bridge", subcategory: "Pothole", severity: "Medium", title: "Deep pothole in the middle lane",
     details: "A wide pothole has opened in the middle lane. Taxis swerve around it and it fills with water when it rains.",
     community: "Adabraka, close to the main junction", coordinates: "5.5629,-0.2093", worsening: true, problemDuration: "days",
-    photo: "pothole.jpg", institution: "Korle Klottey Municipal Assembly", updates: []
+    photo: "pothole.jpg", institution: "Sample District Assembly", updates: []
   },
   {
     type: "Waste or sanitation", subcategory: "Uncollected refuse", severity: "Medium", title: "Refuse not collected for two weeks",
@@ -63,9 +63,9 @@ const reports = [
   // Demo offices and routing rules. Office names match the demo staff accounts' offices (the "(demo)" label is ignored
   // when matching), so each desk sees only the reports routed to it. Lower priority numbers are checked first.
   const office = async (name) => (await call("/api/admin/directory", { method: "POST", token: admin.token, body: { kind: "agency", name, configuration: { demo: true } } })).item.id;
-  const offices = { assembly: await office("Accra Metropolitan Assembly (demo)"), nadmo: await office("NADMO (demo)"), utility: await office("Water and Power Response (demo)") };
+  const offices = { assembly: await office("Sample District Assembly"), nadmo: await office("Sample Flood Response Desk"), utility: await office("Sample Water and Power Desk") };
   const rules = [
-    ["Flooding to NADMO (demo)", "Flooding or drainage", "nadmo", 100],
+    ["Flooding to the flood response desk (demo)", "Flooding or drainage", "nadmo", 100],
     ["Water supply to the utility desk (demo)", "Water supply", "utility", 100],
     ["Electricity to the utility desk (demo)", "Electricity", "utility", 100],
     ["Waste to the assembly (demo)", "Waste or sanitation", "assembly", 100],

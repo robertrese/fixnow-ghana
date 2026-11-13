@@ -208,7 +208,7 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
       await sshot("35-staff-all-cases", "Staff: All cases (moderator)", "Shows which verified cases no office can see yet.");
       await signOut();
       await signIn("nadmo", "nadmo123");
-      await sshot("36-staff-desk-cases", "Staff: Desk cases (NADMO)", "Only cases verified or escalated and routed to this office.");
+      await sshot("36-staff-desk-cases", "Staff: Desk cases (sample flood response desk)", "Only cases verified or escalated and routed to this office.");
       await staff.click("[data-open]");
       await staff.waitForSelector("#pageTitle:not(:empty)");
       await sshot("37-staff-case-page", "Staff: Case page", "Exact location here only; contact only for the assigned responder and moderators.", { full: false });

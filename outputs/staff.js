@@ -20,7 +20,7 @@
     Reopened: ["Acknowledged", "In Progress", "Escalated"],
     Resolved: []
   };
-  const ROLES = ["Moderator", "District Assembly", "NADMO", "Utility Desk", "Field Responder", "Admin"];
+  const ROLES = ["Moderator", "District Assembly", "Disaster Response Desk", "Utility Desk", "Field Responder", "Admin"];
 
   const $ = (selector, root) => (root || document).querySelector(selector);
   const $$ = (selector, root) => Array.prototype.slice.call((root || document).querySelectorAll(selector));
@@ -886,7 +886,7 @@
       textField("userName", "Full name", "", true, false) + textField("userUsername", "Username", "Lowercase letters, numbers, dots and dashes.", true, false) +
       '<label>Temporary password<span class="hint">At least 12 characters.</span><input id="userPassword" type="text" autocomplete="off" minlength="12" /></label>' +
       '<label>Role<select id="userRole">' + ROLES.map((r) => "<option>" + r + "</option>").join("") + "</select></label>" +
-      textField("userAgency", "Office", "For example Accra Metropolitan Assembly.", true, false) + textField("userRegion", "Region", "", false, false) + textField("userDistrict", "MMDA", "Leave Region and MMDA empty only for moderators and admins.", false, false), [
+      textField("userAgency", "Office", "For example Sample District Assembly.", true, false) + textField("userRegion", "Region", "", false, false) + textField("userDistrict", "MMDA", "Leave Region and MMDA empty only for moderators and admins.", false, false), [
       { label: "Create account", className: "btn-primary", action: async () => {
         const password = $("#userPassword").value;
         if (password.length < 12) { $("#userPassword").focus(); throw new Error("Use at least 12 characters for the temporary password."); }

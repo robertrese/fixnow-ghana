@@ -1,6 +1,14 @@
 # Complete demo journey: plan (13 November 2026)
 
-Status: **plan only, waiting for the owner's approval.** Nothing below is built yet.
+Status: **built (13 November 2026)**, with the owner's answers and corrections:
+
+- Sample offices in the demo's office hint and in the gallery's staff screens. In the real app the hint is general information ("Usually handled by the District Assembly"), because FixNow is not connected to any agency yet.
+- The work-done picture is a simple drawing labelled "Sample photo" and "Planned: the real app doesn't show this yet" (residents never receive resolution evidence today).
+- Step 2 says what Verify really asks: the moderator confirms the title and description show no names, phone numbers or exact addresses. Every simulated step is something the real app does today, or says Planned.
+- Sample Nearby reports are labelled "Sample" and name general areas only.
+- The demo site's offline cache includes the journey files.
+
+The original plan follows; where it differs from the list above, the list wins.
 
 ## Goal
 

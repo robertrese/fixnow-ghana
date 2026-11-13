@@ -123,7 +123,7 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         await page.waitForSelector("#pageTitle:not(:empty)");
         await page.waitForTimeout(500);
         if (!/Demo contact 024/.test(await page.textContent("#pageBody"))) fail(`${label}: moderators should see contact details on the review page`);
-        if (!/Water and Power Response \(demo\)/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
+        if (!/Sample Water and Power Desk/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
         await check("review page", "2-review-page");
         for (const [act, name] of [["verify", "3-verify-dialog"], ["reject", "4-reject-dialog"], ["escalate-review", "5-escalate-dialog"], ["hide", "6-hide-dialog"]]) {
           await page.click(`[data-act="${act}"]`);
