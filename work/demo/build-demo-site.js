@@ -39,6 +39,25 @@ for (const pattern of includes) {
   else fs.copyFileSync(path.join(outputs, pattern), path.join(site, pattern));
 }
 
+// Link previews (WhatsApp, LinkedIn and others) for the demo site's address. The real app page has only its meta
+// description, because its final address is not known yet. The preview image is work/demo/social-preview.png
+// (made by work/demo/make-social-preview.js: the logo, the name and one plain line, no photos of real places).
+const SITE_URL = "https://robertrese.github.io/fixnow-ghana/";
+const DEMO_DESCRIPTION = "Public demo of FixNow Ghana, with sample data: report community problems and follow what happens. A moderator checks every report before anything is public. Nothing you enter is sent anywhere.";
+const PREVIEW_TAGS = [
+  `<meta name="description" content="${DEMO_DESCRIPTION}" />`,
+  `<link rel="canonical" href="${SITE_URL}" />`,
+  `<meta property="og:title" content="FixNow Ghana demo" />`,
+  `<meta property="og:description" content="${DEMO_DESCRIPTION}" />`,
+  `<meta property="og:type" content="website" />`,
+  `<meta property="og:url" content="${SITE_URL}" />`,
+  `<meta property="og:image" content="${SITE_URL}social-preview.png" />`,
+  `<meta property="og:image:width" content="1200" />`,
+  `<meta property="og:image:height" content="630" />`,
+  `<meta property="og:image:alt" content="The FixNow Ghana logo and name, with the line: Report community problems in Ghana and follow what happens." />`,
+  `<meta name="twitter:card" content="summary_large_image" />`
+].join("\n  ");
+
 const DEMO_CSP = `<meta http-equiv="Content-Security-Policy" content="connect-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'" />`;
 
 // The resident app: always demo mode, and no connections to other servers.
@@ -46,6 +65,8 @@ let app = fs.readFileSync(path.join(site, "fixnow-ghana.html"), "utf8");
 app = replaceOnce(app, `const IS_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";`, `const IS_DEMO_MODE = true; // Public demo build: always demo mode, nothing is sent.`, "fixnow-ghana.html");
 app = replaceOnce(app, `new URLSearchParams(location.search).get("demo") === "1" ? "fixnow-gh-demo-v1-settings"`, `true ? "fixnow-gh-demo-v1-settings"`, "fixnow-ghana.html");
 app = replaceOnce(app, `<meta charset="utf-8" />`, `<meta charset="utf-8" />\n  ${DEMO_CSP}`, "fixnow-ghana.html");
+app = replaceOnce(app, "<meta name=\"description\" content=\"Report community problems in Ghana, such as flooding, roads, waste, water and power, and follow what happens. A moderator checks every report before anything is public.\" />", PREVIEW_TAGS, "fixnow-ghana.html");
+fs.copyFileSync(path.join(root, "work", "demo", "social-preview.png"), path.join(site, "social-preview.png"));
 // The demo journey (sample Nearby reports, the similar-report match, the simulated report journey) lives in demo-only
 // files in work/demo/. Only this site gets them: outputs/ and the Android app never contain or load them. The script
 // loads after the page's own script, which defines IS_DEMO_MODE and the functions it uses.
@@ -78,6 +99,7 @@ fs.writeFileSync(path.join(site, "index.html"), `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 ${DEMO_CSP}
 <title>FixNow Ghana demo</title>
+${PREVIEW_TAGS}
 <meta http-equiv="refresh" content="0; url=fixnow-ghana.html" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <style>body{margin:0;padding:24px 16px;background:#f3eee1;color:#0d2a22;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}a{color:#0a7a52;font-weight:700}</style>
