@@ -15,6 +15,10 @@
 //      unreachable or in the demo, and the location step says plainly what to do.
 //   7. Every problem type and every status can be filtered, in My reports and in Nearby.
 //   8. Resident screens use plain words for photo privacy (no "re-encoded", "EXIF" or "quarantine").
+//   9. The three optional yes/no questions in step 3 start with nothing selected. A skipped question is "Not answered"
+//      on the Review step and is sent and saved as not answered, never as No; a tapped Yes or No is kept; Yes to
+//      danger shows the 112 callout; the buttons work from the keyboard with 0 WCAG violations; an older saved draft
+//      and an older queued report (true/false) still restore and send.
 // Needs the local web server (npm run start:web). It never contacts the API: normal-mode requests are answered by
 // the test itself, so it can count exactly what the page tries to send. Add --engine=webkit or --engine=firefox.
 const path = require("path");
@@ -25,6 +29,7 @@ const DEMO_URL = `${APP}?demo=1`;
 const NORMAL_URL = `${APP}?api=${encodeURIComponent(API)}`;
 const out = path.join(root, "work", "qa", "screenshots", "outcomes" + (ENGINE === "chromium" ? "" : `-${ENGINE}`));
 fs.mkdirSync(out, { recursive: true });
+const axeSource = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const RAW_ERRORS = /failed to fetch|typeerror|networkerror|network error|load failed|referenceerror|syntaxerror|domexception|\[object /i;
 const TECH_WORDS = /re-?encod|\bexif\b|quarantin/i;
 let failures = 0;
@@ -276,6 +281,7 @@ async function submitReport(page) {
 
   // ---------- Normal mode on the same origin, the server answered by this test ----------
   const sent = [];
+  const posted = []; // the bodies of reports the page sends
   let unreachable = false;
   await context.route(`${API}/**`, async (route) => {
     const request = route.request();
@@ -284,6 +290,10 @@ async function submitReport(page) {
     if (unreachable) return route.abort("failed");
     if (url.pathname === "/api/public/config") return route.fulfill({ json: { ok: true, maps: { enabled: false } } });
     if (url.pathname === "/api/public/reports" && request.method() === "GET") return route.fulfill({ json: { ok: true, reports: [] } });
+    if (url.pathname === "/api/public/reports" && request.method() === "POST") {
+      posted.push(request.postDataJSON());
+      return route.fulfill({ json: { ok: true, reference: `FN-OUTCOME${posted.length}`, report: { status: "Open", updatedAt: new Date().toISOString() } } });
+    }
     return route.fulfill({ json: { ok: true } });
   });
   await passWelcomeAt(page, NORMAL_URL);
@@ -317,6 +327,94 @@ async function submitReport(page) {
   check(normalState.demo === "undefined" && normalState.scripts === 0 && journeyRequests.length === 0 && !normalState.simulatedAnywhere, "normal mode never loads the demo journey and never shows the word Simulated");
   check(normalState.hint.label === "Usually handled by" && normalState.hint.office === "the District Assembly" && /not yet connected to any agency/.test(normalState.hint.note), `the real app words the office hint as general information ("${normalState.hint.label} ${normalState.hint.office}")`);
   await page.evaluate(() => { localStorage.setItem("fixnow-gh-v3-reports", JSON.stringify(reports.filter((r) => r.id !== "FN-PLANTED1"))); reports = reports.filter((r) => r.id !== "FN-PLANTED1"); render(); });
+
+  // ---------- 9. The three yes/no questions never fake an answer ----------
+  const ynState = () => page.evaluate(() => ({
+    checked: [...document.querySelectorAll(".yn-buttons [role=radio]")].map((b) => b.getAttribute("aria-checked")).join(","),
+    values: ["immediateDanger", "accessBlocked", "worsening"].map((id) => document.getElementById(id).value).join("|"),
+    callout: !document.querySelector("#dangerCallout").hidden
+  }));
+  const axeOnStep3 = async () => {
+    await page.evaluate(axeSource);
+    return page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
+  };
+  const reviewAnswers = () => page.$$eval(".review-answers li", (items) => items.map((li) => li.textContent.trim()).join(" / "));
+  const storedAnswers = (title) => page.evaluate((t) => { const r = JSON.parse(localStorage.getItem("fixnow-gh-v3-reports") || "[]").find((x) => x.title === t); return r ? [r.immediateDanger, r.accessBlocked, r.worsening].map((v) => JSON.stringify(v)).join("|") : "missing"; }, title);
+  const sentAnswers = (title) => { const body = posted.find((p) => p.title === title); return body ? [body.immediateDanger, body.accessBlocked, body.worsening].map((v) => JSON.stringify(v)).join("|") : "not sent"; };
+
+  // A person who skips all three questions.
+  let skippedReview = "", skippedPills = "";
+  await fillReport(page, { title: "Skipped the yes or no questions", onStep: async (step) => {
+    if (step === 3) {
+      const start = await ynState();
+      check(start.checked === "false,false,false,false,false,false" && start.values === "||" && !start.callout, `9. the three questions start with nothing selected (${start.checked})`);
+      check(await page.getByRole("radiogroup").filter({ has: page.getByRole("radio", { name: "Yes", exact: true }) }).count() >= 3 && await page.getByRole("radiogroup", { name: "Is anyone in immediate danger?" }).getByRole("radio", { checked: true }).count() === 0, "9. screen readers get three named groups with a Yes and a No, none of them selected");
+      const violations = await axeOnStep3();
+      check(violations.length === 0, `9. step 3 with nothing selected has 0 WCAG violations ${violations.join(" | ")}`);
+      await page.screenshot({ path: path.join(out, "step-3-nothing-selected.png") });
+    }
+    if (step === 6) { skippedReview = await reviewAnswers(); skippedPills = await page.textContent(".review-flags"); await page.screenshot({ path: path.join(out, "review-not-answered.png"), fullPage: true }); }
+  } });
+  check(skippedReview === "Anyone in immediate danger: Not answered / Way blocked for people or vehicles: Not answered / Getting worse: Not answered", `9. Review shows Not answered for every skipped question (${skippedReview})`);
+  check(!/danger|blocked|worse/i.test(skippedPills), "9. Review shows no danger, blocked or worse label for skipped questions");
+  await submitReport(page);
+  check(await page.textContent("#modalTitle") === "Report submitted", "9. the report with skipped questions is submitted");
+  check(sentAnswers("Skipped the yes or no questions") === '""|""|""', `9. skipped questions are sent to the server as not answered, never as No (${sentAnswers("Skipped the yes or no questions")})`);
+  check(await storedAnswers("Skipped the yes or no questions") === '""|""|""', "9. skipped questions are saved on the phone as not answered");
+  await closeOverlay(page);
+  await page.evaluate(() => setView("report"));
+  const afterSave = await ynState();
+  check(afterSave.values === "||" && !/true/.test(afterSave.checked), "9. the next report starts with nothing selected again");
+
+  // A person who answers from the keyboard: Yes to danger (Space), No to blocked (Enter), and skips "getting worse".
+  let answeredReview = "", answeredPills = "";
+  await fillReport(page, { title: "Answered yes and no from the keyboard", onStep: async (step) => {
+    if (step === 3) {
+      await page.focus('[data-yn-target="immediateDanger"] [data-yn="yes"]');
+      await page.keyboard.press("Space");
+      await page.focus('[data-yn-target="accessBlocked"] [data-yn="no"]');
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(200);
+      const now = await ynState();
+      check(now.checked === "true,false,false,true,false,false" && now.values === "yes|no|", `9. the keyboard selects Yes and No, and the skipped question stays unselected (${now.checked})`);
+      check(now.callout && /Call 112 now/.test(await page.textContent("#dangerCallout")), "9. Yes to immediate danger shows the Call 112 callout");
+      const violations = await axeOnStep3();
+      check(violations.length === 0, `9. step 3 with answers selected has 0 WCAG violations ${violations.join(" | ")}`);
+      await page.click('[data-yn-target="immediateDanger"] [data-yn="no"]');
+      check(!(await ynState()).callout, "9. changing the danger answer to No hides the callout");
+      await page.click('[data-yn-target="immediateDanger"] [data-yn="yes"]');
+    }
+    if (step === 6) { answeredReview = await reviewAnswers(); answeredPills = await page.textContent(".review-flags"); }
+  } });
+  check(answeredReview === "Anyone in immediate danger: Yes / Way blocked for people or vehicles: No / Getting worse: Not answered", `9. Review shows each answer as given (${answeredReview})`);
+  check(/Immediate danger/.test(answeredPills) && !/blocked|worse/i.test(answeredPills), "9. Review labels only the Yes answer");
+  await submitReport(page);
+  await closeOverlay(page);
+  check(sentAnswers("Answered yes and no from the keyboard") === '"yes"|"no"|""', `9. a tapped Yes and No are sent as given, and the skipped one as not answered (${sentAnswers("Answered yes and no from the keyboard")})`);
+
+  // Saved by the older form: a half-finished draft and a report waiting to send, both holding true/false.
+  await page.evaluate(() => new Promise((resolve) => {
+    const request = indexedDB.open("fixnow-gh-v3-wizard-draft", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("current-draft");
+    request.onsuccess = () => { const db = request.result; const tx = db.transaction("current-draft", "readwrite"); tx.objectStore("current-draft").put({ version: 1, step: 3, fields: { type: "Road or bridge", community: "Old draft road", district: "Accra Metropolitan", region: "Greater Accra", reportTitle: "Older draft", details: "Saved by the older form.", immediateDanger: false, accessBlocked: true, worsening: false }, evidence: [], updatedAt: new Date().toISOString() }, "report"); tx.oncomplete = () => { db.close(); resolve(); }; };
+  }));
+  await page.evaluate(() => {
+    const older = { id: "LOCAL-older-format", submissionKey: "11111111-2222-4333-8444-555555555555", trackingSecret: "older-format-secret-older-format-secret-older-1", title: "Older queued report", type: "Road or bridge", severity: "Medium", status: "Open", syncStatus: "queued-offline", community: "Old queue road", district: "Accra Metropolitan", region: "Greater Accra", details: "Queued by the older form.", created: Date.now(), consentConfirmed: true, immediateDanger: false, accessBlocked: true, worsening: false };
+    localStorage.setItem("fixnow-gh-v3-reports", JSON.stringify([older].concat(JSON.parse(localStorage.getItem("fixnow-gh-v3-reports") || "[]"))));
+    return new Promise((resolve) => {
+      const request = indexedDB.open("fixnow-citizen-queue", 1);
+      request.onsuccess = () => { const db = request.result; const tx = db.transaction("submissions", "readwrite"); tx.objectStore("submissions").put({ submissionKey: older.submissionKey, payload: { ...older }, attachments: [], queuedAt: new Date().toISOString() }); tx.oncomplete = () => { db.close(); resolve(); }; };
+    });
+  });
+  await page.reload({ waitUntil: "load" });
+  await page.waitForTimeout(2000);
+  const restored = await page.evaluate(() => ({ title: document.querySelector("#reportTitle").value, values: ["immediateDanger", "accessBlocked", "worsening"].map((id) => document.getElementById(id).value).join("|"), checked: [...document.querySelectorAll(".yn-buttons [role=radio]")].map((b) => b.getAttribute("aria-checked")).join(",") }));
+  check(restored.title === "Older draft" && restored.values === "|yes|" && restored.checked === "false,false,true,false,false,false", `9. an older saved draft opens with its Yes kept and its old default No as not answered (${restored.values})`);
+  const olderStatus = await page.evaluate(() => (reports.find((r) => r.title === "Older queued report") || {}).syncStatus);
+  check(olderStatus === "submitted" && sentAnswers("Older queued report") === "false|true|false", `9. a report queued by the older form still sends, unchanged, for the server to read (${olderStatus}, ${sentAnswers("Older queued report")})`);
+  await page.evaluate(() => clearWizardDraft());
+  await page.reload({ waitUntil: "load" });
+  await page.waitForTimeout(600);
 
   // 7. Nearby asks the server for each type and status.
   const asked = [];

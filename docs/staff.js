@@ -75,10 +75,14 @@
     const hours = Math.floor(minutes / 60);
     return hours < 48 ? hours + " h" : Math.floor(hours / 24) + " days";
   }
-  function isUrgent(report) { return Boolean(report.immediateDanger) || String(report.severity || "").toLowerCase() === "critical"; }
+  // The three optional yes/no answers on a report are "yes", "no" or "" (not answered). A skipped question is never
+  // shown as "No". (true/false from before this rule: true is Yes, false is not answered.)
+  function ynAnswer(value) { return value === true || value === "yes" ? "yes" : value === "no" ? "no" : ""; }
+  function saidYes(value) { return ynAnswer(value) === "yes"; }
+  function isUrgent(report) { return saidYes(report.immediateDanger) || String(report.severity || "").toLowerCase() === "critical"; }
   function titleOf(report) { return report.title || report.type || "Report"; }
   function placeOf(report) { return report.publicLocationLabel || (report.location && report.location.label) || [report.community, report.district].filter(Boolean).join(", ") || "Area not given"; }
-  function yesNo(value) { return value ? "Yes" : "No"; }
+  function yesNo(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }
   function showToast(message) {
     const toast = $("#toast");
     toast.textContent = message;
@@ -273,8 +277,8 @@
     const assignee = operations.assignment && operations.assignment.assignee;
     const pending = outbox().some((item) => item.reportId === report.id && item.actorId === myId());
     const tags = [];
-    if (report.immediateDanger) tags.push('<span class="tag tag-urgent">Immediate danger</span>');
-    if (report.severity) tags.push('<span class="tag' + (String(report.severity).toLowerCase() === "critical" && !report.immediateDanger ? " tag-urgent" : "") + '">' + esc(report.severity) + "</span>");
+    if (saidYes(report.immediateDanger)) tags.push('<span class="tag tag-urgent">Immediate danger</span>');
+    if (report.severity) tags.push('<span class="tag' + (String(report.severity).toLowerCase() === "critical" && !saidYes(report.immediateDanger) ? " tag-urgent" : "") + '">' + esc(report.severity) + "</span>");
     if (kind === "cases") tags.push('<span class="tag tag-quiet">' + esc(report.status || "Open") + "</span>");
     if (kind === "cases" && !report.publicVerified) tags.push('<span class="tag tag-warn">Not verified yet</span>');
     if (kind === "cases" && operations.overdue) tags.push('<span class="tag tag-warn">Overdue</span>');
@@ -417,7 +421,7 @@
     const assignee = operations.assignment && operations.assignment.assignee;
     const review = kind === "review" && report.awaitingReview && canModerate();
     const tags = [];
-    if (report.immediateDanger) tags.push('<span class="tag tag-urgent">Immediate danger</span>');
+    if (saidYes(report.immediateDanger)) tags.push('<span class="tag tag-urgent">Immediate danger</span>');
     if (report.severity) tags.push('<span class="tag">' + esc(report.severity) + "</span>");
     tags.push('<span class="tag tag-quiet">' + esc(report.status || "Open") + "</span>");
     tags.push(report.publicVerified ? '<span class="tag tag-ok">Verified, public</span>' : '<span class="tag tag-warn">Not verified yet</span>');

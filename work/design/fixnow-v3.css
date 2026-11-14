@@ -217,6 +217,8 @@ details[open] > summary{margin-bottom:8px}
 .review-art{display:grid;place-items:center;width:44px;height:44px;border-radius:50%}
 .review-art img{width:32px;height:32px}
 .review-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.review-answers{list-style:none;margin:8px 0 0;padding:0;color:var(--muted);font-size:.875rem;line-height:1.5}
+.review-answers b{color:var(--ink)}
 .review-thumbs{display:flex;gap:6px;margin-top:8px}
 .review-thumbs img{width:56px;height:56px;object-fit:cover;border-radius:10px}
 .duplicate-block{display:grid;gap:10px;margin-bottom:18px}

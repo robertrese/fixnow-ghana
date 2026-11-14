@@ -25,7 +25,7 @@ const reports = [
   {
     type: "Flooding or drainage", subcategory: "Blocked drain", severity: "High", title: "Blocked drain floods the road after rain",
     details: "The roadside drain is packed with plastic waste. After rain, water spreads across the road and into shop fronts.",
-    community: "Kaneshie, near the market road", coordinates: "5.5689,-0.2365", worsening: true, accessBlocked: true, problemDuration: "weeks",
+    community: "Kaneshie, near the market road", coordinates: "5.5689,-0.2365", worsening: "yes", accessBlocked: "yes", immediateDanger: "no", problemDuration: "weeks",
     photo: "drain.jpg", institution: "Sample Flood Response Desk", desk: "nadmo",
     updates: [
       { action: "accept", publicUpdate: "The flood response desk has received this report and is arranging a site visit." },
@@ -35,7 +35,7 @@ const reports = [
   {
     type: "Road or bridge", subcategory: "Pothole", severity: "Medium", title: "Deep pothole in the middle lane",
     details: "A wide pothole has opened in the middle lane. Taxis swerve around it and it fills with water when it rains.",
-    community: "Adabraka, close to the main junction", coordinates: "5.5629,-0.2093", worsening: true, problemDuration: "days",
+    community: "Adabraka, close to the main junction", coordinates: "5.5629,-0.2093", worsening: "yes", accessBlocked: "no", problemDuration: "days",
     photo: "pothole.jpg", institution: "Sample District Assembly", updates: []
   },
   {
@@ -97,7 +97,7 @@ const reports = [
         submissionKey, trackingSecret, type: item.type, subcategory: item.subcategory, severity: item.severity, title: item.title,
         region: "Greater Accra", district: "Accra Metropolitan", community: item.community, details: item.details,
         coordinates: item.coordinates, locationSource: "gps", accuracyMetres: 12, exactLocationConsent: true,
-        worsening: Boolean(item.worsening), accessBlocked: Boolean(item.accessBlocked),
+        worsening: item.worsening || "", accessBlocked: item.accessBlocked || "", immediateDanger: item.immediateDanger || "",
         problemDuration: item.problemDuration, consentConfirmed: true, attachmentIds
       }
     });
@@ -123,7 +123,7 @@ const reports = [
 
   // Reports waiting for moderator review: not verified, so they never appear publicly.
   const waiting = [
-    { type: "Electricity", subcategory: "Fallen wire", severity: "Critical", immediateDanger: true, title: "Live wire hanging over the footpath",
+    { type: "Electricity", subcategory: "Fallen wire", severity: "Critical", immediateDanger: "yes", title: "Live wire hanging over the footpath",
       details: "A power line has come down after the storm and is hanging low over the footpath near the school gate.", community: "Kaneshie, near the school gate", coordinates: "5.5700,-0.2300", contact: "Demo contact 024 000 0000" },
     { type: "Flooding or drainage", subcategory: "Overflowing drain", severity: "High", title: "Drain overflowing into homes",
       details: "Water from the main drain is entering houses on the lane every time it rains.", community: "Kaneshie, along the main lane", coordinates: "5.5660,-0.2250" },
@@ -135,7 +135,7 @@ const reports = [
       method: "POST",
       body: {
         submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), type: item.type, subcategory: item.subcategory,
-        severity: item.severity, immediateDanger: Boolean(item.immediateDanger), title: item.title, region: "Greater Accra", district: "Accra Metropolitan",
+        severity: item.severity, immediateDanger: item.immediateDanger || "", title: item.title, region: "Greater Accra", district: "Accra Metropolitan",
         community: item.community, details: item.details, coordinates: item.coordinates, locationSource: "gps", accuracyMetres: 10, exactLocationConsent: true,
         ...(item.contact ? { contact: item.contact, contactConsent: true } : {}), consentConfirmed: true, attachmentIds: []
       }

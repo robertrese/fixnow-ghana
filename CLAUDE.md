@@ -83,6 +83,7 @@ Android notes:
 - **Honesty:**
   - No invented statistics, response times or authority outcomes.
   - No defaults that fake an answer: "people affected" starts empty, and severity must be chosen.
+  - The three optional yes/no questions in report step 3 (immediate danger, way blocked, getting worse) start with nothing selected. A skipped question is "Not answered" everywhere (Review step, saved and queued report, server, staff case page) and never "No". The values are `"yes"`, `"no"` or `""`; always read them through `ynAnswer()` / `saidYes()` / `yesNo()`, never as true/false. Reports saved by the older form send true/false: true is Yes, and false (that form's pre-selected default) is not answered.
   - "Report submitted" (shows the reference and private secret) is a different screen from "Saved and waiting to send" (shows no reference or secret until the server confirms).
   - Unsent reports are labelled "Not sent yet".
   - Languages other than English are labelled as planned.

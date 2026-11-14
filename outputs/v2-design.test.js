@@ -276,4 +276,28 @@ assert(!/FixNow Ghana Command/i.test(journey) && JSON.parse(manifestText).name =
 assert(!/id="routing"|routePrimary|routeSupport|routeUtility|Routing engine/.test(html), "the old routing panel and its code are removed");
 assert(!/\b(NADMO|ECG|NEDCo)\b/.test(html), "the resident page never names NADMO, ECG or NEDCo");
 
+// Honesty: the three optional yes/no questions in step 3 never start pre-answered, and a skipped question is never
+// recorded or shown as "No". They hold "yes", "no" or "" (not answered) in the page, the queue, the server and the
+// staff page. (Outcome tests: work/qa/resident-outcomes-check.js and work/fixnow-backend/test-api.js.)
+const ynQuestions = ["immediateDanger", "accessBlocked", "worsening"];
+const ynGroups = [...html.matchAll(/<div class="yn-buttons" role="radiogroup"[^>]*data-yn-target="(\w+)">([\s\S]*?)<\/div>/g)];
+assert(ynGroups.length === 3 && ynGroups.map((group) => group[1]).join() === ynQuestions.join(), "step 3 has the three yes/no questions");
+for (const [, question, buttons] of ynGroups) {
+  assert((buttons.match(/role="radio" aria-checked="false"/g) || []).length === 2 && !/aria-checked="true"|aria-pressed="true"|\bchecked\b(?!=)|\bselected\b/.test(buttons), `the "${question}" question starts with neither Yes nor No selected`);
+  assert(html.includes(`<input id="${question}" type="hidden" value="" />`), `the "${question}" answer starts empty (not a tick box, which can only be yes or no)`);
+}
+assert(steps[3].includes('data-yn-target="worsening"') && !/<input id="(immediateDanger|accessBlocked|worsening)"[^>]*(required|type="checkbox")/.test(html), "the three questions stay optional and are not tick boxes");
+assert(html.includes('function ynAnswer(value) { return value === true || value === "yes" ? "yes" : value === "no" ? "no" : ""; }') && html.includes('function ynLabel(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }'), "the page reads the answers as yes, no or not answered");
+assert(html.includes('YN_QUESTIONS.forEach((id) => { document.getElementById(id).value = ""; });') && html.includes("if (YN_QUESTIONS.includes(id)) control.value = ynAnswer(value);"), "answers are cleared after a report is saved, and an older draft's false is restored as not answered");
+const staffCode = fs.readFileSync(path.join(__dirname, "staff.js"), "utf8");
+assert(staffCode.includes('function yesNo(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }'), "the staff case page shows Yes, No or Not answered");
+assert(backend.includes('return value === true || value === "yes" ? "yes" : value === "no" ? "no" : "";') && !/Boolean\((report|payload)\.(immediateDanger|accessBlocked|worsening)\)/.test(backend), "the server stores yes, no or not answered, never a forced yes/no");
+// Every read of the three answers goes through a helper that knows the third state: no plain true/false tests, which
+// would treat "not answered" as No (or the word "no" as Yes).
+for (const [name, code] of [["fixnow-ghana.html", html], ["staff.js", staffCode], ["server.js", backend]]) {
+  const reads = [...code.matchAll(/(.{0,18})\b(?:report|draft|payload|item|existing\w*)\.(?:immediateDanger|accessBlocked|worsening)\b/g)].map((match) => match[0]);
+  assert(reads.length >= 3, `${name} reads the three answers`);
+  for (const read of reads) assert(/(ynAnswer|ynAnswerForHash|saidYes|ynLabel|yesNo)\((?:report|draft|payload|item|existing\w*)[.[]/.test(read), `${name} reads a yes/no answer without the helper: ${read}`);
+}
+
 console.log("V2 design and safety guard test passed");

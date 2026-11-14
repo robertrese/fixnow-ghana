@@ -202,6 +202,9 @@ function publicReport(row) {
   const payload = safeJsonParse(row.payload_json, {});
   return {
     ...payload,
+    accessBlocked: ynAnswer(payload.accessBlocked),
+    worsening: ynAnswer(payload.worsening),
+    immediateDanger: ynAnswer(payload.immediateDanger),
     id: row.id,
     status: row.status || payload.status || "Open",
     severity: row.severity || payload.severity || "",
@@ -861,6 +864,18 @@ const REPORT_TYPES = Object.freeze([
 ]);
 // Every status a report can have (the keys of validateResponderTransition). The web app's filters use the same list.
 const REPORT_STATUSES = Object.freeze(["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Reopened"]);
+// The three optional yes/no questions on a report (immediate danger, way blocked, getting worse) are stored as "yes",
+// "no" or "" (not answered). A skipped question is never recorded as "No". Reports from the older form send true/false:
+// true was a tapped Yes; false was that form's pre-selected default, so it is stored as not answered.
+const YN_QUESTIONS = Object.freeze(["immediateDanger", "accessBlocked", "worsening"]);
+function ynAnswer(value) {
+  return value === true || value === "yes" ? "yes" : value === "no" ? "no" : "";
+}
+// For the duplicate-submission check only: the older form's true/false is hashed as the server always hashed it, so a
+// phone that retries a report this server already received in the old format is recognised, not rejected.
+function ynAnswerForHash(value) {
+  return typeof value === "string" ? ynAnswer(value) : Boolean(value);
+}
 const UNLISTED_REPORT_TYPE_MESSAGE = "Choose one of the listed problem types";
 
 function createPublicReport(input, req, citizen = null) {
@@ -926,9 +941,9 @@ function createPublicReport(input, req, citizen = null) {
     community,
     details,
     affected: Math.max(0, Math.min(Number(report.affected) || 0, 1_000_000)),
-    accessBlocked: Boolean(report.accessBlocked),
-    worsening: Boolean(report.worsening),
-    immediateDanger: Boolean(report.immediateDanger),
+    accessBlocked: ynAnswer(report.accessBlocked),
+    worsening: ynAnswer(report.worsening),
+    immediateDanger: ynAnswer(report.immediateDanger),
     problemStarted: cleanDate(report.problemStarted),
     problemDuration: ["today", "days", "weeks", "months"].includes(report.problemDuration) ? report.problemDuration : "",
     publicLocationLabel: location.publicLocationLabel,
@@ -952,7 +967,7 @@ function createPublicReport(input, req, citizen = null) {
   };
   const { createdAt: ignoredCreatedAt, updatedAt: ignoredUpdatedAt, ...idempotencyPayload } = payload;
   const payloadHash = sha256(JSON.stringify({
-    payload: idempotencyPayload,
+    payload: { ...idempotencyPayload, accessBlocked: ynAnswerForHash(report.accessBlocked), worsening: ynAnswerForHash(report.worsening), immediateDanger: ynAnswerForHash(report.immediateDanger) },
     privateLocation: location.privateLocation,
     exactLatitude: location.exactLatitude,
     exactLongitude: location.exactLongitude,
@@ -2549,6 +2564,7 @@ function upsertReport(input, actor, req) {
     updatedAt: stamp,
     lastActor: actor ? actor.username : "anonymous"
   };
+  for (const question of YN_QUESTIONS) payload[question] = ynAnswer(payload[question]);
 
   const status = sanitizeText(report.status || existing?.status || "Open", 60);
   const severity = sanitizeText(report.severity || report.priority || existing?.severity || "", 60);
@@ -2676,7 +2692,7 @@ function isAwaitingReview(row) {
 }
 
 function isUrgentReport(report) {
-  return Boolean(report.immediateDanger) || String(report.severity || "").toLowerCase() === "critical";
+  return ynAnswer(report.immediateDanger) === "yes" || String(report.severity || "").toLowerCase() === "critical";
 }
 
 // Contact details and exact locations are never sent in staff lists: only on the case page (responderCaseDetail).
@@ -4585,4 +4601,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { startServer, handler, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition };
+module.exports = { startServer, handler, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition, ynAnswer };

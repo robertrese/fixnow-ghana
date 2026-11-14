@@ -2216,6 +2216,8 @@ details[open] > summary{margin-bottom:8px}
 .review-art{display:grid;place-items:center;width:44px;height:44px;border-radius:50%}
 .review-art img{width:32px;height:32px}
 .review-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.review-answers{list-style:none;margin:8px 0 0;padding:0;color:var(--muted);font-size:.875rem;line-height:1.5}
+.review-answers b{color:var(--ink)}
 .review-thumbs{display:flex;gap:6px;margin-top:8px}
 .review-thumbs img{width:56px;height:56px;object-fit:cover;border-radius:10px}
 .duplicate-block{display:grid;gap:10px;margin-bottom:18px}
@@ -3228,12 +3230,12 @@ body.map-unavailable [data-focus-public]{display:none}
                 </label>
               </details>
               <div class="yn-field">
-                <span class="field-label" id="dangerLabel">Is anyone in immediate danger?</span>
+                <span class="field-label" id="dangerLabel">Is anyone in immediate danger? <small>Optional</small></span>
                 <div class="yn-buttons" role="radiogroup" aria-labelledby="dangerLabel" data-yn-target="immediateDanger">
                   <button type="button" role="radio" aria-checked="false" data-yn="yes">Yes</button>
-                  <button type="button" role="radio" aria-checked="true" data-yn="no">No</button>
+                  <button type="button" role="radio" aria-checked="false" data-yn="no">No</button>
                 </div>
-                <input id="immediateDanger" type="checkbox" hidden />
+                <input id="immediateDanger" type="hidden" value="" />
               </div>
               <div class="danger-callout" id="dangerCallout" hidden>
                 <b>Call 112 now if someone could be hurt.</b>
@@ -3241,20 +3243,20 @@ body.map-unavailable [data-focus-public]{display:none}
                 <button class="emergency-call" type="button" data-emergency-service="general-emergency"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-3 2a12 12 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2A18 18 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg>Call 112</button>
               </div>
               <div class="yn-field">
-                <span class="field-label" id="accessLabel">Is the way blocked for people or vehicles?</span>
+                <span class="field-label" id="accessLabel">Is the way blocked for people or vehicles? <small>Optional</small></span>
                 <div class="yn-buttons" role="radiogroup" aria-labelledby="accessLabel" data-yn-target="accessBlocked">
                   <button type="button" role="radio" aria-checked="false" data-yn="yes">Yes</button>
-                  <button type="button" role="radio" aria-checked="true" data-yn="no">No</button>
+                  <button type="button" role="radio" aria-checked="false" data-yn="no">No</button>
                 </div>
-                <input id="accessBlocked" type="checkbox" hidden />
+                <input id="accessBlocked" type="hidden" value="" />
               </div>
               <div class="yn-field">
-                <span class="field-label" id="worseningLabel">Is it getting worse?</span>
+                <span class="field-label" id="worseningLabel">Is it getting worse? <small>Optional</small></span>
                 <div class="yn-buttons" role="radiogroup" aria-labelledby="worseningLabel" data-yn-target="worsening">
                   <button type="button" role="radio" aria-checked="false" data-yn="yes">Yes</button>
-                  <button type="button" role="radio" aria-checked="true" data-yn="no">No</button>
+                  <button type="button" role="radio" aria-checked="false" data-yn="no">No</button>
                 </div>
-                <input id="worsening" type="checkbox" hidden />
+                <input id="worsening" type="hidden" value="" />
               </div>
               <div class="field-group">
                 <span class="field-label" id="severityLabel">How serious is it?</span>
@@ -3516,6 +3518,14 @@ body.map-unavailable [data-focus-public]{display:none}
     // REPORT_STATUSES in work/fixnow-backend/server.js, checked by a test) and fills the wizard's type list and
     // every category and status filter (Nearby and My reports), so no list can fall behind.
     const REPORT_TYPES = ["Flooding or drainage", "Waste or sanitation", "Water supply", "Electricity", "Road or bridge", "Fire risk", "Clinic access", "Public safety", "Food or market price", "School facility", "Other"];
+    // The three optional yes/no questions in step 3 (immediate danger, way blocked, getting worse) hold "yes", "no" or
+    // "" (not answered). Nothing is selected until the person taps an answer, and a skipped question is never recorded
+    // as "No". Reports and drafts saved by the older form hold true/false: true was a tapped Yes; false was that form's
+    // pre-selected default, so it is read as not answered.
+    const YN_QUESTIONS = ["immediateDanger", "accessBlocked", "worsening"];
+    function ynAnswer(value) { return value === true || value === "yes" ? "yes" : value === "no" ? "no" : ""; }
+    function saidYes(value) { return ynAnswer(value) === "yes"; }
+    function ynLabel(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }
     const REPORT_STATUSES = ["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Reopened"];
     document.querySelectorAll("select[data-option-list]").forEach((select) => {
       (select.dataset.optionList === "types" ? REPORT_TYPES : REPORT_STATUSES).forEach((value) => {
@@ -4403,9 +4413,9 @@ body.map-unavailable [data-focus-public]{display:none}
         problemDuration: document.querySelector("#problemDuration").value,
         severity: document.querySelector("#severity").value,
         affected: Number(document.querySelector("#affected").value || 0),
-        accessBlocked: document.querySelector("#accessBlocked").checked,
-        worsening: document.querySelector("#worsening").checked,
-        immediateDanger: document.querySelector("#immediateDanger").checked,
+        accessBlocked: ynAnswer(document.querySelector("#accessBlocked").value),
+        worsening: ynAnswer(document.querySelector("#worsening").value),
+        immediateDanger: ynAnswer(document.querySelector("#immediateDanger").value),
         contact: document.querySelector("#contact").value.trim(),
         trustedContact: document.querySelector("#trustedContact").value.trim(),
         contactConsent: document.querySelector("#contactConsent").checked,
@@ -4433,7 +4443,7 @@ body.map-unavailable [data-focus-public]{display:none}
       document.querySelector("#previewRoute").textContent = hint.office;
       document.querySelector("#previewRouteNote").textContent = hint.note;
       document.querySelector("#previewClock").textContent = responseClock(score);
-      document.querySelector("#safetyWarning").hidden = !(draft.immediateDanger || ["Public safety", "Fire risk", "Electricity"].includes(draft.type));
+      document.querySelector("#safetyWarning").hidden = !(saidYes(draft.immediateDanger) || ["Public safety", "Fire risk", "Electricity"].includes(draft.type));
       document.querySelector("#publicPreviewText").textContent = `${draft.type || "Problem"}: ${draft.title || "Untitled report"} near ${[draft.community, draft.district, draft.region].filter(Boolean).join(", ") || "location not entered"}. This can appear publicly only after moderation and without a precise point.`;
       document.querySelectorAll("[data-quick-type]").forEach((button) => {
         const active = button.dataset.quickType === draft.type;
@@ -4446,16 +4456,17 @@ body.map-unavailable [data-focus-public]{display:none}
     let renderedChipType = null;
     function syncV2Controls(draft = buildDraft()) {
       document.querySelectorAll("[data-yn-target]").forEach((group) => {
-        const checked = Boolean(document.getElementById(group.dataset.ynTarget)?.checked);
+        // Neither button is selected until the person answers.
+        const answer = ynAnswer(document.getElementById(group.dataset.ynTarget)?.value);
         group.querySelectorAll("[data-yn]").forEach((button) => {
-          button.setAttribute("aria-checked", String((button.dataset.yn === "yes") === checked));
+          button.setAttribute("aria-checked", String(button.dataset.yn === answer));
         });
       });
       const severity = document.querySelector("#severity").value;
       document.querySelectorAll("[data-severity]").forEach((button) => {
         button.setAttribute("aria-checked", String(button.dataset.severity === severity));
       });
-      document.querySelector("#dangerCallout").hidden = !draft.immediateDanger;
+      document.querySelector("#dangerCallout").hidden = !saidYes(draft.immediateDanger);
       const chipRow = document.querySelector("#subcategoryChips");
       if (renderedChipType !== draft.type) {
         renderedChipType = draft.type;
@@ -4483,17 +4494,19 @@ body.map-unavailable [data-focus-public]{display:none}
       const location = [draft.community, draft.district, draft.region].filter(Boolean).join(", ") || "Location not entered";
       const flags = [
         draft.severity ? `<em class="pill pill-${escapeHtml(draft.severity.toLowerCase())}">${escapeHtml(draft.severity)} severity</em>` : "",
-        draft.immediateDanger ? `<em class="pill pill-critical">Immediate danger</em>` : "",
-        draft.accessBlocked ? `<em class="pill">Access blocked</em>` : "",
-        draft.worsening ? `<em class="pill">Getting worse</em>` : ""
+        saidYes(draft.immediateDanger) ? `<em class="pill pill-critical">Immediate danger</em>` : "",
+        saidYes(draft.accessBlocked) ? `<em class="pill">Access blocked</em>` : "",
+        saidYes(draft.worsening) ? `<em class="pill">Getting worse</em>` : ""
       ].join("");
+      // Every answer exactly as it will be sent: Yes, No, or Not answered for a skipped question.
+      const answers = `<ul class="review-answers">${[["Anyone in immediate danger", "immediateDanger"], ["Way blocked for people or vehicles", "accessBlocked"], ["Getting worse", "worsening"]].map(([question, key]) => `<li>${question}: <b>${ynLabel(draft[key])}</b></li>`).join("")}</ul>`;
       const photos = evidenceItems.filter((item) => item.state === "ready");
       const thumbs = photos.length ? `<div class="review-thumbs">${photos.map((item) => `<img alt="" src="data:${escapeHtml(item.mimeType)};base64,${item.dataBase64}" />`).join("")}</div>` : "";
       const contact = draft.contact ? escapeHtml(draft.contact) : "No name or number given";
       document.querySelector("#reviewSummary").innerHTML = [
         reviewCard("Problem", escapeHtml(draft.type), draft.subcategory ? `<small>${escapeHtml(draft.subcategory)}</small>` : "", 1, `<span class="review-art ${art.tint}"><img src="${art.src}" alt="" /></span>`),
         reviewCard("Location", escapeHtml(location), `<small>${draft.exactLocationConsent && (draft.coordinates || draft.digitalAddress) ? "Exact point shared only with authorised responders." : "Only this community description will be used."} The public sees an approximate area.</small>`, 2),
-        reviewCard("Description", escapeHtml(draft.title || "No title yet"), `<small>${escapeHtml(draft.details || "")}</small><div class="review-flags">${flags}</div>`, 3),
+        reviewCard("Description", escapeHtml(draft.title || "No title yet"), `<small>${escapeHtml(draft.details || "")}</small><div class="review-flags">${flags}</div>${answers}`, 3),
         reviewCard("Photos", photos.length ? `${photos.length} attached` : "No photos", thumbs, 4),
         reviewCard("Contact", contact, `<small>${draft.contact ? "Visible only to authorised responders." : "You can still track this report with your private code."}</small>`, 5)
       ].join("");
@@ -4708,7 +4721,8 @@ body.map-unavailable [data-focus-public]{display:none}
         if (id === "vulnerabilities") continue;
         const control = document.getElementById(id);
         if (!control || control.type === "file") continue;
-        if (control.type === "checkbox") control.checked = Boolean(value);
+        if (YN_QUESTIONS.includes(id)) control.value = ynAnswer(value);
+        else if (control.type === "checkbox") control.checked = Boolean(value);
         else control.value = String(value ?? "");
       }
       const vulnerabilities = new Set(draft.fields?.vulnerabilities || []);
@@ -6003,6 +6017,7 @@ body.map-unavailable [data-focus-public]{display:none}
       }
       }
       form.reset();
+      YN_QUESTIONS.forEach((id) => { document.getElementById(id).value = ""; });
       duplicateCheckedKey = "";
       document.querySelector("#duplicateSuggestions").innerHTML = `<div class="location-status">No duplicate check has run. FixNow never merges reports automatically.</div>`;
       document.querySelector("#trustedContact").value = "";
@@ -6755,9 +6770,9 @@ body.map-unavailable [data-focus-public]{display:none}
 
     document.querySelectorAll("[data-yn-target]").forEach((group) => {
       group.querySelectorAll("[data-yn]").forEach((button) => button.addEventListener("click", () => {
-        const box = document.getElementById(group.dataset.ynTarget);
-        box.checked = button.dataset.yn === "yes";
-        box.dispatchEvent(new Event("change", { bubbles: true }));
+        const field = document.getElementById(group.dataset.ynTarget);
+        field.value = button.dataset.yn;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
       }));
     });
 

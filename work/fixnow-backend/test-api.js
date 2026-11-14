@@ -47,7 +47,7 @@ const otpProvider = http.createServer((req, res) => {
 });
 otpProvider.listen(4198, "127.0.0.1");
 
-const { startServer, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition } = require("./server");
+const { startServer, REPORT_TYPES, REPORT_STATUSES, validateResponderTransition, ynAnswer } = require("./server");
 const server = startServer();
 
 function assert(condition, message) {
@@ -554,6 +554,34 @@ async function apiFailure(pathname, options = {}) {
     const moderatorCase = await api(`/api/reports/${publicSubmission.reference}/case`, { token: adminLogin.token });
     assert(moderatorCase.report.contact === "private-contact" && moderatorCase.report.location.exactLatitude === 5.525, "the case page should show contact and exact location to moderators");
     assert(moderatorCase.report.awaitingReview === true && moderatorCase.report.routePreview && typeof moderatorCase.report.routePreview.matched === "boolean", "the case page should show review state and the route preview");
+
+    // Honesty: the three optional yes/no questions are "yes", "no" or "" (not answered). A skipped question is never
+    // recorded as "No". Reports saved by the older form send true/false: true is Yes; false (that form's pre-selected
+    // default) is not answered. Anything else is not answered too.
+    const answersOf = async (answers) => {
+      const sent = await api("/api/public/reports", {
+        method: "POST",
+        body: { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), contact: "", contactConsent: false, attachmentIds: [], details: "Yes/no answer check " + JSON.stringify(answers), ...answers }
+      });
+      const staffView = (await api("/api/reports/" + sent.reference + "/case", { token: adminLogin.token })).report;
+      return [staffView.immediateDanger, staffView.accessBlocked, staffView.worsening].join("|");
+    };
+    assert(await answersOf({ immediateDanger: "", accessBlocked: "", worsening: "" }) === "||", "skipped questions are stored as not answered, never as No");
+    assert(await answersOf({}) === "||", "missing answers are stored as not answered");
+    assert(await answersOf({ immediateDanger: "no", accessBlocked: "no", worsening: "no" }) === "no|no|no", "a tapped No is stored as No");
+    assert(await answersOf({ immediateDanger: "yes", accessBlocked: "no", worsening: "" }) === "yes|no|", "each answer is stored on its own: Yes, No, not answered");
+    assert(await answersOf({ immediateDanger: false, accessBlocked: true, worsening: false }) === "|yes|", "an older report's true is Yes and its false is not answered");
+    assert(await answersOf({ immediateDanger: "maybe", accessBlocked: 1, worsening: "true" }) === "||", "anything that is not yes or no is not answered");
+    assert(ynAnswer(true) === "yes" && ynAnswer("yes") === "yes" && ynAnswer("no") === "no" && [false, "", null, undefined, 0, "No", "YES"].every((value) => ynAnswer(value) === ""), "ynAnswer accepts only yes, no and the older true");
+    // An older report still sends, and a retry of it (same key, same true/false answers) is recognised, not rejected.
+    const olderReport = { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), contact: "", contactConsent: false, attachmentIds: [], details: "Saved on a phone by the older form.", immediateDanger: false, accessBlocked: true, worsening: false };
+    const olderFirst = await api("/api/public/reports", { method: "POST", body: olderReport });
+    const olderRetry = await api("/api/public/reports", { method: "POST", body: olderReport });
+    assert(olderFirst.reference && olderRetry.reference === olderFirst.reference && olderRetry.alreadySubmitted, "an older-format report sends, and its retry returns the same report");
+    // "No" to immediate danger is not urgent; only a tapped Yes (or Critical severity) is.
+    const calmReport = await api("/api/public/reports", { method: "POST", body: { ...publicPayload, submissionKey: crypto.randomUUID(), trackingSecret: crypto.randomBytes(32).toString("base64url"), contact: "", contactConsent: false, attachmentIds: [], severity: "Low", immediateDanger: "no", details: "Not urgent: nobody is in danger." } });
+    const queueAfter = (await api("/api/reports?queue=review", { token: adminLogin.token })).reports.map((report) => report.id);
+    assert(queueAfter.indexOf(urgentSubmission.reference) < queueAfter.indexOf(calmReport.reference), "a report answered No to immediate danger is not treated as urgent");
     // Responders see nothing until a moderator verifies or escalates the report.
     const responderBeforeReview = await apiFailure(`/api/reports/${publicSubmission.reference}/case`, { token: responderLogin.token });
     assert(responderBeforeReview.status === 403, "responders must not open a report before a moderator verifies or escalates it");
