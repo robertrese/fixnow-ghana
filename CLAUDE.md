@@ -112,6 +112,12 @@ Android notes:
   - Every simulated step says "Simulated" and must be something the real app does today; anything it cannot do yet says "Planned". No invented times, numbers or outcomes.
   - Only sample offices (Sample District Assembly, Sample Water and Power Desk, Sample Safety Desk). Sample reports are labelled "Sample" and name general areas only, never real businesses, schools, clinics or people. Never a real photo of a real place.
   - The real app's office hint is general information ("Usually handled by the District Assembly"): FixNow is not connected to any agency yet, so never say it sends reports to one.
+- **Photo rule** (in the app only; the server accepts reports without photos, and that must not change):
+  - Each entry in `REPORT_TYPES` (in the page) has a `photoRequired` flag; `photoRequiredFor()` is the only place it is read. Never write the list of required types out again. Today it is true for Flooding or drainage, Road or bridge and Waste or sanitation, and false for the other eight.
+  - On a required type, Continue on the photo step (and Submit) is stopped until there is a photo or the person taps "I can't add a photo". The message "Add a photo of the problem, or tell us you can't." sits next to the photo button and takes focus. There is always that way out, and no reason is asked.
+  - Nothing about the choice is recorded or sent: the report simply has no photo, and Review says "No photo added".
+  - On every type, "Add a photo" is the first and largest control on the photo step, with "A photo helps the moderator check your report." and the photo privacy wording.
+  - Photos queue offline with the report as before. A photo never blocks a report: if the server refuses a photo, or fails on it three times, the report is sent without it and the person is told (`photosNotSent`). With no answer from the server at all, the whole report waits and retries.
 - **Page size:** the page must stay under 120 KiB gzipped and 600 KiB raw (Phase 12 test).
 
 ## Design system (V3, November 2026)

@@ -79,7 +79,7 @@ const server = http.createServer((req, res) => {
     if (device === "phone" && scheme === "light") await shot("01-nearby");
     await axe("Nearby");
     await keep();
-    const lists = await page.evaluate(() => ({ types: REPORT_TYPES, statuses: REPORT_STATUSES }));
+    const lists = await page.evaluate(() => ({ types: REPORT_TYPE_NAMES, statuses: REPORT_STATUSES }));
     const choose = (id, value) => page.evaluate(([i, v]) => { const s = document.querySelector(i); s.value = v; s.dispatchEvent(new Event("change", { bubbles: true })); }, [id, value]);
     const shown = () => page.$$eval("#nearbyReportList .demo-sample-card", (c) => c.map((x) => x.dataset.sampleReport));
     const filterFails = [];
@@ -124,7 +124,17 @@ const server = http.createServer((req, res) => {
     await page.fill("#reportTitle", "Drain overflowing onto the road");
     await page.fill("#details", "After rain the drain overflows and water covers the road.");
     await page.click('[data-severity="High"]');
-    for (const step of [3, 4, 5]) { await page.click(`[data-wizard-step="${step}"] [data-wizard-next]`); await page.waitForTimeout(400); }
+    for (const step of [3, 4, 5]) {
+      if (step === 4) {
+        // The photo rule holds in the demo too: a flooding report stops here until a photo or the choice.
+        await page.click('[data-wizard-step="4"] [data-wizard-next]');
+        await page.waitForTimeout(250);
+        check(await page.isVisible('[data-wizard-step="4"]') && await page.isVisible("#photoNeeded"), `${label}: in the demo a flooding report cannot pass the photo step without a photo or "I can't add a photo"`);
+      }
+      if (step === 4) { if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn"); } // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
+      await page.click(`[data-wizard-step="${step}"] [data-wizard-next]`);
+      await page.waitForTimeout(400);
+    }
     await page.waitForTimeout(1200);
     const similar = await page.evaluate(() => !document.querySelector("#modalBackdrop").hidden && document.querySelector("#modalTitle").textContent);
     check(similar === "Similar report found nearby" && /Nothing is merged automatically/.test(await modalText()), `${label}: a report next to a sample report gets "Similar report found nearby" (${similar})`);

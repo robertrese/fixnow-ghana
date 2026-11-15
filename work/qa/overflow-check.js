@@ -43,6 +43,7 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
     await page.click('[data-severity="High"]');
     await page.click('[data-wizard-step="3"] [data-wizard-next]');
     await check("step 4");
+    if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn"); // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
     await page.click('[data-wizard-step="4"] [data-wizard-next]');
     await check("step 5");
     await page.click('[data-wizard-step="5"] [data-wizard-next]');

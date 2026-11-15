@@ -19,6 +19,10 @@
 //      on the Review step and is sent and saved as not answered, never as No; a tapped Yes or No is kept; Yes to
 //      danger shows the 112 callout; the buttons work from the keyboard with 0 WCAG violations; an older saved draft
 //      and an older queued report (true/false) still restore and send.
+//  10. The photo rule: flooding, road and waste reports cannot continue past the photo step (or be submitted) without
+//      a photo or the "I can't add a photo" choice; every other type can. The message takes focus; no reason is
+//      asked; Review says "No photo added"; nothing about the choice is sent. Photos still queue offline and send
+//      later, and a photo the server refuses or keeps failing on never blocks the report.
 // Needs the local web server (npm run start:web). It never contacts the API: normal-mode requests are answered by
 // the test itself, so it can count exactly what the page tries to send. Add --engine=webkit or --engine=firefox.
 const path = require("path");
@@ -89,12 +93,13 @@ const closeOverlay = async (page) => {
   }
 };
 
-async function fillReport(page, { title, details, onStep } = {}) {
+async function fillReport(page, { title, details, onStep, type = "Flooding or drainage", skipPhotoChoice = false } = {}) {
   await page.evaluate(() => setView("home"));
   await page.click(".home-primary");
   await page.waitForTimeout(200);
   if (onStep) await onStep(1);
-  await page.click('[data-quick-type="Flooding or drainage"]');
+  if (type === "Flooding or drainage") await page.click('[data-quick-type="Flooding or drainage"]');
+  else await page.evaluate((t) => { const select = document.querySelector("#type"); select.value = t; select.dispatchEvent(new Event("change", { bubbles: true })); }, type);
   await page.click('[data-wizard-step="1"] [data-wizard-next]');
   await page.waitForTimeout(700);
   if (onStep) await onStep(2);
@@ -107,6 +112,7 @@ async function fillReport(page, { title, details, onStep } = {}) {
   await page.fill("#details", details || "Water runs across the road after rain.");
   await page.click('[data-severity="High"]');
   for (const step of [3, 4, 5]) {
+    if (step === 4 && !skipPhotoChoice) { if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn"); } // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
     await page.click(`[data-wizard-step="${step}"] [data-wizard-next]`);
     await page.waitForTimeout(700); // the step scrolls smoothly to its heading
     if (onStep && step < 5) await onStep(step + 1);
@@ -239,7 +245,7 @@ async function submitReport(page) {
   }));
 
   // 7. Every type and every status can be filtered in My reports (demo data with one report per type and status).
-  const lists = await page.evaluate(() => ({ types: REPORT_TYPES, statuses: REPORT_STATUSES }));
+  const lists = await page.evaluate(() => ({ types: REPORT_TYPE_NAMES, statuses: REPORT_STATUSES }));
   check(["Fire risk", "Clinic access", "School facility"].every((t) => lists.types.includes(t)) && ["Dispatched", "Blocked", "Escalated"].every((s) => lists.statuses.includes(s)), "7. the shared lists include Fire risk, Clinic access, School facility, Dispatched, Blocked and Escalated");
   await page.evaluate(({ types, statuses }) => {
     const made = [
@@ -282,6 +288,8 @@ async function submitReport(page) {
   // ---------- Normal mode on the same origin, the server answered by this test ----------
   const sent = [];
   const posted = []; // the bodies of reports the page sends
+  const uploads = []; // photo uploads the page sends
+  let uploadAnswer = "accept"; // or "refuse" (400) or "error" (500)
   let unreachable = false;
   await context.route(`${API}/**`, async (route) => {
     const request = route.request();
@@ -290,6 +298,12 @@ async function submitReport(page) {
     if (unreachable) return route.abort("failed");
     if (url.pathname === "/api/public/config") return route.fulfill({ json: { ok: true, maps: { enabled: false } } });
     if (url.pathname === "/api/public/reports" && request.method() === "GET") return route.fulfill({ json: { ok: true, reports: [] } });
+    if (url.pathname === "/api/public/uploads" && request.method() === "POST") {
+      uploads.push(request.postDataJSON().clientAttachmentId);
+      if (uploadAnswer === "refuse") return route.fulfill({ status: 400, json: { ok: false, error: "This image could not be accepted" } });
+      if (uploadAnswer === "error") return route.fulfill({ status: 500, json: { ok: false, error: "Upload failed" } });
+      return route.fulfill({ json: { ok: true, attachment: { attachmentId: `ATT-${uploads.length}` } } });
+    }
     if (url.pathname === "/api/public/reports" && request.method() === "POST") {
       posted.push(request.postDataJSON());
       return route.fulfill({ json: { ok: true, reference: `FN-OUTCOME${posted.length}`, report: { status: "Open", updatedAt: new Date().toISOString() } } });
@@ -415,6 +429,141 @@ async function submitReport(page) {
   await page.evaluate(() => clearWizardDraft());
   await page.reload({ waitUntil: "load" });
   await page.waitForTimeout(600);
+
+  // ---------- 10. The photo rule ----------
+  const PHOTO_REQUIRED = ["Flooding or drainage", "Road or bridge", "Waste or sanitation"];
+  const demoPhoto = path.join(root, "work", "qa", "demo-photos", "drain.jpg");
+  const photoStep = () => page.evaluate(() => ({
+    step: Number(document.querySelector(".wizard-step:not([hidden])").dataset.wizardStep),
+    needed: !document.querySelector("#photoNeeded").hidden,
+    neededText: document.querySelector("#photoNeeded").textContent,
+    focusOnMessage: document.activeElement === document.querySelector("#photoNeeded"),
+    cantButton: !document.querySelector("#noPhotoBtn").hidden,
+    pressed: document.querySelector("#noPhotoBtn").getAttribute("aria-pressed"),
+    requirement: document.querySelector("#photoRequirement").textContent,
+    status: document.querySelector("#evidenceProgress").textContent
+  }));
+  const atPhotoStep = (type) => page.evaluate((t) => {
+    evidenceItems = []; renderEvidenceItems();
+    document.querySelector("#photoChoice").value = "";
+    const select = document.querySelector("#type"); select.value = t; select.dispatchEvent(new Event("change", { bubbles: true }));
+    setWizardStep(4);
+  }, type);
+  const photoContinue = async () => { await page.click('[data-wizard-step="4"] [data-wizard-next]'); await page.waitForTimeout(250); return photoStep(); };
+  const sentReport = (title) => posted.find((p) => p.title === title);
+
+  // Every type: required types stop at the photo step until a photo or the choice; the others go on.
+  await page.evaluate(() => setView("report"));
+  const typeNames = await page.evaluate(() => REPORT_TYPE_NAMES);
+  const ruleFails = [];
+  for (const type of typeNames) {
+    await atPhotoStep(type);
+    const before = await photoStep();
+    const tried = await photoContinue();
+    if (PHOTO_REQUIRED.includes(type)) {
+      if (!(before.cantButton && before.requirement === "Needed for this kind of problem")) ruleFails.push(`${type}: no "I can't add a photo" button`);
+      if (!(tried.step === 4 && tried.needed && tried.focusOnMessage && tried.neededText === "Add a photo of the problem, or tell us you can't.")) ruleFails.push(`${type}: Continue was not stopped with the message in focus (step ${tried.step})`);
+      await page.click("#noPhotoBtn");
+      const chosen = await photoStep();
+      if (!(chosen.pressed === "true" && !chosen.needed && chosen.status === "No photo added. You can continue.")) ruleFails.push(`${type}: the choice was not shown (${chosen.status})`);
+      if ((await photoContinue()).step !== 5) ruleFails.push(`${type}: could not continue after "I can't add a photo"`);
+    } else {
+      if (before.cantButton || before.requirement !== "Optional") ruleFails.push(`${type}: should be optional`);
+      if (!(tried.step === 5 && !tried.needed)) ruleFails.push(`${type}: an optional type was stopped (step ${tried.step})`);
+    }
+  }
+  check(typeNames.length === 11 && ruleFails.length === 0, `10. flooding, road and waste reports need a photo or the "I can't add a photo" choice; the other 8 types continue without one ${ruleFails.join(" | ")}`);
+
+  // The photo step itself, on an optional and on a required type.
+  await atPhotoStep("Water supply");
+  const layout = await page.evaluate(() => {
+    const picker = document.querySelector('[data-wizard-step="4"] .evidence-picker');
+    const first = picker.firstElementChild;
+    const box = (el) => el.getBoundingClientRect();
+    const firstControl = document.querySelector('[data-wizard-step="4"]').querySelector("input:not([type=hidden]), button, select, textarea, a[href]");
+    return { firstText: first.textContent.trim(), firstControl: firstControl.id, mainHeight: box(first).height, mainWidth: box(first).width, pickerWidth: box(picker).width, cameraHeight: box(picker.querySelector(".photo-camera")).height, why: picker.querySelector(".photo-why").textContent, afterMain: first.nextElementSibling.className, privacy: picker.textContent.includes("We remove hidden location information from photos on this phone before they are sent. A moderator checks photos before anything is shown publicly.") };
+  });
+  check(layout.firstText === "Add a photo" && layout.firstControl === "evidenceLibrary" && layout.mainHeight >= 100 && layout.mainWidth >= layout.pickerWidth - 2 && layout.afterMain === "photo-why" && layout.why === "A photo helps the moderator check your report.", `10. "Add a photo" is the first thing on the photo step, as a large button, followed by why it helps (${Math.round(layout.mainHeight)} px tall)`);
+  check(layout.privacy && layout.cameraHeight >= 44, "10. the photo privacy wording is kept, and the camera button is at least 44 px tall");
+  await atPhotoStep("Road or bridge");
+  await photoContinue();
+  const cantHeight = await page.evaluate(() => document.querySelector("#noPhotoBtn").getBoundingClientRect().height);
+  const photoAxe = await axeOnStep3();
+  check(cantHeight >= 44 && photoAxe.length === 0, `10. the photo step with the message showing has 0 WCAG violations and a 44 px "I can't add a photo" button ${photoAxe.join(" | ")}`);
+  await page.screenshot({ path: path.join(out, "photo-step-required-message.png") });
+  check(!/reason|why can/i.test(await page.evaluate(() => document.querySelector('[data-wizard-step="4"]').innerText.replace("A photo helps the moderator check your report.", ""))), "10. no reason is asked for not adding a photo");
+  await page.evaluate(() => setView("home"));
+
+  // "I can't add a photo": the report goes through with no photo, and nothing else is recorded or sent.
+  let reviewNoPhoto = "";
+  await fillReport(page, { title: "Road report without a photo", type: "Road or bridge", onStep: async (step) => {
+    if (step !== 6) return;
+    reviewNoPhoto = await page.evaluate(() => [...document.querySelectorAll("#reviewSummary .review-card")].find((card) => card.querySelector("span").textContent === "Photos").querySelector("b").textContent);
+    // A draft that reaches Review with no photo and no choice (for example one saved before this rule) cannot be
+    // submitted: Submit goes back to the photo step with the message.
+    await page.evaluate(() => { document.querySelector("#photoChoice").value = ""; });
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.check("#caseConsent");
+    await page.click('[data-wizard-step="6"] button[type="submit"]');
+    await page.waitForTimeout(400);
+    const sentBack = await photoStep();
+    check(sentBack.step === 4 && sentBack.needed && sentBack.focusOnMessage && !sentReport("Road report without a photo"), `10. submitting a required type with no photo and no choice goes back to the photo step and sends nothing (step ${sentBack.step})`);
+    await page.click("#noPhotoBtn");
+    for (const next of [4, 5]) { await page.click(`[data-wizard-step="${next}"] [data-wizard-next]`); await page.waitForTimeout(500); }
+    await page.waitForTimeout(1200);
+    await closeOverlay(page);
+  } });
+  check(reviewNoPhoto === "No photo added", `10. Review shows "No photo added" (${reviewNoPhoto})`);
+  await submitReport(page);
+  const noPhotoBody = sentReport("Road report without a photo") || {};
+  check(await page.textContent("#modalTitle") === "Report submitted" && Array.isArray(noPhotoBody.attachmentIds) && noPhotoBody.attachmentIds.length === 0 && noPhotoBody.attachmentCount === 0 && !Object.keys(noPhotoBody).some((key) => /photoChoice|noPhoto|reason/i.test(key)), "10. the report is sent with no photo, and nothing about the choice (no reason, no extra field) is sent");
+  await closeOverlay(page);
+  check(await page.evaluate(() => document.querySelector("#photoChoice").value === ""), "10. the choice is cleared for the next report");
+
+  // With a photo: the "I can't" button goes away and the photo is sent before the report.
+  const addPhoto = async () => { await page.setInputFiles("#evidenceLibrary", demoPhoto); await page.waitForSelector("#evidenceGallery .evidence-item img"); };
+  let withPhoto = {}, reviewWithPhoto = "";
+  await fillReport(page, { title: "Waste report with a photo", type: "Waste or sanitation", skipPhotoChoice: true, onStep: async (step) => {
+    if (step === 4) { await addPhoto(); withPhoto = await photoStep(); }
+    if (step === 6) reviewWithPhoto = await page.evaluate(() => [...document.querySelectorAll("#reviewSummary .review-card")].find((card) => card.querySelector("span").textContent === "Photos").querySelector("b").textContent);
+  } });
+  check(!withPhoto.cantButton && /1 of 5 photos ready/.test(withPhoto.status) && reviewWithPhoto === "1 attached", `10. with a photo added the step is satisfied and Review shows it (${reviewWithPhoto})`);
+  await submitReport(page);
+  await closeOverlay(page);
+  check((sentReport("Waste report with a photo") || { attachmentIds: [] }).attachmentIds.length === 1, "10. the photo is uploaded and the report is sent with it");
+
+  // Offline, exactly as before: the report and its photo wait on the phone and send when the server is back.
+  unreachable = true;
+  await fillReport(page, { title: "Flood report made offline with a photo", skipPhotoChoice: true, onStep: async (step) => { if (step === 4) await addPhoto(); } });
+  await submitReport(page);
+  check(await page.textContent("#modalTitle") === "Saved and waiting to send" && !sentReport("Flood report made offline with a photo"), "10. with the server unreachable a report with a photo is saved and waits");
+  await closeOverlay(page);
+  unreachable = false;
+  await page.evaluate(() => processSubmissionQueue());
+  await page.waitForTimeout(1500);
+  check((sentReport("Flood report made offline with a photo") || { attachmentIds: [] }).attachmentIds.length === 1, "10. when the server is back the queued report sends with its photo");
+
+  // A photo the server refuses never blocks the report.
+  uploadAnswer = "refuse";
+  await fillReport(page, { title: "Report whose photo is refused", skipPhotoChoice: true, onStep: async (step) => { if (step === 4) await addPhoto(); } });
+  await submitReport(page);
+  const refusedText = await page.textContent("#modalBackdrop");
+  check(await page.textContent("#modalTitle") === "Report submitted" && (sentReport("Report whose photo is refused") || { attachmentIds: [1] }).attachmentIds.length === 0 && /1 photo could not be sent, so the report was sent without it\./.test(refusedText), "10. when the server refuses a photo the report is still sent, and the person is told the photo was not");
+  await closeOverlay(page);
+  // A photo the server keeps failing on: the report waits and retries, then goes without the photo.
+  uploadAnswer = "error";
+  await fillReport(page, { title: "Report whose photo keeps failing", skipPhotoChoice: true, onStep: async (step) => { if (step === 4) await addPhoto(); } });
+  await submitReport(page);
+  const waitingTitle = await page.textContent("#modalTitle");
+  await closeOverlay(page);
+  for (let attempt = 0; attempt < 3 && !sentReport("Report whose photo keeps failing"); attempt++) { await page.evaluate(() => processSubmissionQueue()); await page.waitForTimeout(1200); }
+  const failing = await page.evaluate(() => { const r = reports.find((x) => x.title === "Report whose photo keeps failing") || {}; return { status: r.syncStatus, notSent: r.photosNotSent }; });
+  check(waitingTitle === "Saved and waiting to send" && failing.status === "submitted" && failing.notSent === 1 && (sentReport("Report whose photo keeps failing") || { attachmentIds: [1] }).attachmentIds.length === 0, `10. a photo that keeps failing to upload does not block the report: it is sent without the photo after three tries (${failing.status})`);
+  await page.evaluate(() => { setView("my"); openMyReportDetails(reports.find((x) => x.title === "Report whose photo keeps failing")); });
+  await page.waitForTimeout(300);
+  check(/1 photo could not be sent/.test(await page.textContent("#modalBackdrop")), "10. the report's page says the photo could not be sent");
+  await closeOverlay(page);
+  uploadAnswer = "accept";
 
   // 7. Nearby asks the server for each type and status.
   const asked = [];

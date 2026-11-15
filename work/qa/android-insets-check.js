@@ -120,6 +120,7 @@ async function tapField(ev, selector, name, dpr) {
     if (!(await tapField(ev, "#details", `${mode}-step3-description`, dpr))) failures++;
     await ev(`(() => { const set = (s, v) => { const e = document.querySelector(s); e.value = v; e.dispatchEvent(new Event("input", { bubbles: true })); }; set("#reportTitle", "Blocked drain"); set("#details", "Water reaches the stalls after rain."); document.querySelector('[data-severity="High"]').click(); document.querySelector('[data-wizard-step="3"] [data-wizard-next]').click(); return true; })()`);
     await wait(800);
+    await ev(`(() => { const b = document.querySelector("#noPhotoBtn"); if (b && !b.hidden && b.getAttribute("aria-pressed") !== "true") b.click(); })()`); // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
     await ev(`document.querySelector('[data-wizard-step="4"] [data-wizard-next]').click()`);
     await wait(1000);
     if (!(await tapField(ev, "#contact", `${mode}-step5-contact`, dpr))) failures++;

@@ -399,7 +399,11 @@ async function apiFailure(pathname, options = {}) {
     const appHtml = fs.readFileSync(path.join(root, "..", "..", "outputs", "fixnow-ghana.html"), "utf8");
     // The page defines both lists once (REPORT_TYPES, REPORT_STATUSES) and fills the wizard and every filter from them.
     const pageList = (name) => JSON.parse(appHtml.match(new RegExp("const " + name + " = (\\[[^\\]]*\\]);"))[1]);
-    const appTypes = pageList("REPORT_TYPES");
+    const appTypeEntries = pageList("REPORT_TYPES");
+    const appTypes = appTypeEntries.map((entry) => entry.name);
+    // The photo rule lives in the app only: each type says whether it needs a photo. The server still accepts
+    // reports of every type without photos (checked below with attachmentIds: []).
+    assert(appTypeEntries.every((entry) => typeof entry.photoRequired === "boolean") && appTypeEntries.filter((entry) => entry.photoRequired).map((entry) => entry.name).sort().join("|") === "Flooding or drainage|Road or bridge|Waste or sanitation", "photos are required for flooding, road and waste reports only");
     assert(appTypes.length === 11 && [...appTypes].sort().join("|") === [...REPORT_TYPES].sort().join("|"), "server report types must match the app's problem type list");
     assert(pageList("REPORT_STATUSES").join("|") === REPORT_STATUSES.join("|"), "the app's status list must match the server's REPORT_STATUSES");
     // Every status a report can reach is in the shared list, so every status can be filtered.

@@ -75,6 +75,18 @@ async function passWelcome(page) {
   await page.waitForTimeout(400);
 }
 
+// Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
+// passPhotoStep adds the given photo file, or makes that choice, then continues.
+async function passPhotoStep(page, { photo = "" } = {}) {
+  if (photo) {
+    await page.setInputFiles("#evidenceLibrary", photo);
+    await page.waitForSelector("#evidenceGallery .evidence-item img");
+  } else {
+    if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn");
+  }
+  await page.click('[data-wizard-step="4"] [data-wizard-next]');
+}
+
 // Fills the six report steps with a realistic flooding report and stops on step 6.
 async function fillReportToReview(page, { keepSimilarPage = false } = {}) {
   await page.click(".home-primary");
@@ -87,7 +99,7 @@ async function fillReportToReview(page, { keepSimilarPage = false } = {}) {
   await page.fill("#details", "The main drain beside the market is full of plastic. After rain, water runs into the stalls and the road.");
   await page.click('[data-severity="High"]');
   await page.click('[data-wizard-step="3"] [data-wizard-next]');
-  await page.click('[data-wizard-step="4"] [data-wizard-next]');
+  await passPhotoStep(page);
   await page.click('[data-wizard-step="5"] [data-wizard-next]');
   await page.waitForTimeout(1200);
   // The demo data has a similar verified report, so step 6 opens the "Similar report found nearby" page first.
@@ -96,4 +108,4 @@ async function fillReportToReview(page, { keepSimilarPage = false } = {}) {
   if (similarOpen && !keepSimilarPage) await page.click("#modalActions button:last-child"); // Continue with new report
 }
 
-module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, fillReportToReview };
+module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, passPhotoStep, fillReportToReview };

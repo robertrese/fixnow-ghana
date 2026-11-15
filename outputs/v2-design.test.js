@@ -288,7 +288,7 @@ for (const [, question, buttons] of ynGroups) {
 }
 assert(steps[3].includes('data-yn-target="worsening"') && !/<input id="(immediateDanger|accessBlocked|worsening)"[^>]*(required|type="checkbox")/.test(html), "the three questions stay optional and are not tick boxes");
 assert(html.includes('function ynAnswer(value) { return value === true || value === "yes" ? "yes" : value === "no" ? "no" : ""; }') && html.includes('function ynLabel(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }'), "the page reads the answers as yes, no or not answered");
-assert(html.includes('YN_QUESTIONS.forEach((id) => { document.getElementById(id).value = ""; });') && html.includes("if (YN_QUESTIONS.includes(id)) control.value = ynAnswer(value);"), "answers are cleared after a report is saved, and an older draft's false is restored as not answered");
+assert(html.includes('YN_QUESTIONS.concat("photoChoice").forEach((id) => { document.getElementById(id).value = ""; });') && html.includes("if (YN_QUESTIONS.includes(id)) control.value = ynAnswer(value);"), "answers are cleared after a report is saved, and an older draft's false is restored as not answered");
 const staffCode = fs.readFileSync(path.join(__dirname, "staff.js"), "utf8");
 assert(staffCode.includes('function yesNo(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }'), "the staff case page shows Yes, No or Not answered");
 assert(backend.includes('return value === true || value === "yes" ? "yes" : value === "no" ? "no" : "";') && !/Boolean\((report|payload)\.(immediateDanger|accessBlocked|worsening)\)/.test(backend), "the server stores yes, no or not answered, never a forced yes/no");
@@ -299,5 +299,23 @@ for (const [name, code] of [["fixnow-ghana.html", html], ["staff.js", staffCode]
   assert(reads.length >= 3, `${name} reads the three answers`);
   for (const read of reads) assert(/(ynAnswer|ynAnswerForHash|saidYes|ynLabel|yesNo)\((?:report|draft|payload|item|existing\w*)[.[]/.test(read), `${name} reads a yes/no answer without the helper: ${read}`);
 }
+
+// The photo rule (in the app only). Flooding, road and waste reports need a photo or the person's "I can't add a
+// photo" choice; every other type keeps photos optional. The rule is a flag on REPORT_TYPES, never a second list.
+// (Outcome tests: work/qa/resident-outcomes-check.js.)
+const typeEntries = JSON.parse(html.match(/const REPORT_TYPES = (\[[^\]]*\]);/)[1]);
+assert(typeEntries.length === 11 && typeEntries.every((entry) => typeof entry.name === "string" && typeof entry.photoRequired === "boolean"), "every problem type says whether it needs a photo");
+assert(typeEntries.filter((entry) => entry.photoRequired).map((entry) => entry.name).sort().join("|") === "Flooding or drainage|Road or bridge|Waste or sanitation", "a photo is required for flooding, road and waste reports only");
+assert((html.match(/\.photoRequired\b/g) || []).length === 1 && html.includes("return Boolean(type && type.photoRequired);"), "the photo rule is read from REPORT_TYPES in one place (photoRequiredFor), not written out again");
+assert(html.includes("if (wizardStep === 4 && !photoRuleMet()) {\n        showPhotoNeeded();\n        return false;") && html.includes("if (!photoRuleMet()) {\n        setWizardStep(4);\n        showPhotoNeeded();\n        return;"), "a required type cannot continue past the photo step, or be submitted, without a photo or the choice");
+assert(html.includes('return !photoRequiredFor(document.querySelector("#type").value) || readyPhotoCount() > 0 || document.querySelector("#photoChoice").value === "none";'), "the rule is met by a photo, by the I can't add a photo choice, or by an optional type");
+const photoStep = steps[4];
+assert(photoStep.indexOf("<span>Add a photo</span>") > 0 && photoStep.indexOf("<span>Add a photo</span>") < photoStep.indexOf("A photo helps the moderator check your report.") && photoStep.indexOf('<label class="photo-pick photo-main">') < photoStep.indexOf("<p"), "Add a photo is the first thing on the photo step, followed by why it helps");
+assert(photoStep.includes('<p class="photo-needed" id="photoNeeded" tabindex="-1" hidden>Add a photo of the problem, or tell us you can\'t.</p>') && html.includes("message.focus(); // screen reader users hear the message"), "the message is next to the photo button and takes focus");
+assert(photoStep.includes('<button class="secondary no-photo-btn" id="noPhotoBtn" type="button" aria-pressed="false" hidden>I can\'t add a photo</button>') && !/reason|why can/i.test(photoStep.replace("A photo helps the moderator check your report.", "")), "there is always a way out, and no reason is asked");
+assert(photoStep.includes("We remove hidden location information from photos on this phone before they are sent. A moderator checks photos before anything is shown publicly."), "the photo privacy wording stays on the photo step");
+assert(html.includes('"No photo added"') && !/photoChoice\s*:/.test(html) && !/photoChoice|photoRequired|noPhoto/.test(backend), "Review says No photo added, and nothing about the choice is sent to or required by the server");
+// A photo the server will not take never blocks the report.
+assert(html.includes("if (!error || !error.status) throw error;") && html.includes("attachment.notSent = true;") && html.includes("if (attachment.notSent) continue;") && html.includes("report.photosNotSent = attachments.filter((attachment) => attachment.notSent).length;"), "a refused or repeatedly failing photo is left out so the report still sends, and the person is told");
 
 console.log("V2 design and safety guard test passed");

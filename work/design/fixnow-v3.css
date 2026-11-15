@@ -196,9 +196,20 @@ details[open] > summary{margin-bottom:8px}
 .chip[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
 .checks{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px}
 .check{display:flex !important;grid-template-columns:none;align-items:center;gap:8px;margin:0 !important;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-weight:400 !important}
-.photo-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .photo-pick{position:relative;display:grid !important;place-items:center;align-content:center;gap:10px !important;min-height:132px;margin:0 !important;padding:14px;border:2px dashed #a99f86;border-radius:18px;background:var(--panel);color:var(--deep) !important;text-align:center;cursor:pointer}
-.photo-pick:first-child{border-style:solid;border-color:var(--deep);background:#fffbe8}
+/* Photo step: "Add a photo" is the first and largest control; the camera and "I can't add a photo" sit under it. */
+.photo-main{width:100%;min-height:132px;border-style:solid;border-color:var(--deep);background:#fffbe8;font-size:1.125rem;font-weight:700}
+.photo-camera{grid-auto-flow:column;justify-content:center;min-height:56px;margin:0 0 10px !important;padding:8px 14px;font-weight:700}
+.photo-camera .ico{width:1.5rem;height:1.5rem}
+.photo-why{margin:10px 0 12px;color:var(--ink)}
+.photo-needed{margin:0 0 12px;padding:10px 14px;border:2px solid var(--brand-emergency);border-radius:12px;background:var(--panel);color:var(--brand-emergency);font-weight:700}
+.photo-needed:focus{outline:3px solid var(--focus);outline-offset:2px}
+.no-photo-btn{display:block;width:100%;min-height:48px;margin:0 0 12px}
+.no-photo-btn[hidden]{display:none}
+.no-photo-btn[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
+.photo-safety{margin-top:10px}
+.wizard-step legend .photo-requirement{display:block;margin-top:4px;line-height:1.35}
+.photos-not-sent{padding:10px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--panel);font-weight:700}
 .photo-pick .ico{width:2rem;height:2rem}
 .photo-pick input[type="file"]{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .photo-pick:focus-within{outline:3px solid var(--focus);outline-offset:2px}
@@ -541,7 +552,6 @@ body[data-view="report"] .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
 .wizard-step .row{grid-template-columns:1fr}
 .yn-field{grid-template-columns:1fr}
 .yn-buttons{width:100%}
-.photo-buttons{grid-template-columns:1fr}
 .tool-row{grid-template-columns:1fr}
 .home-copy h2{font-size:2rem}
 .welcome-tagline{font-size:2.75rem}
@@ -718,7 +728,7 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 [data-theme="dark"] .primary, [data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report:hover, [data-theme="dark"] .nav .nav-report.active{background:var(--gold);border-color:var(--gold);color:#0d2a22}
 [data-theme="dark"] .primary:hover{background:#ffdb3d}
 /* Selected and accent fills (mint) take dark text */
-[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label.is-checked, [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
+[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .no-photo-btn[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label.is-checked, [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
 [data-theme="dark"] .yn-buttons button[data-yn="yes"][aria-checked="true"]{color:#fff}
 [data-theme="dark"] .home-primary > span{background:#0d2a22}
 /* Text on gold stays deep green */
@@ -734,7 +744,7 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 [data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call, [data-theme="dark"] .modal-actions .emergency-dial{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
 [data-theme="dark"] .severity-seg button[aria-checked="true"]{box-shadow:inset 0 0 0 2px #fffdf8}
 /* Raised surfaces and hovers */
-[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line.is-checked, [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
+[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line.is-checked, [data-theme="dark"] .photo-main{background:var(--raised);color:var(--ink)}
 [data-theme="dark"] .hotline-row:hover, [data-theme="dark"] .home-nearby-row:hover, [data-theme="dark"] .profile-action:hover{background:var(--raised)}
 [data-theme="dark"] .segmented{background:var(--soft);box-shadow:inset 0 0 0 1px var(--line-strong)}
 [data-theme="dark"] .segmented button{color:var(--muted)}

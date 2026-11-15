@@ -97,7 +97,8 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
       await page.click('[data-severity="High"]');
       await shot("06-step-3", "Resident", "v2-report-step-3", "Describe the problem.");
       await page.click('[data-wizard-step="3"] [data-wizard-next]');
-      await shot("07-step-4", "Resident", "v2-report-step-4", "Add photos (optional).");
+      await shot("07-step-4", "Resident", "v2-report-step-4", "Add a photo: needed for flooding, road and waste reports, with a way to continue without one.");
+      if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn"); // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
       await page.click('[data-wizard-step="4"] [data-wizard-next]');
       await shot("08-step-5", "Resident", "v2-report-step-5", "Contact (optional).");
       await page.click('[data-wizard-step="5"] [data-wizard-next]');

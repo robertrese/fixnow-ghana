@@ -2184,9 +2184,19 @@ details[open] > summary{margin-bottom:8px}
 .chip[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
 .checks{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px}
 .check{display:flex !important;grid-template-columns:none;align-items:center;gap:8px;margin:0 !important;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-weight:400 !important}
-.photo-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .photo-pick{position:relative;display:grid !important;place-items:center;align-content:center;gap:10px !important;min-height:132px;margin:0 !important;padding:14px;border:2px dashed #a99f86;border-radius:18px;background:var(--panel);color:var(--deep) !important;text-align:center;cursor:pointer}
-.photo-pick:first-child{border-style:solid;border-color:var(--deep);background:#fffbe8}
+.photo-main{width:100%;min-height:132px;border-style:solid;border-color:var(--deep);background:#fffbe8;font-size:1.125rem;font-weight:700}
+.photo-camera{grid-auto-flow:column;justify-content:center;min-height:56px;margin:0 0 10px !important;padding:8px 14px;font-weight:700}
+.photo-camera .ico{width:1.5rem;height:1.5rem}
+.photo-why{margin:10px 0 12px;color:var(--ink)}
+.photo-needed{margin:0 0 12px;padding:10px 14px;border:2px solid var(--brand-emergency);border-radius:12px;background:var(--panel);color:var(--brand-emergency);font-weight:700}
+.photo-needed:focus{outline:3px solid var(--focus);outline-offset:2px}
+.no-photo-btn{display:block;width:100%;min-height:48px;margin:0 0 12px}
+.no-photo-btn[hidden]{display:none}
+.no-photo-btn[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
+.photo-safety{margin-top:10px}
+.wizard-step legend .photo-requirement{display:block;margin-top:4px;line-height:1.35}
+.photos-not-sent{padding:10px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--panel);font-weight:700}
 .photo-pick .ico{width:2rem;height:2rem}
 .photo-pick input[type="file"]{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .photo-pick:focus-within{outline:3px solid var(--focus);outline-offset:2px}
@@ -2501,7 +2511,6 @@ body[data-view="report"] .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
 @media (max-width: 380px){.wizard-step .row{grid-template-columns:1fr}
 .yn-field{grid-template-columns:1fr}
 .yn-buttons{width:100%}
-.photo-buttons{grid-template-columns:1fr}
 .tool-row{grid-template-columns:1fr}
 .home-copy h2{font-size:2rem}
 .welcome-tagline{font-size:2.75rem}
@@ -2650,7 +2659,7 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 [data-theme="dark"] ::placeholder{color:#93a198}
 [data-theme="dark"] .primary, [data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report:hover, [data-theme="dark"] .nav .nav-report.active{background:var(--gold);border-color:var(--gold);color:#0d2a22}
 [data-theme="dark"] .primary:hover{background:#ffdb3d}
-[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label.is-checked, [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
+[data-theme="dark"] .chip[aria-pressed="true"], [data-theme="dark"] .no-photo-btn[aria-pressed="true"], [data-theme="dark"] .yn-buttons button[aria-checked="true"], [data-theme="dark"] .staff-badge, [data-theme="dark"] .welcome-steps b, [data-theme="dark"] .appearance-options label.is-checked, [data-theme="dark"] .nearby-feed-tabs button.active, [data-theme="dark"] .nearby-feed-tabs button[aria-selected="true"]{color:#0d2a22}
 [data-theme="dark"] .yn-buttons button[data-yn="yes"][aria-checked="true"]{color:#fff}
 [data-theme="dark"] .home-primary > span{background:#0d2a22}
 [data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
@@ -2662,7 +2671,7 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 [data-theme="dark"] .report-stepper li.done::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")}
 [data-theme="dark"] .home-danger, [data-theme="dark"] .emergency-call, [data-theme="dark"] .hotline-call, [data-theme="dark"] .modal-actions .emergency-dial{background:var(--red);box-shadow:0 0 0 1.5px #fffdf8}
 [data-theme="dark"] .severity-seg button[aria-checked="true"]{box-shadow:inset 0 0 0 2px #fffdf8}
-[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line.is-checked, [data-theme="dark"] .photo-pick:first-child{background:var(--raised);color:var(--ink)}
+[data-theme="dark"] .tint-neutral, [data-theme="dark"] .pill, [data-theme="dark"] .report-map-unavailable, [data-theme="dark"] .map-stage, [data-theme="dark"] .issue-facts, [data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"], [data-theme="dark"] .consent-line.is-checked, [data-theme="dark"] .photo-main{background:var(--raised);color:var(--ink)}
 [data-theme="dark"] .hotline-row:hover, [data-theme="dark"] .home-nearby-row:hover, [data-theme="dark"] .profile-action:hover{background:var(--raised)}
 [data-theme="dark"] .segmented{background:var(--soft);box-shadow:inset 0 0 0 1px var(--line-strong)}
 [data-theme="dark"] .segmented button{color:var(--muted)}
@@ -3283,20 +3292,22 @@ body.map-unavailable [data-focus-public]{display:none}
             </fieldset>
 
             <fieldset class="wizard-step" data-wizard-step="4" hidden>
-              <legend><span class="wizard-step-count">Step 4 of 6</span>Add photos</legend>
-              <p class="step-help">Optional. Up to 5 clear photos of the problem help responders understand it. Only take photos when it is safe and you have permission.</p>
+              <legend><span class="wizard-step-count">Step 4 of 6</span>Add a photo <small class="photo-requirement" id="photoRequirement">Optional</small></legend>
               <div class="evidence-picker">
-                <div class="photo-buttons">
-                  <label class="photo-pick"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Take photo</span>
-                    <input id="evidence" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple />
-                  </label>
-                  <label class="photo-pick"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span>Add from gallery</span>
-                    <input id="evidenceLibrary" type="file" accept="image/jpeg,image/png,image/webp" multiple />
-                  </label>
-                </div>
-                <div class="location-status">We remove hidden location information from photos on this phone before they are sent. A moderator checks photos before anything is shown publicly.</div>
-                <div id="evidenceProgress" role="status" aria-live="polite">No images selected. You can continue without one.</div>
+                <label class="photo-pick photo-main"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span>Add a photo</span>
+                  <input id="evidenceLibrary" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+                </label>
+                <p class="photo-why">A photo helps the moderator check your report.</p>
+                <p class="photo-needed" id="photoNeeded" tabindex="-1" hidden>Add a photo of the problem, or tell us you can't.</p>
+                <label class="photo-pick photo-camera"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Take a photo with the camera</span>
+                  <input id="evidence" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple />
+                </label>
+                <button class="secondary no-photo-btn" id="noPhotoBtn" type="button" aria-pressed="false" hidden>I can't add a photo</button>
+                <input id="photoChoice" type="hidden" value="" />
+                <div id="evidenceProgress" role="status" aria-live="polite">No photo added yet.</div>
                 <div class="evidence-gallery" id="evidenceGallery"></div>
+                <div class="location-status">We remove hidden location information from photos on this phone before they are sent. A moderator checks photos before anything is shown publicly.</div>
+                <p class="step-help photo-safety">You can add up to 5 photos. Only take photos when it is safe and you have permission.</p>
               </div>
               <div class="wizard-actions split-actions">
                 <button class="secondary" type="button" data-wizard-back>Back</button>
@@ -3505,7 +3516,26 @@ body.map-unavailable [data-focus-public]{display:none}
     // One definition of the problem types and report statuses. It matches the server (REPORT_TYPES and
     // REPORT_STATUSES in work/fixnow-backend/server.js, checked by a test) and fills the wizard's type list and
     // every category and status filter (Nearby and My reports), so no list can fall behind.
-    const REPORT_TYPES = ["Flooding or drainage", "Waste or sanitation", "Water supply", "Electricity", "Road or bridge", "Fire risk", "Clinic access", "Public safety", "Food or market price", "School facility", "Other"];
+    // Each problem type, and whether a report of that type needs a photo (problems you can see). This list is the only
+    // place the photo rule is written. It is written as JSON so the tests can read it.
+    const REPORT_TYPES = [
+      { "name": "Flooding or drainage", "photoRequired": true },
+      { "name": "Waste or sanitation", "photoRequired": true },
+      { "name": "Water supply", "photoRequired": false },
+      { "name": "Electricity", "photoRequired": false },
+      { "name": "Road or bridge", "photoRequired": true },
+      { "name": "Fire risk", "photoRequired": false },
+      { "name": "Clinic access", "photoRequired": false },
+      { "name": "Public safety", "photoRequired": false },
+      { "name": "Food or market price", "photoRequired": false },
+      { "name": "School facility", "photoRequired": false },
+      { "name": "Other", "photoRequired": false }
+    ];
+    const REPORT_TYPE_NAMES = REPORT_TYPES.map((type) => type.name);
+    function photoRequiredFor(typeName) {
+      const type = REPORT_TYPES.find((candidate) => candidate.name === typeName);
+      return Boolean(type && type.photoRequired);
+    }
     // The three optional yes/no questions in step 3 (immediate danger, way blocked, getting worse) hold "yes", "no" or
     // "" (not answered). Nothing is selected until the person taps an answer, and a skipped question is never recorded
     // as "No". Reports and drafts saved by the older form hold true/false: true was a tapped Yes; false was that form's
@@ -3516,7 +3546,7 @@ body.map-unavailable [data-focus-public]{display:none}
     function ynLabel(value) { return { yes: "Yes", no: "No" }[ynAnswer(value)] || "Not answered"; }
     const REPORT_STATUSES = ["Open", "Acknowledged", "Dispatched", "In Progress", "Blocked", "Escalated", "Resolved", "Reopened"];
     document.querySelectorAll("select[data-option-list]").forEach((select) => {
-      (select.dataset.optionList === "types" ? REPORT_TYPES : REPORT_STATUSES).forEach((value) => {
+      (select.dataset.optionList === "types" ? REPORT_TYPE_NAMES : REPORT_STATUSES).forEach((value) => {
         const option = document.createElement("option");
         option.textContent = value;
         select.appendChild(option);
@@ -3819,6 +3849,35 @@ body.map-unavailable [data-focus-public]{display:none}
       legend.focus({ preventScroll: true });
     }
 
+    // The photo rule (in the app only; the server accepts reports without photos). A type marked photoRequired in
+    // REPORT_TYPES needs at least one photo, or the person's "I can't add a photo" choice. Nothing else is recorded
+    // about that choice: no reason is asked, and the report is simply saved and sent with no photo.
+    function readyPhotoCount() { return evidenceItems.filter((item) => item.state === "ready").length; }
+    function photoRuleMet() {
+      return !photoRequiredFor(document.querySelector("#type").value) || readyPhotoCount() > 0 || document.querySelector("#photoChoice").value === "none";
+    }
+    function noPhotoText() {
+      if (document.querySelector("#photoChoice").value === "none") return "No photo added. You can continue.";
+      return photoRequiredFor(document.querySelector("#type").value) ? "No photo added yet." : "No photo added. You can continue without one.";
+    }
+    function syncPhotoStep() {
+      const needed = photoRequiredFor(document.querySelector("#type").value);
+      const count = readyPhotoCount();
+      const choice = document.querySelector("#photoChoice");
+      if (count) choice.value = ""; // a photo replaces "I can't add a photo"
+      document.querySelector("#photoRequirement").textContent = needed ? "Needed for this kind of problem" : "Optional";
+      const button = document.querySelector("#noPhotoBtn");
+      button.hidden = !needed || count > 0;
+      button.setAttribute("aria-pressed", String(choice.value === "none"));
+      if (photoRuleMet()) document.querySelector("#photoNeeded").hidden = true;
+      if (!count) document.querySelector("#evidenceProgress").textContent = noPhotoText();
+    }
+    function showPhotoNeeded() {
+      const message = document.querySelector("#photoNeeded");
+      message.hidden = false;
+      message.focus(); // screen reader users hear the message
+    }
+
     function validateWizardStep() {
       const panel = document.querySelector(`[data-wizard-step="${wizardStep}"]`);
       const required = [...panel.querySelectorAll("input[required], select[required], textarea[required]")];
@@ -3840,6 +3899,10 @@ body.map-unavailable [data-focus-public]{display:none}
           showToast("Consent is required to share a precise location");
           return false;
         }
+      }
+      if (wizardStep === 4 && !photoRuleMet()) {
+        showPhotoNeeded();
+        return false;
       }
       if (wizardStep === 5) {
         const hasContact = Boolean(document.querySelector("#contact").value.trim() || document.querySelector("#trustedContact").value.trim());
@@ -4439,6 +4502,7 @@ body.map-unavailable [data-focus-public]{display:none}
         button.setAttribute("aria-pressed", String(active));
       });
       syncV2Controls(draft);
+      syncPhotoStep();
     }
 
     let renderedChipType = null;
@@ -4495,7 +4559,7 @@ body.map-unavailable [data-focus-public]{display:none}
         reviewCard("Problem", escapeHtml(draft.type), draft.subcategory ? `<small>${escapeHtml(draft.subcategory)}</small>` : "", 1, `<span class="review-art ${art.tint}"><img src="${art.src}" alt="" /></span>`),
         reviewCard("Location", escapeHtml(location), `<small>${draft.exactLocationConsent && (draft.coordinates || draft.digitalAddress) ? "Exact point shared only with authorised responders." : "Only this community description will be used."} The public sees an approximate area.</small>`, 2),
         reviewCard("Description", escapeHtml(draft.title || "No title yet"), `<small>${escapeHtml(draft.details || "")}</small><div class="review-flags">${flags}</div>${answers}`, 3),
-        reviewCard("Photos", photos.length ? `${photos.length} attached` : "No photos", thumbs, 4),
+        reviewCard("Photos", photos.length ? `${photos.length} attached` : "No photo added", thumbs, 4),
         reviewCard("Contact", contact, `<small>${draft.contact ? "Visible only to authorised responders." : "You can still track this report with your private code."}</small>`, 5)
       ].join("");
       document.querySelectorAll("[data-review-edit]").forEach((button) => button.addEventListener("click", () => {
@@ -5177,6 +5241,26 @@ body.map-unavailable [data-focus-public]{display:none}
       return error instanceof TypeError || error.status === 429 || Number(error.status) >= 500 || /\((429|5\d\d)\)/.test(String(error.message || ""));
     }
 
+    const PHOTO_UPLOAD_ATTEMPTS = 3;
+    function sendQueuedPhoto(item, attachment) {
+      return publicRequest("/api/public/uploads", {
+        method: "POST",
+        citizenAuth: false,
+        body: JSON.stringify({
+          uploadSessionKey: item.submissionKey,
+          clientAttachmentId: attachment.clientAttachmentId,
+          uploadSecret: item.payload.trackingSecret,
+          fileName: attachment.name,
+          mimeType: attachment.mimeType,
+          dataBase64: attachment.dataBase64
+        })
+      });
+    }
+    function photosNotSentNote(report) {
+      const count = Number(report && report.photosNotSent || 0);
+      return count ? `<p class="photos-not-sent">${count === 1 ? "1 photo could not be sent" : `${count} photos could not be sent`}, so the report was sent without ${count === 1 ? "it" : "them"}.</p>` : "";
+    }
+
     async function submitQueuedReport(item) {
       const report = reports.find((candidate) => candidate.submissionKey === item.submissionKey);
       if (report) {
@@ -5192,19 +5276,24 @@ body.map-unavailable [data-focus-public]{display:none}
             attachmentIds.push(attachment.serverAttachmentId);
             continue;
           }
+          if (attachment.notSent) continue;
           updateEvidenceUploadState(attachment.clientAttachmentId, `Uploading image ${index + 1} of ${attachments.length}...`);
-          const uploaded = await publicRequest("/api/public/uploads", {
-            method: "POST",
-            citizenAuth: false,
-            body: JSON.stringify({
-              uploadSessionKey: item.submissionKey,
-              clientAttachmentId: attachment.clientAttachmentId,
-              uploadSecret: item.payload.trackingSecret,
-              fileName: attachment.name,
-              mimeType: attachment.mimeType,
-              dataBase64: attachment.dataBase64
-            })
-          });
+          let uploaded;
+          try {
+            uploaded = await sendQueuedPhoto(item, attachment);
+          } catch (error) {
+            // No answer from the server (offline or unreachable): the whole report waits and is retried, as before.
+            if (!error || !error.status) throw error;
+            attachment.uploadFailures = Number(attachment.uploadFailures || 0) + 1;
+            if (isRetryableSubmissionError(error) && attachment.uploadFailures < PHOTO_UPLOAD_ATTEMPTS) {
+              await queueSubmission(item);
+              throw error;
+            }
+            // The server refused this photo, or failed on it three times: send the report without it.
+            attachment.notSent = true;
+            await queueSubmission(item);
+            continue;
+          }
           attachment.serverAttachmentId = uploaded.attachment.attachmentId;
           attachmentIds.push(attachment.serverAttachmentId);
           updateEvidenceUploadState(attachment.clientAttachmentId, `Photo ${index + 1} sent privately. A moderator checks it before anything is public.`);
@@ -5221,6 +5310,7 @@ body.map-unavailable [data-focus-public]{display:none}
           report.status = confirmed.report.status;
           report.updatedAt = confirmed.report.updatedAt;
           report.syncStatus = "submitted";
+          report.photosNotSent = attachments.filter((attachment) => attachment.notSent).length;
           save();
         }
         await removeQueuedSubmission(item.submissionKey);
@@ -5662,6 +5752,7 @@ body.map-unavailable [data-focus-public]{display:none}
             ${waiting ? `<span class="status-pill status-waiting">${report.syncStatus === "demo-local" ? "Demo only" : "Waiting to send"}</span>` : statusPill(report.status)}
           </div>
         </div>
+        ${photosNotSentNote(report)}
         <h4>Progress</h4>
         <ol class="report-detail-timeline" aria-label="Report progress">${timeline}</ol>
         ${resolution}
@@ -5856,6 +5947,7 @@ body.map-unavailable [data-focus-public]{display:none}
         <div class="result-screen">
           <span class="result-icon ok">${ICON_CHECK}</span>
           <p class="result-lead">FixNow has received your report. A moderator will review it before anything is public.</p>
+          ${photosNotSentNote(report)}
           ${iphoneStorageTip()}
           <div class="secret-card">
             <div class="secret-line"><span>Reference number</span><strong>${escapeHtml(report.id)}</strong><button class="mini" type="button" data-copy-value="${escapeHtml(report.id)}" data-copy-label="Reference copied">Copy</button></div>
@@ -5937,6 +6029,11 @@ body.map-unavailable [data-focus-public]{display:none}
         showToast("Accept privacy and terms first");
         return;
       }
+      if (!photoRuleMet()) {
+        setWizardStep(4);
+        showPhotoNeeded();
+        return;
+      }
       if (!document.querySelector("#caseConsent").checked) {
         setWizardStep(6);
         document.querySelector("#caseConsent").focus();
@@ -6005,7 +6102,7 @@ body.map-unavailable [data-focus-public]{display:none}
       }
       }
       form.reset();
-      YN_QUESTIONS.forEach((id) => { document.getElementById(id).value = ""; });
+      YN_QUESTIONS.concat("photoChoice").forEach((id) => { document.getElementById(id).value = ""; });
       duplicateCheckedKey = "";
       document.querySelector("#duplicateSuggestions").innerHTML = `<div class="location-status">No duplicate check has run. FixNow never merges reports automatically.</div>`;
       document.querySelector("#trustedContact").value = "";
@@ -6163,7 +6260,7 @@ body.map-unavailable [data-focus-public]{display:none}
       const ready = evidenceItems.filter((item) => item.state === "ready");
       document.querySelector("#evidenceProgress").textContent = ready.length
         ? `${ready.length} of 5 photos ready. Hidden location information removed.`
-        : "No images selected. You can continue without one.";
+        : noPhotoText();
       gallery.innerHTML = evidenceItems.map((item) => item.state === "ready" ? `
         <article class="evidence-item" data-evidence-item="${escapeHtml(item.clientAttachmentId)}">
           <img alt="Preview of ${escapeHtml(item.name)}" src="data:${escapeHtml(item.mimeType)};base64,${item.dataBase64}" />
@@ -6181,6 +6278,7 @@ body.map-unavailable [data-focus-public]{display:none}
         scheduleWizardDraftSave();
       }));
       gallery.querySelectorAll("[data-retry-evidence]").forEach((button) => button.addEventListener("click", () => document.querySelector("#evidenceLibrary").click()));
+      syncPhotoStep();
     }
 
     function updateEvidenceUploadState(clientAttachmentId, message) {
@@ -6209,6 +6307,12 @@ body.map-unavailable [data-focus-public]{display:none}
       await saveWizardDraft().catch(() => {});
       updateTriagePreview();
     }
+    document.querySelector("#noPhotoBtn").addEventListener("click", () => {
+      const choice = document.querySelector("#photoChoice");
+      choice.value = choice.value === "none" ? "" : "none";
+      syncPhotoStep();
+      scheduleWizardDraftSave();
+    });
     document.querySelector("#evidence").addEventListener("change", addEvidenceFiles);
     document.querySelector("#evidenceLibrary").addEventListener("change", addEvidenceFiles);
     document.querySelector("#duplicateCheckBtn").addEventListener("click", () => {

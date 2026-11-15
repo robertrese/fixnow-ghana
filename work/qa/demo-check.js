@@ -88,7 +88,10 @@ const server = http.createServer((req, res) => {
     await page.fill("#reportTitle", "Demo report");
     await page.fill("#details", "Testing the public demo: this must not be sent anywhere.");
     await page.click('[data-severity="High"]');
-    for (const step of [3, 4, 5]) await page.click(`[data-wizard-step="${step}"] [data-wizard-next]`);
+    for (const step of [3, 4, 5]) {
+      if (step === 4) { if (await page.isVisible("#noPhotoBtn") && await page.getAttribute("#noPhotoBtn", "aria-pressed") !== "true") await page.click("#noPhotoBtn"); } // Flooding, road and waste reports need a photo, or the person's "I can't add a photo" choice (the photo rule).
+      await page.click(`[data-wizard-step="${step}"] [data-wizard-next]`);
+    }
     await page.waitForTimeout(1200);
     if (await page.evaluate(() => !document.querySelector("#modalBackdrop").hidden)) await page.click("#modalActions button:last-child");
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
