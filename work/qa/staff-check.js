@@ -124,6 +124,10 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         await page.waitForTimeout(500);
         if (!/Demo contact 024/.test(await page.textContent("#pageBody"))) fail(`${label}: moderators should see contact details on the review page`);
         if (!/Sample Water and Power Desk/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
+        // The live wire report answered Yes to immediate danger and skipped the other two questions: a skipped
+        // question is shown as "Not answered", never as "No".
+        const facts = await page.$$eval("#pageBody dl div", (rows) => Object.fromEntries(rows.map((row) => [row.querySelector("dt").textContent.trim(), row.querySelector("dd").textContent.trim()])));
+        if (facts["Anyone in immediate danger"] !== "Yes" || facts["Road or access blocked"] !== "Not answered" || facts["Getting worse"] !== "Not answered") fail(`${label}: skipped yes/no questions should show "Not answered" on the case page, found ${facts["Anyone in immediate danger"]} / ${facts["Road or access blocked"]} / ${facts["Getting worse"]}`);
         await check("review page", "2-review-page");
         for (const [act, name] of [["verify", "3-verify-dialog"], ["reject", "4-reject-dialog"], ["escalate-review", "5-escalate-dialog"], ["hide", "6-hide-dialog"]]) {
           await page.click(`[data-act="${act}"]`);
