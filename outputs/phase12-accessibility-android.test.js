@@ -71,4 +71,8 @@ assert(/usesCleartextTraffic: "false"/.test(gradleBuildType("release")) && /uses
 assert(!/debuggable\s+true/.test(gradle), "the release build must not be debuggable");
 assert(debugAccess.includes('"http".equals(uri.getScheme()) && "localhost".equals(uri.getHost()) && uri.getPort() == -1'), "the debug build must treat only its own bundled pages as the app");
 
+// V4: the menu floats over the page, so the area below the page matches the page background (cream, or the dark page),
+// not the old tab bar colours.
+assert(activity.includes('BOTTOM_AREA_LIGHT = Color.parseColor("#f3eee1")') && activity.includes('BOTTOM_AREA_DARK = Color.parseColor("#131914")') && !/BOTTOM_AREA_(LIGHT|DARK) = Color.parseColor("#(fffdf8|1f2720)")/.test(activity), "the Android bottom area matches the page background");
+
 console.log(`Phase 12 accessibility and Android release gate passed (${compressedBytes} compressed / ${rawBytes} raw bytes)`);

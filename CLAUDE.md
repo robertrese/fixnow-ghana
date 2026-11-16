@@ -49,7 +49,7 @@ $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
 
 Android notes:
 
-- **Edge to edge.** `MainActivity` draws edge to edge on every Android version and applies the system-bar, display-cutout and keyboard insets itself: a deep green strip behind the status bar (light icons), a bottom area that matches the tab bar and follows the page's theme, and a page that shrinks above the keyboard. Keep this when changing the activity (guarded in `phase12-accessibility-android.test.js`).
+- **Edge to edge.** `MainActivity` draws edge to edge on every Android version and applies the system-bar, display-cutout and keyboard insets itself: a deep green strip behind the status bar (light icons), a bottom area that matches the page background (cream `#f3eee1`, or `#131914` in dark, because the menu floats over the page) and follows the page's theme, and a page that shrinks above the keyboard. Keep this when changing the activity (guarded in `phase12-accessibility-android.test.js`).
 - **Local server (debug only).** The debug build serves its pages as `http://localhost/assets/…` and talks to `http://localhost:4180` through `adb reverse tcp:4180 tcp:4180` over USB. The code is in `app/src/debug/…/LocalServerAccess.java`; the release copy has no such route, and a guard keeps it that way.
 - **Theme.** `values-night/styles.xml` is a dark theme so the WebView reports dark mode; algorithmic darkening is off. The page tells the app its theme through `WebViewCompat.addWebMessageListener` ("fixnowTheme"), limited to the app's own origins. Never use `addJavascriptInterface`.
 - **Emulators.** `Medium_Phone_API_36.0` (Android 16) is the main test device. `FixNow_Test_API_30` (Android 11) is kept for tests; it needs about 7.5 GB of free disk space to start. Its WebView is version 83 and cannot update (no Play Store), which makes it a worst case below the support target: real Android 11 phones update WebView through the Play Store.
@@ -120,7 +120,9 @@ Android notes:
   - Photos queue offline with the report as before. A photo never blocks a report: if the server refuses a photo, or fails on it three times, the report is sent without it and the person is told (`photosNotSent`). With no answer from the server at all, the whole report waits and retries.
 - **Page size:** the page must stay under 120 KiB gzipped and 600 KiB raw (Phase 12 test).
 
-## Design system (V3, November 2026)
+## Design system (V4 "modern", November 2026)
+
+The V4 restyle is being done on the `design-v4` branch in steps (brief in the owner's message of 16 November 2026). Step 1 is done: the font, cards, pill buttons, Home, the glass menu and the laptop side menu. Still to restyle: the other resident screens (step 2) and the staff area (step 3), which so far have only the new font and the shared card and button styles. The V4 rules sit in their own section of `work/design/fixnow-v3.css` ("V4 modern"), before the demo block; V4 dark rules are at the end of the dark section. Do not merge to `main` or rebuild `docs/` until the owner approves.
 
 - **Colour:**
   - deep green `#0d2a22` for dark surfaces and text;
@@ -128,28 +130,37 @@ Android notes:
   - Ghana gold `#fcd116` for the main action on dark surfaces (never gold text on cream);
   - flag red `#ce1126` only for emergency calls (the 112 actions, the hotline call buttons, and the Call button in the call confirmation for 112, 191, 192 and 193);
   - burgundy `#72262e` for emergency on light surfaces;
-  - cotton cream `#f3eee1` as the background, with paper `#fffdf8` surfaces.
-- **Type:** Bricolage Grotesque (bold) for headings and the large emergency numbers; Atkinson Hyperlegible Next for everything else.
+  - cotton cream `#f3eee1` as the background, with paper `#fffdf8` surfaces; muted text `#4f5d55`.
+- **Type:** Inter for everything (`outputs/fonts/inter-latin-wght-normal.woff2`, the latin variable font, with its OFL licence). Headings: weight 800, letter-spacing -0.02em, line-height about 1.05. Body 400; labels 600 to 700. The V3 fonts (Bricolage Grotesque, Atkinson Hyperlegible Next) are kept in `work/design/retired-fonts-v3/` and are not shipped.
+- **Cards and tiles:** paper `#fffdf8`, radius 22 px (`--r-card`), no border, shadow `0 1px 2px rgba(13,42,34,.06), 0 6px 18px rgba(13,42,34,.07)` (`--shadow-card`).
+- **Buttons:** full pills (radius 999 px); main actions (`.primary`) are 56 px tall, others 50 px. They scale to 0.97 while pressed.
+- **Home hero:** a rounded card (10 px from the screen edges on phones, radius 28 px) with `radial-gradient(120% 90% at 100% 0%, #1f4e3b 0%, #0d2a22 62%)`, the Ghana outline at 14% opacity, the logo with "FixNow Ghana" beside it, a 44 px round Notifications button, the heading "What needs fixing today?" at 38 px, then "Report a problem" (gold, takes the remaining width) and "Call 112" (flag red with the light ring) side by side, and the kente strip along the bottom edge. On phones the page title in the top bar stays for screen readers and focus but is visually hidden on Home. Hotlines stay visible on Home at every size.
+- **Problem tiles (Home):** white cards in a 2-column grid (3 on tablets and laptops): the illustration on a 46 px rounded plate in the type's tint, the name in bold, a short muted hint.
+- **Phone and tablet menu:** a floating glass bar: 16 px from the sides, 14 px above the bottom safe area, 66 px tall, radius 33 px, `rgba(255,253,248,.66)` with `backdrop-filter: blur(22px) saturate(180%)` (and the `-webkit-` prefix) inside `@supports`, a solid `#fffdf8` bar otherwise. Blur is used on this bar only. A capsule (`rgba(13,42,34,.1)`) slides to the current tab (`--tab`, set from `body[data-view]`); the centre Report button is a 54 px deep green circle. On tablets the bar is centred, about 480 px wide. Page content keeps bottom padding so nothing is trapped behind the bar.
+- **Laptop side menu:** a floating panel 14 px from the left, top and bottom, 244 px wide, radius 28 px, `linear-gradient(180deg, #123329, #0d2a22 55%)`, kente strip at the top. Rows 44 px tall: Home, Nearby, My reports, Notifications, Profile. The current row is a paper pill with deep green bold text. No Report row: "Report a problem" lives in the hero. At the bottom, the "In danger?" card with the red Call 112 button (it uses the confirmation dialog like every call).
+- **Notifications:** the hero bell and the side menu row open the same list as the Nearby button (`[data-open-notifications]`).
+- **Motion:** the menu capsule slides in about 200 ms and buttons press in; all of it is off under `prefers-reduced-motion`.
 - **Logo:** a rounded square (corner radius 11%) in three equal vertical bands, red `#be3935`, gold `#e3b944` and green `#2a5037`, with a white "FN" on the gold band. The master is `design/v2-handoff/logo/fixnow-logo.svg`.
   - `outputs/icon.svg` is the logo in the app and the web app icon; `outputs/icon-maskable.svg` is the full-bleed manifest icon (`"purpose": "maskable"`).
   - The Android launcher icon is the adaptive pair `ic_launcher_background.xml` (bands) and `ic_launcher_foreground.xml` (letters, also the themed-icon layer), plus PNGs for Android 6 to 7.1.
   - Never frame the tile again (no extra background, padding or radius).
   - On dark surfaces (welcome, Home hero, laptop sidebar, and everywhere in dark mode) give it a 1.5 px cream keyline at about 50% opacity, or the green band disappears.
   - Keep the white "FN" as designed: logos are exempt from contrast rules, and "FixNow Ghana" is always written beside it.
-- **Signature:** a woven kente-style strip (the `--kente` token) appears only on the Home hero, the welcome screen and the top of the laptop sidebar. Do not scatter it elsewhere.
+- **Signature:** a woven kente-style strip (the `--kente` token) appears only on the Home hero (along the bottom edge of the card), the welcome screen and the top of the laptop side menu. Do not scatter it elsewhere.
 - **Do not use:**
   - ALL-CAPS labels;
   - dot-joined meta text ("A · B");
   - arrows on buttons;
   - hover effects on touch screens (wrap them in `@media (hover: hover)`).
-- **Focused flows:** on phones the tab bar is hidden during the report wizard. The `.topbar-exit` button must stay.
+- **Focused flows:** on phones the menu bar is hidden during the report wizard. The `.topbar-exit` button must stay.
 - **Dark mode** (brief: `design/v2-handoff/DARK-MODE-AND-LOGO.md`):
   - Profile > Appearance offers Match phone (the default), Light and Dark, saved with the other settings. The `theme-boot` script at the top of `<head>` sets `html[data-theme]` before the first paint, follows the phone, and prints in light.
   - All dark styles live in one section at the end of `work/design/fixnow-v3.css`, starting with `:root[data-theme="dark"]`. Light rules stay untouched.
   - Tokens: page `#131914`, cards `#1f2720`, fields `#1a231c`, raised `#28382d`, text `#eef2ee`, muted `#b3beb6`, lines `#2e3a32`, strong lines `#7d8c82`, focus `#8fb4ff`, emergency text `#f4a7ae`.
   - Main action: Ghana gold with deep green text. Mint `#97d1a6` is the accent for links, verified, selected, progress and switches, and appears only in the dark section (it fails on cream).
   - 112, the hotline call buttons and the confirmation Call button stay flag red `#ce1126` with a 1.5 px `#fffdf8` ring. Selected severity gets a light ring.
-  - Problem types keep their own tile colours; their illustrations sit on a cream plate. Photos are never dimmed or filtered; they get a thin border.
-  - The Home hero stays deep green with the kente strip. No shadows for depth in dark: borders and lighter surfaces instead.
+  - Problem tiles are dark cards; their illustrations sit on a cream plate. Photos are never dimmed or filtered; they get a thin border.
+  - The Home hero and the laptop side menu stay deep green (with a thin border), with the kente strip. No shadows for depth in dark: cards get a 1 px border and lighter surfaces instead.
+  - The glass menu is a dark translucent surface (`rgba(31,39,32,.66)`, solid `#1f2720` without blur); the current tab uses the mint accent, and the Report circle is gold with deep green text.
   - Older components with hard-coded light backgrounds are mapped onto the dark surfaces in grouped rules. When a new component appears, check it with `npm run qa:dark`.
   - Never copy from the Figma frames anything listed in section 3.5 of the brief; take colours only.

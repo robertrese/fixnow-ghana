@@ -49,10 +49,11 @@ async function headingBelowBanner(page) {
     const modal = document.querySelector("#modalBackdrop");
     const welcome = document.querySelector("#welcomeScreen");
     const scope = modal && !modal.hidden && modal.classList.contains("show") ? modal : (welcome && !welcome.hidden ? welcome : document.querySelector(".app"));
-    const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden" && !el.closest("[hidden]"); };
+    // Headings kept only for screen readers (clipped to 1 px, like the page title on the phone Home) are not on screen.
+    const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1 && getComputedStyle(el).visibility !== "hidden" && !el.closest("[hidden]"); };
     // The heading people are taken to: the one that has focus (each wizard step moves focus to its legend, each view to its title),
     // otherwise the first visible heading.
-    const focused = document.activeElement && /^(H[1-3]|LEGEND)$/.test(document.activeElement.tagName) && scope.contains(document.activeElement) ? document.activeElement : null;
+    const focused = document.activeElement && /^(H[1-3]|LEGEND)$/.test(document.activeElement.tagName) && scope.contains(document.activeElement) && visible(document.activeElement) ? document.activeElement : null;
     const heading = focused || [...scope.querySelectorAll("h1, h2, h3")].find(visible);
     if (!heading) return { ok: false, why: "no visible heading" };
     const r = heading.getBoundingClientRect();

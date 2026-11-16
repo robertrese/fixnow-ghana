@@ -72,13 +72,17 @@ assert(mapsJs.includes('"fixnow:map-unavailable"') && html.includes('window.addE
 // Dialogs open at the top with focus on their title.
 assert(html.includes('modalTitle.focus({ preventScroll: true })'), "dialogs must focus their title so long sheets open at the top");
 
-// V3 look: bundled, licensed fonts that work offline and in the Android app.
-for (const file of ["bricolage-grotesque-latin-wght.woff2", "atkinson-hyperlegible-next-latin-400.woff2", "atkinson-hyperlegible-next-latin-700.woff2"]) {
-  assert(fs.existsSync(path.join(__dirname, "fonts", file)), `${file} should be bundled`);
-  assert(worker.includes(`"./fonts/${file}"`), `${file} should be cached for offline use`);
+// V4 look: one bundled, licensed font (Inter) that works offline and in the Android app. The V3 fonts are kept, out of
+// the shipped files, in work/design/retired-fonts-v3.
+assert(fs.existsSync(path.join(__dirname, "fonts", "inter-latin-wght-normal.woff2")) && fs.existsSync(path.join(__dirname, "fonts", "LICENSE-Inter-OFL.txt")), "Inter and its OFL licence are bundled");
+assert(worker.includes('"./fonts/inter-latin-wght-normal.woff2"') && gradle.includes('include "fonts/**"'), "Inter is cached for offline use and ships in the Android app");
+assert(fs.readdirSync(path.join(__dirname, "fonts")).sort().join() === "LICENSE-Inter-OFL.txt,inter-latin-wght-normal.woff2", "outputs/fonts holds only Inter and its licence");
+for (const file of ["bricolage-grotesque-latin-wght.woff2", "atkinson-hyperlegible-next-latin-400.woff2", "atkinson-hyperlegible-next-latin-700.woff2", "LICENSE-Bricolage-Grotesque-OFL.txt", "LICENSE-Atkinson-Hyperlegible-Next-OFL.txt"]) {
+  assert(fs.existsSync(path.join(root, "work", "design", "retired-fonts-v3", file)), `${file} is kept in work/design/retired-fonts-v3`);
 }
-for (const licence of ["LICENSE-Bricolage-Grotesque-OFL.txt", "LICENSE-Atkinson-Hyperlegible-Next-OFL.txt"]) {
-  assert(fs.existsSync(path.join(__dirname, "fonts", licence)), `${licence} must ship with the font`);
+for (const [name, text] of [["fixnow-ghana.html", html], ["staff.css", fs.readFileSync(path.join(__dirname, "staff.css"), "utf8")], ["service-worker.js", worker]]) {
+  assert(!/Bricolage|Atkinson|bricolage-grotesque|atkinson-hyperlegible/.test(text), `${name} no longer uses the V3 fonts`);
+  if (name !== "service-worker.js") assert(text.includes('@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2")}'), `${name} loads the bundled Inter`);
 }
 assert(gradle.includes('include "fonts/**"'), "Android builds must package the fonts");
 assert(!/fonts\.googleapis|fonts\.gstatic/.test(html), "fonts must not depend on a network font service");
@@ -317,5 +321,46 @@ assert(photoStep.includes("We remove hidden location information from photos on 
 assert(html.includes('"No photo added"') && !/photoChoice\s*:/.test(html) && !/photoChoice|photoRequired|noPhoto/.test(backend), "Review says No photo added, and nothing about the choice is sent to or required by the server");
 // A photo the server will not take never blocks the report.
 assert(html.includes("if (!error || !error.status) throw error;") && html.includes("attachment.notSent = true;") && html.includes("if (attachment.notSent) continue;") && html.includes("report.photosNotSent = attachments.filter((attachment) => attachment.notSent).length;"), "a refused or repeatedly failing photo is left out so the report still sends, and the person is told");
+
+// ---------- V4 "modern" design, step 1: type, cards, pill buttons, Home, the glass menu and the laptop side menu ----------
+const v4Source = fs.readFileSync(path.join(root, "work", "design", "fixnow-v3.css"), "utf8");
+assert(html.includes('--font-display:"Inter"') && html.includes('--font-body:"Inter"') && html.includes("--muted:#4f5d55"), "Inter is the only typeface, and muted text is #4f5d55");
+assert(html.includes("h1, h2, legend, .modal h2{font-weight:800;letter-spacing:-.02em;line-height:1.05}"), "headings are weight 800, -0.02em, line-height 1.05");
+assert(html.includes("--r-card:22px") && html.includes("--shadow-card:0 1px 2px rgba(13, 42, 34, .06), 0 6px 18px rgba(13, 42, 34, .07)"), "cards use 22 px corners and the soft two-layer shadow");
+assert(html.includes(".primary, .secondary, .danger, .ghost{min-height:50px;border-radius:999px;font-weight:700}") && html.includes(".primary{min-height:56px}"), "buttons are full pills, and main actions are 56 px tall");
+// Home hero: a rounded card with the brand row, Notifications, the heading and the two actions side by side.
+const hero = html.match(/<section class="home-panel" id="homePanel"[\s\S]*?<\/section>/)[0];
+assert(hero.includes('<img class="home-logo" src="icon.svg" alt="" />') && hero.includes('<b class="home-brand">FixNow Ghana</b>'), "the hero shows the logo with FixNow Ghana written beside it");
+assert(/<button class="home-bell" type="button" data-open-notifications aria-label="Notifications, 0 unread">/.test(hero) && html.includes(".home-bell{position:relative;display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;min-height:44px"), "the hero has a 44 px round Notifications button");
+assert(hero.includes('<h2 id="homeHeading">What needs fixing today?</h2>') && hero.indexOf("data-start-report") < hero.indexOf('data-emergency-service="general-emergency"') && hero.includes("<b>Report a problem</b>") && hero.includes("<b>Call&nbsp;112</b>"), "the hero has Report a problem and Call 112, in that order");
+assert(html.includes("radial-gradient(120% 90% at 100% 0%, #1f4e3b 0%, #0d2a22 62%)") && /body\[data-view="home"\] \.home-panel::before\{[^}]*opacity:\.14/.test(html) && /body\[data-view="home"\] \.home-panel::after\{[^}]*var\(--kente\)/.test(html), "the hero keeps the deep green gradient, the faint Ghana outline and the kente strip");
+assert(/\.home-danger\{[^}]*background:var\(--red\)[^}]*box-shadow:0 0 0 1\.5px #fffdf8/.test(html), "Call 112 in the hero is flag red with the light ring");
+// Problem tiles on Home: white cards with the illustration on a tinted plate, a name and a hint.
+const tiles = [...html.matchAll(/<button class="home-tile" type="button" data-home-type="([^"]+)"><span class="tile-plate tint-\w+"><img src="illustrations\/category-[\w-]+\.svg" alt="" \/><\/span><b>[^<]+<\/b><small>[^<]+<\/small><\/button>/g)];
+assert(tiles.length === 6 && html.includes(".home-shortcuts{grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px}"), "Home has six problem tiles (plate, name, hint) in a two-column grid");
+// The phone and tablet menu: a floating glass bar. Blur only on this bar, only inside @supports, with a solid fallback.
+assert(/\.nav\{left:max\(16px, env\(safe-area-inset-left\)\);right:max\(16px, env\(safe-area-inset-right\)\);bottom:calc\(14px \+ env\(safe-area-inset-bottom\)\);height:66px;[^}]*border-radius:33px;background:#fffdf8;/.test(html), "the menu floats 16 px from the sides and 14 px above the safe area, 66 px tall, with a solid paper fallback");
+const blurUses = [...html.matchAll(/backdrop-filter:blur\(\d/g)].length; // declarations only, not the @supports tests
+assert(blurUses === 2 && html.includes("@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))){@media (max-width: 880px){.nav{background:rgba(255, 253, 248, .66);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}"), "blur is used on the menu bar only, with the -webkit- prefix, inside @supports");
+assert(!/backdrop-filter/.test(fs.readFileSync(path.join(__dirname, "staff.css"), "utf8")), "the staff page uses no blur");
+assert(html.includes(".nav::before{") && html.includes("transform:translateX(calc(var(--tab, 0) * 100%));transition:transform .2s ease") && html.includes('body[data-view="my"] .nav{--tab:3}'), "the menu capsule slides to the current tab");
+assert(html.includes('body[data-view="report"] .nav{display:none}') && html.includes('class="topbar-exit"'), "the menu stays hidden in the report wizard, and the exit button stays");
+assert(/\.nav \.nav-report\{width:54px;height:54px;min-height:54px;background:var\(--deep\)/.test(html), "the centre Report button is a 54 px deep green circle");
+// The laptop side menu: Home, Nearby, My reports, Notifications, Profile; no Report row; the In danger? card.
+const railHtml = html.match(/<aside class="rail">[\s\S]*?<\/aside>/)[0];
+assert([...railHtml.matchAll(/<span>(Home|Nearby|Report|My reports|Notifications|Profile)<\/span>/g)].map((m) => m[1]).join() === "Home,Nearby,Report,My reports,Notifications,Profile", "the menu rows are in order (Report shows on phones only, Notifications on laptops only)");
+assert(html.includes(".rail .nav .nav-report{display:none}") && html.includes(".nav .nav-notifications{display:none}"), "laptops have no Report row in the side menu, and phones have no Notifications tab");
+assert(/<div class="rail-danger">\s*<b>In danger\?<\/b>\s*<button class="rail-call" type="button" data-emergency-service="general-emergency">/.test(railHtml) && /\.rail-call\{[^}]*background:var\(--red\)[^}]*box-shadow:0 0 0 1\.5px #fffdf8/.test(html), "the side menu ends with the In danger? card and a red Call 112 that uses the confirmation dialog");
+assert(html.includes("width:244px;height:calc(100vh - 28px);height:calc(100dvh - 28px);margin:14px 0 14px 14px") && html.includes("background:linear-gradient(180deg, #123329, #0d2a22 55%)"), "the side menu is a floating 244 px panel, 14 px from the edges");
+// Notifications: every entry point opens the same list.
+assert(html.includes('if (event.target.closest("[data-open-notifications]")) openNotifications();'), "the Notifications buttons open the existing notifications list");
+// Motion: press feedback and the sliding capsule are off under reduced motion; new hover effects only where hover exists.
+assert(/@media \(prefers-reduced-motion: reduce\)\{\.nav::before, \.primary,[^}]*\{transition:none\}/.test(html) && /\.nav button:active\{transform:none\}/.test(html), "motion is off under prefers-reduced-motion");
+const hoverBlock = v4Source.slice(v4Source.indexOf("@media (hover: hover){\n.home-primary:hover"));
+assert(hoverBlock.startsWith("@media (hover: hover){") && (v4Source.match(/\.home-tile:hover|\.rail-call:hover|\.home-bell:hover/g) || []).length === 3, "V4 hover effects sit inside @media (hover: hover)");
+// Dark: the glass bar is a dark translucent surface with the mint accent; cards use borders, not shadows.
+assert(html.includes('[data-theme="dark"] .nav{background:rgba(31, 39, 32, .66)}') && html.includes('[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"]{color:#97d1a6}'), "the dark glass bar uses a dark translucent surface and the mint accent");
+// The two newest pieces follow the new design too.
+assert(html.includes(".no-photo-btn{min-height:50px;border-radius:999px}") && html.includes(".review-answers b.not-answered{") && html.includes("' class=\"not-answered\"'"),"the I can't add a photo button is a pill, and Not answered has its own quiet style");
 
 console.log("V2 design and safety guard test passed");

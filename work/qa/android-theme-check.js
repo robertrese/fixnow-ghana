@@ -1,6 +1,6 @@
 "use strict";
 // Android emulator check: dark mode follows the phone (also when it changes while the app is open), the in-app
-// Light and Dark choices override it, and the area below the tab bar matches the page. Usage:
+// Light and Dark choices override it, and the area below the floating menu matches the page background. Usage:
 // node work/qa/android-theme-check.js [screenshot-folder]   (needs the same setup as android-insets-check.js)
 const { execFileSync } = require("child_process");
 const fs = require("fs");
@@ -73,7 +73,7 @@ async function shots(ev, theme) {
   await passWelcome(ev); await wait(2500);
   let s = await state(ev);
   check(s.theme === "light" && !s.phoneDark, `phone light: page is ${s.theme}`);
-  check((await bottomPixel()) === "#fffdf8", `phone light: area below the tab bar is paper (${await bottomPixel()})`);
+  check((await bottomPixel()) === "#f3eee1", `phone light: area below the page is the cream page colour (${await bottomPixel()})`);
   await shots(ev, "light");
 
   adb("shell", "cmd", "uimode", "night", "yes");
@@ -86,7 +86,7 @@ async function shots(ev, theme) {
   s = await state(ev);
   check(s.theme === "dark", `phone dark, app reopened: page is ${s.theme}`);
   await view(ev, "home"); await wait(2000);
-  check((await bottomPixel()) === "#1f2720", `phone dark: area below the tab bar is dark (${await bottomPixel()})`);
+  check((await bottomPixel()) === "#131914", `phone dark: area below the page is the dark page colour (${await bottomPixel()})`);
   await shots(ev, "dark");
 
   // Appearance overrides the phone.
@@ -95,7 +95,7 @@ async function shots(ev, theme) {
   s = await state(ev);
   check(s.theme === "light", `phone dark, Appearance Light: page is ${s.theme}`);
   await view(ev, "home"); await wait(1500);
-  check((await bottomPixel()) === "#fffdf8", `phone dark, Appearance Light: area below the tab bar is paper (${await bottomPixel()})`);
+  check((await bottomPixel()) === "#f3eee1", `phone dark, Appearance Light: area below the page is cream (${await bottomPixel()})`);
   fs.writeFileSync(path.join(out, "override-phone-dark-app-light.png"), grab());
   adb("shell", "cmd", "uimode", "night", "no");
   await wait(3000);
@@ -103,7 +103,7 @@ async function shots(ev, theme) {
   await wait(2000);
   s = await state(ev);
   check(s.theme === "dark", `phone light, Appearance Dark: page is ${s.theme}`);
-  check((await bottomPixel()) === "#1f2720", `phone light, Appearance Dark: area below the tab bar is dark (${await bottomPixel()})`);
+  check((await bottomPixel()) === "#131914", `phone light, Appearance Dark: area below the page is dark (${await bottomPixel()})`);
   fs.writeFileSync(path.join(out, "override-phone-light-app-dark.png"), grab());
   await ev(`(() => { setView("profile"); document.querySelector('input[name="appearance"][value="system"]').click(); return true; })()`);
   ws.close();
