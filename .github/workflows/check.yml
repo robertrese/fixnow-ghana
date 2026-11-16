@@ -33,6 +33,9 @@ jobs:
       - name: npm run check
         run: npm run check
       - name: The public demo in docs/ is up to date
+        # Only on main (which GitHub Pages publishes) and on pull requests into it. A work branch such as design-v4 may
+        # leave docs/ unchanged until the owner approves the work, and the browser checks below still run on it.
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
         run: |
           npm run build:demo
           git diff --exit-code -- docs || { echo "::error::docs/ is out of date. Run npm run build:demo and commit docs/."; exit 1; }
