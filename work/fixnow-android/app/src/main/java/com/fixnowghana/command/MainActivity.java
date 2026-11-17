@@ -39,9 +39,10 @@ public class MainActivity extends ComponentActivity {
     private static final int LOCATION_REQUEST = 42;
     // Deep green behind the status bar in every theme, with light icons.
     private static final int STATUS_STRIP_COLOR = Color.parseColor("#0d2a22");
-    // Matches the tab bar. setBottomAreaColor lets this follow the app's theme.
-    private static final int BOTTOM_AREA_LIGHT = Color.parseColor("#fffdf8");
-    private static final int BOTTOM_AREA_DARK = Color.parseColor("#1f2720");
+    // Matches the page background (cream, or the dark page): the menu is a floating bar, so the page shows
+    // below it. setBottomAreaColor lets this follow the app's theme.
+    private static final int BOTTOM_AREA_LIGHT = Color.parseColor("#f3eee1");
+    private static final int BOTTOM_AREA_DARK = Color.parseColor("#131914");
 
     private WebView webView;
     private LinearLayout root;
@@ -104,7 +105,7 @@ public class MainActivity extends ComponentActivity {
             WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false);
         }
         // The page says "light" or "dark" (Profile > Appearance can differ from the phone), so the area
-        // below the tab bar and the navigation-bar icons match it. Only the app's own pages can send this.
+        // below the floating menu and the navigation-bar icons match it. Only the app's own pages can send this.
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(webView, "fixnowTheme", LocalServerAccess.appOrigins(),
                     (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
@@ -159,7 +160,7 @@ public class MainActivity extends ComponentActivity {
         setBottomAreaColor(dark ? BOTTOM_AREA_DARK : BOTTOM_AREA_LIGHT, !dark);
     }
 
-    /** Paints the area below the tab bar (and beside it in landscape) and picks readable navigation-bar icons. */
+    /** Paints the area below the page (and beside it in landscape) and picks readable navigation-bar icons. */
     private void setBottomAreaColor(int color, boolean lightSurface) {
         root.setBackgroundColor(color);
         WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightNavigationBars(lightSurface);

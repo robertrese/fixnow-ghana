@@ -1,4 +1,4 @@
-const CACHE_NAME = "fixnow-ghana-static-v57-demo-abc9b483c9";
+const CACHE_NAME = "fixnow-ghana-static-v61-demo-abc9b483c9";
 const ASSETS = [
   "./fixnow-ghana.html",
   "./demo-journey.js",
@@ -31,9 +31,7 @@ const ASSETS = [
   "./illustrations/category-electricity.svg",
   "./illustrations/category-unsafe.svg",
   "./illustrations/ghana-outline.svg",
-  "./fonts/bricolage-grotesque-latin-wght.woff2",
-  "./fonts/atkinson-hyperlegible-next-latin-400.woff2",
-  "./fonts/atkinson-hyperlegible-next-latin-700.woff2"
+  "./fonts/inter-latin-wght-normal.woff2"
 ];
 
 self.addEventListener("install", (event) => {

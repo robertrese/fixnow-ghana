@@ -202,6 +202,18 @@
   $$("[data-sign-out]").forEach((button) => button.addEventListener("click", signOut));
 
   // ---------- shell and tabs ----------
+  // Line icons for the laptop side menu (the same 24 px line style as the resident app's menu). Hidden on phones.
+  const TAB_ICONS = {
+    review: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.5h6v3H9z"/><path d="m9 13 2 2 4-4"/>',
+    cases: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    routing: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+    accounts: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
+    audit: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>'
+  };
+  function tabIcon(id) {
+    return TAB_ICONS[id] ? '<svg class="s-tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + TAB_ICONS[id] + "</svg>" : "";
+  }
+
   function tabsForRole() {
     const tabs = [];
     if (canModerate()) tabs.push({ id: "review", label: "Review", count: summary && summary.review });
@@ -218,7 +230,7 @@
     $("#staffView").hidden = false;
     $("#topbarWho").textContent = user.name || user.username;
     $("#sideWho").innerHTML = "<b>" + esc(user.name || user.username) + "</b>" + esc(user.role || "Staff") + "<br />" + esc(user.agency || "No office set") + "<br />" + esc(user.district || user.region || "All areas");
-    $("#tabButtons").innerHTML = tabsForRole().map((tab) => '<button type="button" data-tab="' + tab.id + '"' + (tab.id === currentTab ? ' aria-current="page"' : "") + "><span>" + esc(tab.label) + "</span>" + (typeof tab.count === "number" ? '<span class="count">' + tab.count + '<span class="visually-hidden"> ' + (tab.id === "review" ? "waiting" : "cases") + "</span></span>" : "") + "</button>").join("");
+    $("#tabButtons").innerHTML = tabsForRole().map((tab) => '<button type="button" data-tab="' + tab.id + '"' + (tab.id === currentTab ? ' aria-current="page"' : "") + ">" + tabIcon(tab.id) + '<span class="s-tab-label">' + esc(tab.label) + "</span>" + (typeof tab.count === "number" ? '<span class="count">' + tab.count + '<span class="visually-hidden"> ' + (tab.id === "review" ? "waiting" : "cases") + "</span></span>" : "") + "</button>").join("");
     $$("[data-tab]").forEach((button) => button.addEventListener("click", () => showTab(button.dataset.tab, true)));
   }
 
