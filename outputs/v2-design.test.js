@@ -363,4 +363,12 @@ assert(html.includes('[data-theme="dark"] .nav{background:rgba(31, 39, 32, .66)}
 // The two newest pieces follow the new design too.
 assert(html.includes(".no-photo-btn{min-height:50px;border-radius:999px}") && html.includes(".review-answers b.not-answered{") && html.includes("' class=\"not-answered\"'"),"the I can't add a photo button is a pill, and Not answered has its own quiet style");
 
+// V4 Home, owner's changes of 17 November 2026.
+const railRows = [...html.match(/<aside class="rail">[\s\S]*?<\/aside>/)[0].matchAll(/<button[^>]*>(<svg class="nav-icon"[^>]*>[\s\S]*?<\/svg>)?<span>(Home|Nearby|My reports|Notifications|Profile)<\/span>/g)];
+assert(railRows.length === 5 && railRows.every((row) => row[1]), "every side menu row (Home, Nearby, My reports, Notifications, Profile) has its line icon");
+assert(html.includes(".rail .nav button .nav-icon{display:block;flex:0 0 auto;width:20px;height:20px;"), "the side menu icons show at 20 px");
+assert(html.includes('body[data-view="home"] .topbar .topbar-titles{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}') && html.includes('<h1 id="viewTitle">'), "on laptop Home the page title is hidden visually but kept for screen readers and focus");
+assert(!/body\[data-view="home"\] \.status-strip\{display:none/.test(html), "the Online and Last saved chips stay on laptop Home");
+assert(html.includes('body[data-view="home"] .home-shortcuts .v2-section-title{margin-top:-6px}'), "on phone Home the hero card and Common problems are about 20 px apart");
+
 console.log("V2 design and safety guard test passed");

@@ -124,6 +124,8 @@ Android notes:
 
 The V4 restyle is being done on the `design-v4` branch in steps (brief in the owner's message of 16 November 2026). Step 1 is done: the font, cards, pill buttons, Home, the glass menu and the laptop side menu. Still to restyle: the other resident screens (step 2) and the staff area (step 3), which so far have only the new font and the shared card and button styles. The V4 rules sit in their own section of `work/design/fixnow-v3.css` ("V4 modern"), before the demo block; V4 dark rules are at the end of the dark section. Do not merge to `main` or rebuild `docs/` until the owner approves.
 
+Step 2 notes from the owner: on the laptop consent screen ("Before you start"), stack the three numbered points one under another, as on the phone (they are squeezed into narrow side-by-side columns today).
+
 - **Colour:**
   - deep green `#0d2a22` for dark surfaces and text;
   - canopy green `#0a7a52` for verified states and links;
