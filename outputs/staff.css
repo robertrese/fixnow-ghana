@@ -1,13 +1,16 @@
-/* FixNow Ghana staff area (staff.html). V3 design: deep green, canopy green, Ghana gold, cotton cream.
+/* FixNow Ghana staff area (staff.html). V4 "modern" design (Inter, soft cards, pill buttons, a floating menu), on the V3
+   colours: deep green, canopy green, Ghana gold, cotton cream. Plain selector lists only (old WebViews), no blur, and no
+   inline styles (the content security policy).
    Light rules first; every dark rule is in the section at the end, starting with :root[data-theme="dark"]. */
 @font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/inter-latin-wght-normal.woff2") format("woff2")}
 
 :root{
-  --ink:#0d2a22; --muted:#4f5c55; --line:#ddd5c2; --line-strong:#8a8270; --soft:#f3eee1; --panel:#fffdf8; --field:#fffdf8; --raised:#f8f4ea;
+  --ink:#0d2a22; --muted:#4f5d55; --line:#ddd5c2; --line-strong:#8a8270; --soft:#f3eee1; --panel:#fffdf8; --field:#fffdf8; --raised:#f8f4ea;
   --deep:#0d2a22; --deep-hover:#173f32; --green:#0a7a52; --accent:#0a6345; --gold:#fcd116; --emergency:#72262e; --emergency-bg:#fbeceb;
   --warn-bg:#fdf3cf; --focus:#1747b8; --on-deep:#fffdf8; --primary-bg:#0d2a22; --primary-ink:#fffdf8;
   --font-display:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r-card:22px; --shadow-card:0 1px 2px rgba(13,42,34,.06), 0 6px 18px rgba(13,42,34,.07);
   --kente:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='12' shape-rendering='crispEdges'%3E%3Crect width='72' height='12' fill='%23fcd116'/%3E%3Crect x='16' width='2' height='12' fill='%230d2a22'/%3E%3Crect x='18' width='12' height='12' fill='%230a7a52'/%3E%3Crect x='21' y='3' width='3' height='3' fill='%23fcd116'/%3E%3Crect x='24' y='6' width='3' height='3' fill='%23fcd116'/%3E%3Crect x='30' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='31' width='8' height='12' fill='%23ce1126'/%3E%3Crect x='31' y='4' width='8' height='1' fill='%230d2a22'/%3E%3Crect x='31' y='7' width='8' height='1' fill='%230d2a22'/%3E%3Crect x='39' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='42' width='4' height='12' fill='%230d2a22' opacity='.18'/%3E%3Crect x='48' width='2' height='12' fill='%230d2a22'/%3E%3Crect x='50' width='14' height='12' fill='%230a7a52'/%3E%3Crect x='53' y='3' width='8' height='2' fill='%23fcd116'/%3E%3Crect x='53' y='7' width='8' height='2' fill='%23fcd116'/%3E%3Crect x='64' width='1' height='12' fill='%230d2a22'/%3E%3Crect x='65' width='7' height='12' fill='%23ce1126'/%3E%3C/svg%3E");
   color-scheme:light;
 }
@@ -15,7 +18,8 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html.large-text-root{font-size:118.75%}
 body{margin:0;min-height:100vh;min-height:100dvh;background:var(--soft);color:var(--ink);font-family:var(--font-body);font-size:1rem;line-height:1.5}
-h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15;margin:0;letter-spacing:-.01em}
+h1,h2,h3{font-family:var(--font-display);font-weight:800;line-height:1.1;margin:0;letter-spacing:-.02em}
+h1{line-height:1.05}
 h1{font-size:1.75rem} h2{font-size:1.3rem} h3{font-size:1.08rem}
 p{margin:0}
 a{color:var(--green);font-weight:700}
@@ -186,6 +190,61 @@ textarea{min-height:96px;resize:vertical}
 @media (prefers-reduced-motion:reduce){ *{animation:none !important;transition:none !important;scroll-behavior:auto !important} }
 @media print{ .s-tabs,.s-topbar{display:none} }
 
+/* ==================== V4 "modern" (step 3) ==================== */
+/* Cards: paper, 22 px corners, no border, a soft shadow */
+.s-card, .s-stat, .s-item, .s-row, .s-empty{border:0;border-radius:var(--r-card);background:var(--panel);box-shadow:var(--shadow-card)}
+.s-item{padding:16px 18px}
+.s-item.is-urgent{border-left:6px solid var(--emergency)}
+.s-stat{padding:14px 16px}
+.s-stat b{font-weight:800;letter-spacing:-.02em}
+.s-private{border-radius:var(--r-card)}
+.s-preview{border-radius:var(--r-card)}
+.s-dl div{border-radius:14px}
+.s-note, .s-warn, .s-offline{border-radius:16px}
+.s-photo{border-radius:16px}
+/* Buttons: full pills; main actions 56 px tall; they press in slightly */
+.btn{min-height:50px;padding:10px 22px;border-radius:999px;transition:transform .12s ease}
+.btn-primary{min-height:56px}
+.btn:active{transform:scale(.97)}
+.s-topbar .btn{min-height:44px}
+/* Fields */
+input,select,textarea{border-radius:16px}
+.check{border-radius:16px}
+/* Dialogs */
+.s-dialog{border-radius:28px}
+.s-signin .s-card{padding:24px}
+
+/* Phones: a floating menu bar (solid paper; blur is used only on the resident menu bar) */
+.s-main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+.s-tabs{left:max(16px, env(safe-area-inset-left));right:max(16px, env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));min-height:66px;align-items:center;padding:6px;border:1px solid rgba(13,42,34,.08);border-radius:33px;background:#fffdf8;box-shadow:0 8px 28px rgba(13,42,34,.18)}
+.s-tablist button{min-height:54px;border-radius:27px;color:#3d4a43;font-weight:600}
+.s-tablist button[aria-current="page"]{background:rgba(13,42,34,.1);color:var(--deep);font-weight:800}
+.s-toast{bottom:calc(96px + env(safe-area-inset-bottom))}
+
+@media (min-width:900px){
+  /* Laptops: a floating side menu, 14 px from the left, top and bottom */
+  .s-shell{grid-template-columns:272px minmax(0,1fr)}
+  .s-tabs{position:sticky;top:14px;left:auto;right:auto;bottom:auto;width:244px;height:calc(100vh - 28px);height:calc(100dvh - 28px);margin:14px 0 14px 14px;padding:0 12px 18px;border:0;border-radius:28px;background:linear-gradient(180deg, #123329, #0d2a22 55%);box-shadow:none;overflow-x:hidden;overflow-y:auto}
+  .s-tabs::before{margin:0 -12px 18px}
+  .s-side-head{border-bottom:0;padding:0 4px 14px}
+  .s-side-head .btn{min-height:48px}
+  .s-tablist button{min-height:44px;margin-bottom:4px;padding:0 14px;border-radius:14px;color:#dfe6e1;font-size:.9375rem;font-weight:600}
+  .s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22;font-weight:700}
+  .s-tabs .count{font-size:.875rem}
+  .s-page{left:272px}
+  /* Before sign-in the side menu is hidden: the page uses the full width, so the sign-in card is centred */
+  .s-tabs[hidden] ~ .s-main{grid-column:1 / -1;max-width:none}
+  .s-signin{margin-top:64px}
+  .s-toast{bottom:24px}
+}
+@media (hover:hover){
+  .s-item:hover{box-shadow:0 1px 2px rgba(13,42,34,.08), 0 10px 24px rgba(13,42,34,.12)}
+}
+@media (hover:hover) and (min-width:900px){
+  .s-tablist button[aria-current="page"]:hover{background:#fffdf8}
+}
+@media (prefers-reduced-motion:reduce){ .btn:active{transform:none} }
+
 /* ---------- Dark mode (brief: design/v2-handoff/DARK-MODE-AND-LOGO.md) ---------- */
 :root[data-theme="dark"]{
   --ink:#eef2ee; --muted:#b3beb6; --line:#2e3a32; --line-strong:#7d8c82; --soft:#131914; --panel:#1f2720; --field:#1a231c; --raised:#28382d;
@@ -206,4 +265,19 @@ textarea{min-height:96px;resize:vertical}
 @media (min-width:900px){
   [data-theme="dark"] .s-tabs{background:#0d2a22;border-right:1px solid var(--line)}
   [data-theme="dark"] .s-tablist button[aria-current="page"]{background:#fcd116;color:#0d2a22}
+}
+/* V4 in dark: cards get a 1 px border instead of a shadow; the menu bar is a dark surface with the mint accent; the
+   laptop side menu stays deep green with a paper pill on the current row. */
+[data-theme="dark"] .s-card, [data-theme="dark"] .s-stat, [data-theme="dark"] .s-item, [data-theme="dark"] .s-row, [data-theme="dark"] .s-empty{border:1px solid var(--line);box-shadow:none}
+[data-theme="dark"] .s-item.is-urgent{border-left:6px solid var(--emergency)}
+[data-theme="dark"] .s-tabs{border-color:rgba(255,255,255,.12);background:#1f2720;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+[data-theme="dark"] .s-tablist button{color:#b3beb6}
+[data-theme="dark"] .s-tablist button[aria-current="page"]{background:rgba(151,209,166,.16);color:#97d1a6}
+@media (hover:hover){
+  [data-theme="dark"] .s-item:hover{box-shadow:none;border-color:var(--line-strong)}
+}
+@media (min-width:900px){
+  [data-theme="dark"] .s-tabs{border:1px solid var(--line);background:linear-gradient(180deg, #123329, #0d2a22 55%);box-shadow:none}
+  [data-theme="dark"] .s-tablist button{color:#dfe6e1}
+  [data-theme="dark"] .s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22}
 }

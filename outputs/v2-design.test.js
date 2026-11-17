@@ -386,4 +386,14 @@ assert(html.includes(".quick-type.active, .quick-type[aria-pressed=\"true\"]{bac
 assert(html.includes(".nav button:hover{color:#3d4a43;background:transparent}"), "menu tabs do not turn green on hover, which sticks after a tap on touch screens");
 assert(html.includes('[data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"]{background:var(--panel);box-shadow:inset 0 0 0 2px #97d1a6}') && html.includes("background:linear-gradient(180deg, rgba(19, 25, 20, 0) 0%, #131914 46%)"), "dark mode: the chosen tile has a mint ring and the Continue fade goes into the dark page");
 
+// ---------- V4 step 3: the staff area (staff.css) ----------
+const staffV4 = fs.readFileSync(path.join(__dirname, "staff.css"), "utf8");
+assert(!/:is\(|:where\(|backdrop-filter/.test(staffV4) && !/style=/.test(fs.readFileSync(path.join(__dirname, "staff.html"), "utf8")), "staff.css uses plain selector lists and no blur, and staff.html has no inline styles");
+assert(staffV4.includes(".s-card, .s-stat, .s-item, .s-row, .s-empty{border:0;border-radius:var(--r-card);background:var(--panel);box-shadow:var(--shadow-card)}") && staffV4.includes("--r-card:22px; --shadow-card:0 1px 2px rgba(13,42,34,.06), 0 6px 18px rgba(13,42,34,.07);"), "staff cards use the V4 card");
+assert(staffV4.includes(".btn{min-height:50px;padding:10px 22px;border-radius:999px;") && staffV4.includes(".btn-primary{min-height:56px}"), "staff buttons are pills, main actions 56 px tall");
+assert(staffV4.includes("h1,h2,h3{font-family:var(--font-display);font-weight:800;line-height:1.1;margin:0;letter-spacing:-.02em}"), "staff headings are weight 800 with -0.02em");
+assert(/\.s-tabs\{left:max\(16px, env\(safe-area-inset-left\)\);right:max\(16px, env\(safe-area-inset-right\)\);bottom:calc\(14px \+ env\(safe-area-inset-bottom\)\);[^}]*border-radius:33px;background:#fffdf8;/.test(staffV4), "on phones the staff menu is a floating solid bar");
+assert(staffV4.includes("width:244px;height:calc(100vh - 28px);height:calc(100dvh - 28px);margin:14px 0 14px 14px;") && staffV4.includes('.s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22;font-weight:700}'), "on laptops the staff menu is the floating side panel with a paper pill on the current row");
+assert(staffV4.includes(".s-tabs[hidden] ~ .s-main{grid-column:1 / -1;max-width:none}"), "the laptop sign-in uses the full width (the hidden side menu leaves no empty column)");
+
 console.log("V2 design and safety guard test passed");

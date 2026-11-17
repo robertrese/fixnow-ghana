@@ -122,10 +122,11 @@ Android notes:
 
 ## Design system (V4 "modern", November 2026)
 
-The V4 restyle is being done on the `design-v4` branch in steps (brief in the owner's message of 16 November 2026). Steps 1 and 2 are done: the font, cards, pill buttons, Home, the glass menu, the laptop side menu, and every other resident screen. Still to restyle: the staff area (step 3), which so far has only the new font. The V4 rules sit in their own section of `work/design/fixnow-v3.css` ("V4 modern"), before the demo block; V4 dark rules are at the end of the dark section. Do not merge to `main` or rebuild `docs/` until the owner approves.
+The V4 restyle is being done on the `design-v4` branch in steps (brief in the owner's message of 16 November 2026). Steps 1 to 3 are done: the font, cards, pill buttons, Home, the glass menu, the laptop side menu, every other resident screen, and the staff area. Step 4 is the full gallery for the owner's review. The V4 rules sit in their own section of `work/design/fixnow-v3.css` ("V4 modern"), before the demo block; V4 dark rules are at the end of the dark section. Do not merge to `main` or rebuild `docs/` until the owner approves.
 
 - **Report wizard header:** a round white 44 px close button with a soft shadow, "New report" centred, the step count in a small deep green pill with gold text (the visually hidden "Step N of 6" in each legend stays), and a segmented progress bar (6 px tall, 6 px gaps). Continue is a 58 px deep green pill that floats 16 px from the sides and bottom over a soft cream fade.
 - **Step 1 tiles:** white cards with the illustration on a 46 px rounded plate; the chosen tile gets a 2 px deep green ring (mint in dark) and a small gold badge with a deep green tick.
+- **Staff area** (`staff.css`): the same font, cards and pill buttons. On phones the section tabs are a floating solid paper bar (no blur), on laptops the same floating dark green side panel as the resident app. Plain selector lists only, no inline styles (the content security policy).
 - **Screens:** content cards on every resident screen use the card style; tinted notices keep their colours with 18 px corners; selects, yes/no, severity and map/list controls are pills. The consent screen's three numbered points always stack.
 
 - **Colour:**
