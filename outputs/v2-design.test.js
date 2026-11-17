@@ -359,7 +359,7 @@ assert(/@media \(prefers-reduced-motion: reduce\)\{\.nav::before, \.primary,[^}]
 const hoverBlock = v4Source.slice(v4Source.indexOf("@media (hover: hover){\n.home-primary:hover"));
 assert(hoverBlock.startsWith("@media (hover: hover){") && (v4Source.match(/\.home-tile:hover|\.rail-call:hover|\.home-bell:hover/g) || []).length === 3, "V4 hover effects sit inside @media (hover: hover)");
 // Dark: the glass bar is a dark translucent surface with the mint accent; cards use borders, not shadows.
-assert(html.includes('[data-theme="dark"] .nav{background:rgba(31, 39, 32, .66)}') && html.includes('[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"]{color:#97d1a6}'), "the dark glass bar uses a dark translucent surface and the mint accent");
+assert(html.includes('[data-theme="dark"] .nav{background:rgba(31, 39, 32, .66)}') && html.includes('[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"], [data-theme="dark"] .nav button.active:hover{color:#97d1a6}'), "the dark glass bar uses a dark translucent surface and the mint accent");
 // The two newest pieces follow the new design too.
 assert(html.includes(".no-photo-btn{min-height:50px;border-radius:999px}") && html.includes(".review-answers b.not-answered{") && html.includes("' class=\"not-answered\"'"),"the I can't add a photo button is a pill, and Not answered has its own quiet style");
 
@@ -370,5 +370,20 @@ assert(html.includes(".rail .nav button .nav-icon{display:block;flex:0 0 auto;wi
 assert(html.includes('body[data-view="home"] .topbar .topbar-titles{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}') && html.includes('<h1 id="viewTitle">'), "on laptop Home the page title is hidden visually but kept for screen readers and focus");
 assert(!/body\[data-view="home"\] \.status-strip\{display:none/.test(html), "the Online and Last saved chips stay on laptop Home");
 assert(html.includes('body[data-view="home"] .home-shortcuts .v2-section-title{margin-top:-6px}'), "on phone Home the hero card and Common problems are about 20 px apart");
+
+// ---------- V4 step 2: every other resident screen ----------
+const step2CardRule = (html.match(/\n(\.consent-line, \.welcome-steps, [^{\n]*)\{border:0;border-radius:var\(--r-card\);background:var\(--panel\);box-shadow:var\(--shadow-card\)\}/) || [])[1] || "";
+for (const card of [".consent-line", ".welcome-steps", ".my-report-card", ".public-report-card", ".profile-grid", ".settings-list", ".quick-type", ".track-lookup", ".honest-state", ".map-stage"]) {
+  assert(step2CardRule.split(", ").includes(card), card + " uses the V4 card");
+}
+assert(html.includes(".consent-line.is-checked{background:#fffbe8;box-shadow:inset 0 0 0 2px var(--deep), var(--shadow-card)}"), "a ticked consent line keeps a visible ring (state set in JavaScript)");
+assert(html.includes(".welcome-steps{grid-template-columns:1fr !important;gap:0}"), "the consent screen's three numbered points stack on every screen size");
+assert(html.includes('body[data-view="report"] .topbar .lead{display:inline-block;width:auto;margin:6px 0 0;padding:3px 12px;border-radius:999px;background:var(--deep);color:var(--gold);') && html.includes(".wizard-step-count{position:absolute;width:1px;height:1px;"), "the wizard step count is a deep green pill with gold text, and the hidden Step N of 6 stays");
+assert(html.includes('body[data-view="report"] .topbar{display:grid;grid-template-columns:44px minmax(0, 1fr) 44px;') && /body\[data-view="report"\] \.topbar-exit\{grid-column:1;margin-right:0;border:0;background:var\(--panel\);box-shadow:/.test(html), "the wizard header has a round white close button and the title centred");
+assert(html.includes(".wizard-progress{gap:6px}") && html.includes(".wizard-progress span{height:6px}"), "the wizard progress bar has 6 px segments with 6 px gaps");
+assert(html.includes(".wizard-actions .primary, .wizard-actions .secondary{min-height:58px;border-radius:999px}") && html.includes("background:linear-gradient(180deg, rgba(243, 238, 225, 0) 0%, #f3eee1 46%)"), "Continue is a 58 px pill over a soft cream fade");
+assert(html.includes(".quick-type.active, .quick-type[aria-pressed=\"true\"]{background:var(--panel);box-shadow:inset 0 0 0 2px var(--deep), var(--shadow-card)}") && /\.quick-type\.active span\.qt-radio, \.quick-type\[aria-pressed="true"\] span\.qt-radio\{border:0;background:var\(--gold\) url\("data:image\/svg\+xml,[^"]*0d2a22[^"]*"\)/.test(html) && html.includes(".quick-type span.qt-icon{width:46px;height:46px;border-radius:14px}"), "step 1 tiles: a 46 px plate, and the chosen tile gets a deep green ring and a gold badge with a deep green tick");
+assert(html.includes(".nav button:hover{color:#3d4a43;background:transparent}"), "menu tabs do not turn green on hover, which sticks after a tap on touch screens");
+assert(html.includes('[data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"]{background:var(--panel);box-shadow:inset 0 0 0 2px #97d1a6}') && html.includes("background:linear-gradient(180deg, rgba(19, 25, 20, 0) 0%, #131914 46%)"), "dark mode: the chosen tile has a mint ring and the Continue fade goes into the dark page");
 
 console.log("V2 design and safety guard test passed");

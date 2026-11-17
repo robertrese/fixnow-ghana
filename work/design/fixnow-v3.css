@@ -769,6 +769,10 @@ body[data-view="track"] .nav::before, body[data-view="responder"] .nav::before{o
 .nav button.active, .nav button[aria-current="page"]{color:var(--deep);font-weight:800;background:transparent}
 .nav button.active .nav-icon{background:transparent;stroke-width:2.4}
 .nav .nav-notifications{display:none}
+/* An older rule turned a tab green on hover; on touch screens that hover sticks after a tap, so it is undone here */
+.nav button:hover{color:#3d4a43;background:transparent}
+.nav button.active:hover, .nav button[aria-current="page"]:hover{color:var(--deep)}
+.nav .nav-report:hover, .nav .nav-report.active{background:var(--deep);color:#fdfaf1}
 .nav .nav-report{width:54px;height:54px;min-height:54px;background:var(--deep);color:#fdfaf1;font-size:.75rem;font-weight:700}
 .toast{bottom:calc(98px + env(safe-area-inset-bottom))}
 }
@@ -840,6 +844,93 @@ body[data-view="home"] .home-actions{max-width:520px}
 @media (prefers-reduced-motion: reduce){
 .nav::before, .primary, .secondary, .danger, .ghost, .mini, .home-primary, .home-danger, .home-bell, .home-tile, .rail-call, .nav button{transition:none}
 .primary:active, .secondary:active, .danger:active, .ghost:active, .mini:active, .home-primary:active, .home-danger:active, .home-bell:active, .home-tile:active, .rail-call:active, .nav button:active{transform:none}
+}
+
+/* ==================== V4 step 2: every other resident screen ====================
+   Welcome, consent, the report wizard, the result pages, My reports, report details, Nearby, find a report, Profile,
+   dialogs and the offline and error states. Same cards, pills and type as step 1; nothing changes what is shown. */
+
+/* Cards: the content cards of every screen share the step 1 look */
+.consent-line, .welcome-steps, .privacy-note, .review-route, .duplicate-item, .my-report-card, .public-report-card, .profile-account-card, .profile-grid, .settings-list, .language-field, body.citizen-signed-in .citizen-account-summary, .storage-tip, .emergency-sources li, .quick-type, .evidence-item, .my-report-tools, .track-lookup, .honest-state, .map-stage, .photo-camera{border:0;border-radius:var(--r-card);background:var(--panel);box-shadow:var(--shadow-card)}
+.public-report-card, .profile-grid, .settings-list, .map-stage{overflow:hidden}
+.welcome-steps{padding:4px 18px}
+.consent-line.is-checked{background:#fffbe8;box-shadow:inset 0 0 0 2px var(--deep), var(--shadow-card)}
+/* Tinted notices keep their colours, with the softer V4 corners */
+.intake-notice, .danger-callout, .similar-warning, .privacy-preview, .affected-box, .private-note, .offline-banner, .profile-emergency, .track-privacy, body[data-view="home"] .privacy-promise{border:0;border-radius:18px}
+.photo-needed, .photos-not-sent{border-radius:16px}
+.issue-facts, .issue-photos.empty{border-radius:16px}
+
+/* Fields: rounder, with a clear border; selects and the search box are pills */
+.wizard-step input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .wizard-step select, .wizard-step textarea, .track-field input{border-radius:16px}
+.my-report-tools select, .language-field select{min-height:48px;border-radius:999px;padding:6px 16px}
+
+/* Pill controls: yes/no, severity, map or list */
+.yn-buttons, .severity-seg{border-radius:999px}
+.yn-buttons button, .severity-seg button{min-height:46px}
+.segmented{padding:4px;border-radius:999px}
+.segmented button{min-height:44px;border-radius:999px}
+.emergency-call{min-height:56px;border-radius:999px}
+.modal-actions .emergency-dial{min-height:56px;border-radius:999px}
+.honest-state a.primary{min-height:50px;padding:10px 20px;border-radius:999px}
+
+/* Welcome and consent: on laptops the three numbered points stack, as on the phone */
+.welcome-steps{grid-template-columns:1fr !important;gap:0}
+.welcome-steps span{gap:12px}
+.welcome-consent h2{font-size:2.25rem;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.welcome-tagline{font-weight:800;letter-spacing:-.03em}
+
+/* ---------- Report wizard ---------- */
+/* Header: the step count is a small deep green pill with gold text. The visually hidden "Step N of 6" in each legend stays. */
+body[data-view="report"] .topbar .lead{display:inline-block;width:auto;margin:6px 0 0;padding:3px 12px;border-radius:999px;background:var(--deep);color:var(--gold);font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+/* Progress: six segments, 6 px tall with 6 px gaps */
+.wizard-progress{gap:6px}
+.wizard-progress span{height:6px}
+.wizard-step legend{font-weight:800;letter-spacing:-.02em;line-height:1.05}
+/* Step 1 tiles: white cards; the illustration on a rounded plate in the type's tint; the chosen tile gets a 2 px deep
+   green ring and a small gold badge with a deep green tick */
+.quick-type{gap:8px;min-height:0;padding:14px}
+.quick-type span.qt-icon{width:46px;height:46px;border-radius:14px}
+.quick-type span.qt-icon img{width:32px;height:32px}
+.quick-type span.qt-radio{position:absolute;top:12px;right:12px;width:26px;height:26px;border:0;border-radius:50%;background:transparent}
+.quick-type.active, .quick-type[aria-pressed="true"]{background:var(--panel);box-shadow:inset 0 0 0 2px var(--deep), var(--shadow-card)}
+.quick-type.active span.qt-radio, .quick-type[aria-pressed="true"] span.qt-radio{border:0;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d2a22' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 16px 16px no-repeat}
+/* Continue: a 58 px deep green pill over a soft cream fade */
+.wizard-actions .primary, .wizard-actions .secondary{min-height:58px;border-radius:999px}
+.wizard-actions .primary{box-shadow:0 6px 18px rgba(13, 42, 34, .22)}
+/* Results */
+.secret-card{padding:18px}
+.result-icon{width:72px;height:72px}
+/* My reports and report details */
+.my-report-card{padding:18px}
+.my-report-card h3, .public-report-heading h3{font-weight:800;letter-spacing:-.015em}
+.my-report-heading .ref, .duplicate-head, .report-detail-summary small{font-family:var(--font-body);letter-spacing:0}
+.report-detail-summary{padding:16px;border-radius:var(--r-card);background:var(--panel);box-shadow:var(--shadow-card)}
+/* Profile: rows inside a card; the section titles match the other headings */
+.profile-group-title, .v2-section-title h2{font-weight:800;letter-spacing:-.02em}
+/* Dialogs and full pages: rounder sheets */
+.modal{border-radius:28px}
+.modal h4{font-weight:800}
+
+@media (max-width: 880px){
+/* Wizard header: a round white close button with a soft shadow, "New report" centred, the step pill under it */
+body[data-view="report"] .topbar{display:grid;grid-template-columns:44px minmax(0, 1fr) 44px;align-items:center;background:var(--soft);border-bottom:0;box-shadow:none}
+body[data-view="report"] .topbar-exit{grid-column:1;margin-right:0;border:0;background:var(--panel);box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 4px 14px rgba(13, 42, 34, .12)}
+body[data-view="report"] .topbar-titles{grid-column:2;display:flex;flex-direction:column;align-items:center;text-align:center}
+body[data-view="report"] .topbar h1{font-size:1.0625rem;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+/* Continue floats 16 px from the sides and the bottom, over a fade into the cream page */
+.wizard-actions{padding-top:28px;padding-bottom:calc(16px + env(safe-area-inset-bottom));border-top:0;background:linear-gradient(180deg, rgba(243, 238, 225, 0) 0%, #f3eee1 46%);box-shadow:none}
+/* Sheets rise from the bottom with rounded top corners; full pages fill the screen */
+.modal{border-radius:28px 28px 0 0}
+.modal-backdrop.is-page .modal{border-radius:0}
+}
+@media (min-width: 881px){
+.wizard-actions .primary{max-width:420px}
+.welcome-consent{width:min(100%, 560px)}
+}
+@media (hover: hover){
+.quick-type:hover{box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
+.quick-type.active:hover, .quick-type[aria-pressed="true"]:hover{box-shadow:inset 0 0 0 2px var(--deep), 0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
+.my-report-card:hover, .public-report-card:hover{box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
 }
 
 /* Public demo (demo mode only). The banner is fixed to the top and kept short; its measured height (--demo-banner-h,
@@ -951,10 +1042,10 @@ body.map-unavailable [data-focus-public]{display:none}
 @media (max-width: 880px){
 [data-theme="dark"] .nav{border-color:rgba(255, 255, 255, .12);background:#1f2720;box-shadow:0 8px 28px rgba(0, 0, 0, .4)}
 [data-theme="dark"] .nav::before{background:rgba(151, 209, 166, .16)}
-[data-theme="dark"] .nav button{color:#b3beb6}
-[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"]{color:#97d1a6}
+[data-theme="dark"] .nav button, [data-theme="dark"] .nav button:hover{color:#b3beb6}
+[data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"], [data-theme="dark"] .nav button.active:hover{color:#97d1a6}
 [data-theme="dark"] .nav button.active .nav-icon{background:transparent;color:#97d1a6}
-[data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report.active{background:var(--gold);color:#0d2a22}
+[data-theme="dark"] .nav .nav-report, [data-theme="dark"] .nav .nav-report.active, [data-theme="dark"] .nav .nav-report:hover{background:var(--gold);color:#0d2a22}
 }
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))){
 @media (max-width: 880px){
@@ -965,4 +1056,19 @@ body.map-unavailable [data-focus-public]{display:none}
 [data-theme="dark"] .rail{border:1px solid var(--line)}
 [data-theme="dark"] .rail .nav button{color:#dfe6e1}
 [data-theme="dark"] .rail .nav button.active{background:#fffdf8;color:#0d2a22}
+}
+/* V4 step 2 in dark */
+[data-theme="dark"] .consent-line, [data-theme="dark"] .welcome-steps, [data-theme="dark"] .privacy-note, [data-theme="dark"] .review-route, [data-theme="dark"] .duplicate-item, [data-theme="dark"] .my-report-card, [data-theme="dark"] .public-report-card, [data-theme="dark"] .profile-account-card, [data-theme="dark"] .profile-grid, [data-theme="dark"] .settings-list, [data-theme="dark"] .language-field, [data-theme="dark"] body.citizen-signed-in .citizen-account-summary, [data-theme="dark"] .storage-tip, [data-theme="dark"] .emergency-sources li, [data-theme="dark"] .quick-type, [data-theme="dark"] .evidence-item, [data-theme="dark"] .my-report-tools, [data-theme="dark"] .track-lookup, [data-theme="dark"] .honest-state, [data-theme="dark"] .map-stage, [data-theme="dark"] .photo-camera, [data-theme="dark"] .report-detail-summary{border:1px solid var(--line);background:var(--panel);box-shadow:none}
+[data-theme="dark"] .consent-line.is-checked{background:var(--raised);box-shadow:inset 0 0 0 2px #97d1a6}
+[data-theme="dark"] .quick-type.active, [data-theme="dark"] .quick-type[aria-pressed="true"]{background:var(--panel);box-shadow:inset 0 0 0 2px #97d1a6}
+[data-theme="dark"] .wizard-actions .primary{box-shadow:none}
+[data-theme="dark"] body[data-view="report"] .topbar .lead{background:var(--raised);color:var(--gold)}
+@media (max-width: 880px){
+[data-theme="dark"] body[data-view="report"] .topbar{background:var(--soft)}
+[data-theme="dark"] body[data-view="report"] .topbar-exit{border:1px solid var(--line);background:var(--panel);box-shadow:none}
+[data-theme="dark"] .wizard-actions{background:linear-gradient(180deg, rgba(19, 25, 20, 0) 0%, #131914 46%)}
+}
+@media (hover: hover){
+[data-theme="dark"] .quick-type:hover, [data-theme="dark"] .my-report-card:hover, [data-theme="dark"] .public-report-card:hover{box-shadow:none;border-color:var(--line-strong)}
+[data-theme="dark"] .quick-type.active:hover, [data-theme="dark"] .quick-type[aria-pressed="true"]:hover{box-shadow:inset 0 0 0 2px #97d1a6}
 }
