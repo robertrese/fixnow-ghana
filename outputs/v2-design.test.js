@@ -396,4 +396,11 @@ assert(/\.s-tabs\{left:max\(16px, env\(safe-area-inset-left\)\);right:max\(16px,
 assert(staffV4.includes("width:244px;height:calc(100vh - 28px);height:calc(100dvh - 28px);margin:14px 0 14px 14px;") && staffV4.includes('.s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22;font-weight:700}'), "on laptops the staff menu is the floating side panel with a paper pill on the current row");
 assert(staffV4.includes(".s-tabs[hidden] ~ .s-main{grid-column:1 / -1;max-width:none}"), "the laptop sign-in uses the full width (the hidden side menu leaves no empty column)");
 
+// Staff, owner's fixes of 18 November 2026: section icons in the laptop side menu; three number boxes fit on phones.
+const staffJsV4 = fs.readFileSync(path.join(__dirname, "staff.js"), "utf8");
+assert(["review", "cases", "routing", "accounts", "audit"].every((id) => new RegExp("\n    " + id + ": '<").test(staffJsV4)) && staffJsV4.includes('">" + tabIcon(tab.id) + \'<span class="s-tab-label">\''), "every staff section has a line icon before its name");
+const staffCssV4 = fs.readFileSync(path.join(__dirname, "staff.css"), "utf8");
+assert(staffCssV4.includes(".s-tab-icon{display:none}") && staffCssV4.includes(".s-tab-icon{display:block;flex:0 0 auto;width:20px;height:20px;"), "the staff section icons are 20 px and show on laptops only");
+assert(staffCssV4.includes(".s-stat:nth-child(3):last-child{grid-column:1 / -1}"), "on phones a third number box spans the full width");
+
 console.log("V2 design and safety guard test passed");

@@ -220,6 +220,11 @@ input,select,textarea{border-radius:16px}
 .s-tablist button{min-height:54px;border-radius:27px;color:#3d4a43;font-weight:600}
 .s-tablist button[aria-current="page"]{background:rgba(13,42,34,.1);color:var(--deep);font-weight:800}
 .s-toast{bottom:calc(96px + env(safe-area-inset-bottom))}
+/* Section icons show only in the laptop side menu */
+.s-tab-icon{display:none}
+/* Phones: three number boxes (for example on the review queue) put the third one across the full width, so a value
+   such as "Under 1 min" stays on one line instead of sitting in a half-empty row */
+.s-stat:nth-child(3):last-child{grid-column:1 / -1}
 
 @media (min-width:900px){
   /* Laptops: a floating side menu, 14 px from the left, top and bottom */
@@ -231,6 +236,10 @@ input,select,textarea{border-radius:16px}
   .s-tablist button{min-height:44px;margin-bottom:4px;padding:0 14px;border-radius:14px;color:#dfe6e1;font-size:.9375rem;font-weight:600}
   .s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22;font-weight:700}
   .s-tabs .count{font-size:.875rem}
+  .s-tablist button{justify-content:flex-start}
+  .s-tab-icon{display:block;flex:0 0 auto;width:20px;height:20px;margin-right:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .s-tab-label{flex:1 1 auto}
+  .s-stat:nth-child(3):last-child{grid-column:auto}
   .s-page{left:272px}
   /* Before sign-in the side menu is hidden: the page uses the full width, so the sign-in card is centred */
   .s-tabs[hidden] ~ .s-main{grid-column:1 / -1;max-width:none}
