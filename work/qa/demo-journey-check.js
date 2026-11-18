@@ -14,7 +14,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { root, ENGINE, launchBrowser, contextOptions } = require("./common");
+const { root, ENGINE, launchBrowser, contextOptions, waitForStill } = require("./common");
 
 const site = path.join(root, "docs");
 const out = path.join(root, "work", "qa", "screenshots", "journey" + (ENGINE === "chromium" ? "" : `-${ENGINE}`));
@@ -56,6 +56,7 @@ const server = http.createServer((req, res) => {
     const axe = async (name) => {
       await page.waitForTimeout(300);
       await page.evaluate(axeSource);
+      await waitForStill(page);
       const v = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
       if (v.length) axeFails.push(`${name}: ${v.join(" | ")}`);
     };

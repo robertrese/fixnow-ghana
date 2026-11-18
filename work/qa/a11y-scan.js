@@ -3,7 +3,7 @@
 // Automated WCAG 2.1 A/AA check (axe-core) of the resident screens at 320, 390 and 1280 px.
 // Exits with 1 if any rule fails. Automated checks find many problems but not all of them;
 // keep testing with a screen reader and a keyboard too.
-const { passWelcome, fillReportToReview, launchBrowser, contextOptions, THEME_LABEL } = require("./common");
+const { passWelcome, fillReportToReview, launchBrowser, contextOptions, THEME_LABEL, waitForStill } = require("./common");
 
 let axeSource;
 try {
@@ -23,6 +23,7 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
   const scan = async (page, label) => {
     await page.waitForTimeout(400);
     await page.evaluate(axeSource);
+    await waitForStill(page);
     const violations = await page.evaluate(async () => (await window.axe.run(document, {
       runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] },
       resultTypes: ["violations"]

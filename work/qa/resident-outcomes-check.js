@@ -23,11 +23,14 @@
 //      a photo or the "I can't add a photo" choice; every other type can. The message takes focus; no reason is
 //      asked; Review says "No photo added"; nothing about the choice is sent. Photos still queue offline and send
 //      later, and a photo the server refuses or keeps failing on never blocks the report.
+//  11. Motion: views, report steps, list items, the Report submitted tick and dialogs animate for 150 to 250 ms,
+//      moving only transform and opacity; focus and taps never wait for an animation; a closed dialog is gone at once;
+//      nothing moves under prefers-reduced-motion.
 // Needs the local web server (npm run start:web). It never contacts the API: normal-mode requests are answered by
 // the test itself, so it can count exactly what the page tries to send. Add --engine=webkit or --engine=firefox.
 const path = require("path");
 const fs = require("fs");
-const { root, APP, API, ENGINE, launchBrowser, contextOptions } = require("./common");
+const { root, APP, API, ENGINE, launchBrowser, contextOptions, waitForStill } = require("./common");
 
 const DEMO_URL = `${APP}?demo=1`;
 const NORMAL_URL = `${APP}?api=${encodeURIComponent(API)}`;
@@ -351,7 +354,8 @@ async function submitReport(page) {
   }));
   const axeOnStep3 = async () => {
     await page.evaluate(axeSource);
-    return page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
+    await waitForStill(page);
+    return await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
   };
   const reviewAnswers = () => page.$$eval(".review-answers li", (items) => items.map((li) => li.textContent.trim()).join(" / "));
   const storedAnswers = (title) => page.evaluate((t) => { const r = JSON.parse(localStorage.getItem("fixnow-gh-v3-reports") || "[]").find((x) => x.title === t); return r ? [r.immediateDanger, r.accessBlocked, r.worsening].map((v) => JSON.stringify(v)).join("|") : "missing"; }, title);
@@ -603,6 +607,105 @@ async function submitReport(page) {
   const raw = seenText.concat(toasts).filter((t) => RAW_ERRORS.test(t)).map((t) => (t.match(RAW_ERRORS) || [""])[0]);
   check(raw.length === 0, `6. no resident screen or message showed a raw error ${raw.join(", ")}`);
   check(errors.length === 0, `no page errors ${errors.join("; ")}`);
+
+  // ---------- 11. Motion ----------
+  // Views fade and rise when the tab changes, report steps slide forward and back, list items ease in, the Report
+  // submitted tick pops in, dialogs rise and fade out. Each animation lasts 150 to 250 ms and moves only transform and
+  // opacity. Nothing waits for one: the page title, step heading and dialog title get focus at once, things under an
+  // animation can be tapped at once, a closed dialog is gone at once (only an unclickable copy fades), and under
+  // prefers-reduced-motion nothing moves at all.
+  const motionProbe = () => {
+    window.__motion = () => document.getAnimations().filter((a) => a.animationName || (a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains("nav-capsule"))).map((a) => {
+      const timing = a.effect.getComputedTiming();
+      const props = [];
+      a.effect.getKeyframes().forEach((frame) => Object.keys(frame).forEach((key) => { if (!["offset", "computedOffset", "easing", "composite"].includes(key) && !props.includes(key)) props.push(key); }));
+      const target = a.effect.target;
+      const name = a.animationName || `transition of ${a.transitionProperty}`;
+      return { name, duration: Number(timing.duration), props, on: target ? `${target.tagName.toLowerCase()}.${String(target.getAttribute("class") || "").split(" ").join(".")}` : "" };
+    });
+  };
+  for (const reduce of [false, true]) {
+    const label = reduce ? "11. with reduced motion" : "11.";
+    const motionContext = await browser.newContext({ ...contextOptions(390, 844, { mobile: true }), serviceWorkers: "block", reducedMotion: reduce ? "reduce" : "no-preference" });
+    const mp = await motionContext.newPage();
+    const motionErrors = [];
+    mp.on("pageerror", (e) => motionErrors.push(e.message));
+    await mp.addInitScript(motionProbe);
+    await passWelcomeAt(mp, DEMO_URL);
+    await mp.waitForTimeout(500);
+    const seen = [];
+    // A tab change: the page title has focus at once, and a tile under the entrance can be tapped at once.
+    const tab = await mp.evaluate(() => {
+      document.activeElement.blur();
+      document.querySelector('.nav button[data-app-view="nearby"]').click();
+      const toNearby = { focus: document.activeElement.id, anims: window.__motion() };
+      document.activeElement.blur();
+      document.querySelector('.nav button[data-app-view="home"]').click();
+      const tile = document.querySelector(".home-shortcuts > .home-tile");
+      const r = tile.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { toNearby, focus: document.activeElement.id, anims: window.__motion(), tileTappable: Boolean(hit && tile.contains(hit)) };
+    });
+    seen.push(...tab.toNearby.anims, ...tab.anims);
+    check(tab.toNearby.focus === "viewTitle" && tab.focus === "viewTitle", `${label} the page title gets focus at once when the tab changes`);
+    check(tab.tileTappable, `${label} a problem tile can be tapped while Home is still easing in`);
+    if (!reduce) {
+      check(tab.toNearby.anims.some((a) => a.name === "fn-view-in") && tab.anims.some((a) => a.name === "fn-item-in" && /home-tile/.test(a.on)), `${label} the view fades and rises in, and the tiles ease in`);
+      check(tab.toNearby.anims.some((a) => /nav-capsule/.test(a.on)), `${label} the menu capsule slides to the new tab`);
+    }
+    await mp.waitForTimeout(500);
+    // Report steps: forward and back, the step heading focused at once.
+    const steps = await mp.evaluate(() => {
+      document.querySelector('.nav button[data-app-view="report"]').click();
+      document.querySelector('[data-quick-type="Flooding or drainage"]').click();
+      document.querySelector('[data-wizard-step="1"] [data-wizard-next]').click();
+      const next = { focus: document.activeElement.closest("[data-wizard-step]") && document.activeElement.tagName === "LEGEND" ? document.activeElement.closest("[data-wizard-step]").dataset.wizardStep : "", anims: window.__motion() };
+      document.querySelector('[data-wizard-step="2"] [data-wizard-back]').click();
+      const back = { focus: document.activeElement.closest("[data-wizard-step]") && document.activeElement.tagName === "LEGEND" ? document.activeElement.closest("[data-wizard-step]").dataset.wizardStep : "", anims: window.__motion() };
+      return { next, back };
+    });
+    seen.push(...steps.next.anims, ...steps.back.anims);
+    check(steps.next.focus === "2" && steps.back.focus === "1", `${label} each step heading gets focus at once, forward and back`);
+    if (!reduce) check(steps.next.anims.some((a) => a.name === "fn-step-next" && /wizard-step/.test(a.on)) && steps.back.anims.some((a) => a.name === "fn-step-back" && /wizard-step/.test(a.on)), `${label} report steps slide forward and back`);
+    await mp.waitForTimeout(400);
+    // A dialog: its title focused at once; on close it is gone at once, and only an unclickable, unnamed copy fades.
+    const dialog = await mp.evaluate(() => {
+      setView("home");
+      openModal("Motion check", "<p>Test</p>");
+      const open = { focus: document.activeElement.id, anims: window.__motion() };
+      closeModal();
+      const ghost = document.querySelector(".modal-ghost");
+      return {
+        open,
+        closedAtOnce: document.querySelector("#modalBackdrop").hidden && !document.querySelector(".app").inert,
+        ghost: ghost ? { hidden: ghost.getAttribute("aria-hidden") === "true", ids: ghost.querySelectorAll("[id]").length + (ghost.id ? 1 : 0), clickThrough: getComputedStyle(ghost).pointerEvents === "none", anims: window.__motion().filter((a) => /modal/.test(a.on)) } : null
+      };
+    });
+    seen.push(...dialog.open.anims, ...(dialog.ghost ? dialog.ghost.anims : []));
+    check(dialog.open.focus === "modalTitle" && dialog.closedAtOnce, `${label} a dialog's title gets focus at once, and closing it gives the page back at once`);
+    if (!reduce) {
+      check(dialog.open.anims.some((a) => a.name === "fn-sheet-in") && dialog.open.anims.some((a) => a.name === "fn-fade-in"), `${label} a dialog fades in and its sheet rises from the bottom`);
+      check(Boolean(dialog.ghost) && dialog.ghost.hidden && dialog.ghost.ids === 0 && dialog.ghost.clickThrough && dialog.ghost.anims.some((a) => a.name === "fn-fade-out"), `${label} on close, an unclickable copy without ids, hidden from screen readers, fades out`);
+    } else check(!dialog.ghost, `${label} no fading copy is made`);
+    await mp.waitForTimeout(700);
+    check(await mp.evaluate(() => !document.querySelector(".modal-ghost")), `${label} the fading copy is removed`);
+    // Report submitted: the tick pops in.
+    const tick = await mp.evaluate(() => {
+      showSubmittedResult({ id: "FN-MOTION1", trackingSecret: "motion-check-secret" });
+      const anims = window.__motion();
+      closeModal();
+      return anims;
+    });
+    seen.push(...tick);
+    if (!reduce) check(tick.some((a) => a.name === "fn-tick-pop" && /result-icon/.test(a.on)) && tick.some((a) => a.name === "fn-tick-mark"), `${label} the Report submitted tick pops in`);
+    if (reduce) check(seen.length === 0, `${label} nothing moves ${seen.map((a) => `${a.name} on ${a.on}`).join(", ")}`);
+    else {
+      const wrong = seen.filter((a) => a.duration < 150 || a.duration > 250 || a.props.some((p) => !["transform", "opacity"].includes(p)));
+      check(seen.length > 0 && wrong.length === 0, `${label} every animation lasts 150 to 250 ms and moves only transform and opacity ${wrong.map((a) => `${a.name} ${a.duration} ms ${a.props.join("/")}`).join(", ")}`);
+    }
+    check(motionErrors.length === 0, `${label} no page errors ${motionErrors.join("; ")}`);
+    await motionContext.close();
+  }
 
   await browser.close();
   console.log(failures ? `${failures} resident outcome check(s) failed` : `Resident outcome checks passed (${ENGINE})`);

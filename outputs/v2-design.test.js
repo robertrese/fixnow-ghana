@@ -102,7 +102,10 @@ assert(!/:(is|where)\(/.test(shippedCss), "the built page and staff.css must not
 assert(fs.readFileSync(path.join(__dirname, "..", "work", "design", "build-style-layer.js"), "utf8").includes("expandCss(minified)"), "the CSS build must expand :is() and :where()");
 
 // Public demo: nothing leaves the page, no real calls, clear labels, staff sign-in points to the gallery.
-assert(html.includes("<b>Demo</b> with sample data. Nothing you enter leaves this page, and calls are off."), "the demo banner says plainly that nothing is sent and calls are off");
+assert(html.includes('<div class="demo-banner" id="demoBanner" role="note" hidden><b>Demo</b> with sample data. Nothing is sent.</div>'), "the demo banner is one slim line (it fits a 320 px phone with Large text) that says plainly it is sample data and nothing is sent");
+// Reset demo lives in Profile, shown only in the demo; the banner itself has no button.
+assert(/<div class="profile-demo" id="profileDemo" hidden>[\s\S]*?<button class="profile-action" id="demoResetBtn" type="button">[\s\S]*?<strong>Reset demo<\/strong>/.test(html) && html.includes('document.querySelector("#profileDemo").hidden = false;') && html.includes('document.querySelector("#demoResetBtn").addEventListener("click", resetDemoData);'), "Reset demo is a Profile row shown only in the demo");
+assert(!/id="demoBanner"[^>]*>[^\n]*<button/.test(html), "the demo banner has no button");
 assert(html.includes("This is a demo. In a real emergency, dial 112 from your phone.") && html.includes("if (IS_DEMO_MODE || emergencyDiallerOpening"), "demo mode never opens the dialler");
 assert(html.includes('openModal("Staff sign-in is not in the demo"') && html.includes('window.location.href = "screens/"'), "demo staff access explains and links to the screen gallery");
 assert(html.includes('if (IS_DEMO_MODE) throw new Error("This is a demo, so nothing is sent from this page.");') && html.includes('if (IS_DEMO_MODE) throw new Error("Demo data cannot sync to production");'), "every request helper refuses to send in demo mode");
@@ -343,9 +346,19 @@ assert(/\.nav\{left:max\(16px, env\(safe-area-inset-left\)\);right:max\(16px, en
 const blurUses = [...html.matchAll(/backdrop-filter:blur\(\d/g)].length; // declarations only, not the @supports tests
 assert(blurUses === 2 && html.includes("@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))){@media (max-width: 880px){.nav{background:rgba(255, 253, 248, .66);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}"), "blur is used on the menu bar only, with the -webkit- prefix, inside @supports");
 assert(!/backdrop-filter/.test(fs.readFileSync(path.join(__dirname, "staff.css"), "utf8")), "the staff page uses no blur");
-assert(html.includes(".nav::before{") && html.includes("transform:translateX(calc(var(--tab, 0) * 100%));transition:transform .2s ease") && html.includes('body[data-view="my"] .nav{--tab:3}'), "the menu capsule slides to the current tab");
+// The current-tab capsule sits behind the icon only (56 x 32 px, fully rounded) and slides between tabs. Each tab
+// lays out from the top: 7 px, then the 32 px icon box (21 px icon + 5.5 px padding above and below), then the label,
+// so the pill (also 7 px from the top) always lines up with the icon, whatever the label length or text size.
+assert(html.includes('<nav class="nav" aria-label="Main navigation">\n        <span class="nav-capsule" aria-hidden="true"><i></i></span>'), "the menu has one capsule element, hidden from screen readers");
+assert(html.includes(".nav-capsule{display:block;position:absolute;top:7px;left:6px;width:calc((100% - 12px) / 5);height:32px;pointer-events:none;transform:translateX(calc(var(--tab, 0) * 100%));transition:transform .2s ease}") && html.includes('body[data-view="my"] .nav{--tab:3}'), "the menu capsule slides to the current tab");
+assert(html.includes(".nav-capsule i{display:block;width:56px;height:32px;margin:0 auto;border-radius:16px;background:rgba(13, 42, 34, .1)}"), "the capsule is a 56 x 32 px pill behind the icon only");
+assert(/\.nav button\{position:relative;display:flex;flex-direction:column;align-items:center;align-self:stretch;justify-content:flex-start;min-height:44px;gap:2px;padding:7px 2px 0;/.test(html) && html.includes(".nav button .nav-icon{box-sizing:content-box;flex:0 0 auto;padding:5.5px 17.5px;"), "each tab starts 7 px from the top with a 32 px icon box, so the pill lines up with the icon");
+assert(!html.includes(".nav::before{"), "the old full-width capsule is gone");
+assert(html.includes('.nav button.active, .nav button[aria-current="page"]{color:var(--deep);font-weight:800;'), "the current tab's label is bold");
+assert(html.includes('[data-theme="dark"] .nav-capsule i{background:rgba(151, 209, 166, .16)}'), "in dark mode the capsule uses the mint accent");
+assert(html.includes("body.large-text .nav{height:74px}") && html.includes("body.large-text .nav button span{white-space:normal;"), "with Large text a long label wraps instead of running into its neighbour");
 assert(html.includes('body[data-view="report"] .nav{display:none}') && html.includes('class="topbar-exit"'), "the menu stays hidden in the report wizard, and the exit button stays");
-assert(/\.nav \.nav-report\{width:54px;height:54px;min-height:54px;background:var\(--deep\)/.test(html), "the centre Report button is a 54 px deep green circle");
+assert(/\.nav \.nav-report\{align-self:center;justify-content:center;width:54px;height:54px;min-height:54px;padding:0;background:var\(--deep\)/.test(html), "the centre Report button is a 54 px deep green circle");
 // The laptop side menu: Home, Nearby, My reports, Notifications, Profile; no Report row; the In danger? card.
 const railHtml = html.match(/<aside class="rail">[\s\S]*?<\/aside>/)[0];
 assert([...railHtml.matchAll(/<span>(Home|Nearby|Report|My reports|Notifications|Profile)<\/span>/g)].map((m) => m[1]).join() === "Home,Nearby,Report,My reports,Notifications,Profile", "the menu rows are in order (Report shows on phones only, Notifications on laptops only)");
@@ -355,7 +368,7 @@ assert(html.includes("width:244px;height:calc(100vh - 28px);height:calc(100dvh -
 // Notifications: every entry point opens the same list.
 assert(html.includes('if (event.target.closest("[data-open-notifications]")) openNotifications();'), "the Notifications buttons open the existing notifications list");
 // Motion: press feedback and the sliding capsule are off under reduced motion; new hover effects only where hover exists.
-assert(/@media \(prefers-reduced-motion: reduce\)\{\.nav::before, \.primary,[^}]*\{transition:none\}/.test(html) && /\.nav button:active\{transform:none\}/.test(html), "motion is off under prefers-reduced-motion");
+assert(/@media \(prefers-reduced-motion: reduce\)\{\.nav-capsule, \.primary,[^}]*\{transition:none\}/.test(html) && /\.nav button:active\{transform:none\}/.test(html), "motion is off under prefers-reduced-motion");
 const hoverBlock = v4Source.slice(v4Source.indexOf("@media (hover: hover){\n.home-primary:hover"));
 assert(hoverBlock.startsWith("@media (hover: hover){") && (v4Source.match(/\.home-tile:hover|\.rail-call:hover|\.home-bell:hover/g) || []).length === 3, "V4 hover effects sit inside @media (hover: hover)");
 // Dark: the glass bar is a dark translucent surface with the mint accent; cards use borders, not shadows.
@@ -402,5 +415,32 @@ assert(["review", "cases", "routing", "accounts", "audit"].every((id) => new Reg
 const staffCssV4 = fs.readFileSync(path.join(__dirname, "staff.css"), "utf8");
 assert(staffCssV4.includes(".s-tab-icon{display:none}") && staffCssV4.includes(".s-tab-icon{display:block;flex:0 0 auto;width:20px;height:20px;"), "the staff section icons are 20 px and show on laptops only");
 assert(staffCssV4.includes(".s-stat:nth-child(3):last-child{grid-column:1 / -1}"), "on phones a third number box spans the full width");
+
+// V4 polish, motion (owner's brief of 18 November 2026). Views, report steps, list items, the Report submitted tick
+// and dialogs animate. Each animation lasts 150 to 250 ms, moves only transform and opacity, holds nothing after it
+// ends ("backwards"), never makes anything wait, and is off under prefers-reduced-motion. The browser check is
+// section 11 of work/qa/resident-outcomes-check.js.
+const motionSource = fs.readFileSync(path.join(root, "work", "design", "fixnow-v3.css"), "utf8");
+const motionBlock = motionSource.slice(motionSource.indexOf("/* ==================== V4 polish: motion"), motionSource.indexOf("/* Public demo (demo mode only)."));
+assert(motionBlock.length > 500, "the motion section sits in fixnow-v3.css before the demo block");
+const keyframes = [...motionBlock.matchAll(/@keyframes (fn-[\w-]+)\{([\s\S]*?\})\}/g)];
+assert(keyframes.length === 10, "the motion section defines its ten keyframes");
+for (const [, name, body] of keyframes) {
+  const props = [...body.matchAll(/([a-z-]+):/g)].map((m) => m[1]);
+  assert(props.length && props.every((p) => p === "opacity" || p === "transform"), `${name} animates only transform and opacity`);
+}
+const animationUses = [...motionBlock.matchAll(/animation:(fn-[\w-]+) \.(\d+)s/g)];
+assert(animationUses.length >= 9 && animationUses.every((m) => Number(`0.${m[2]}`) * 1000 >= 150 && Number(`0.${m[2]}`) * 1000 <= 250), "every animation lasts 150 to 250 ms");
+assert(!/animation:fn-(view|item|step|tick|sheet-in|fade-in)[^;}]*forwards/.test(motionBlock), "entrances use backwards fill, so nothing is held after they end (press feedback still works)");
+assert(/@media \(prefers-reduced-motion: reduce\)\{\n\.view-enter > section:not\(\.topbar\), [^{]*\.wizard-step\.step-next, \.wizard-step\.step-back, \.result-icon\.ok, \.result-icon\.ok svg, \.modal-backdrop\.show, \.modal-backdrop\.show \.modal\{animation:none\}\n\.modal-backdrop\.modal-ghost\{display:none\}/.test(motionBlock), "all motion is off under prefers-reduced-motion");
+assert(html.includes('if (document.body.dataset.view && document.body.dataset.view !== safeView) playViewEnter();') && html.includes('viewEnterTimer = window.setTimeout(() => main.classList.remove("view-enter"), 1000);'), "views animate only when the tab changes, and the class goes once the entrance is over");
+assert(html.includes("@supports (overflow-x: clip){.content{overflow-x:clip}") && html.includes("@supports not (overflow-x: clip){.wizard-step.step-next, .wizard-step.step-back{animation-name:fn-view-in}"), "a step sliding in never makes the page scroll sideways (clip, or a rise where clip is missing)");
+assert(html.includes('if (active && slide) restartAnimation(panel, direction);') && html.includes('const direction = wizardStep > previousStep ? "step-next" : "step-back";'), "report steps slide in the direction of travel");
+// Closing: the real dialog closes at once; a copy without ids, hidden from screen readers and unclickable, fades.
+assert(/function closeModal\(\) \{\n      playModalExit\(\);/.test(html) && html.includes('[ghost, ...ghost.querySelectorAll("[id]")].forEach((element) => element.removeAttribute("id"));') && html.includes('ghost.setAttribute("aria-hidden", "true");') && html.includes(".modal-backdrop.modal-ghost.show{pointer-events:none;") && html.includes(".modal-backdrop.show.is-page{animation:none;background:var(--soft)}"), "a closing dialog fades as an unclickable copy without ids, hidden from screen readers");
+assert(html.includes('document.querySelectorAll(".modal-ghost").forEach((ghost) => ghost.remove());'), "opening a dialog removes any copy still fading");
+assert(html.includes('ghost.addEventListener("animationend", (event) => { if (event.target === ghost) ghost.remove(); });') && html.includes("window.setTimeout(() => ghost.remove(), 600);"), "the fading copy goes when its fade ends, and in any case after 600 ms (a slow phone may start it late)");
+// Focus still moves at once: nothing in the motion code delays it.
+assert(!/setTimeout\([^)]*(focus|focusWizardHeading)/.test(html.slice(html.indexOf("function reducedMotion()"), html.indexOf("function announceView("))), "focus never waits for an animation");
 
 console.log("V2 design and safety guard test passed");
