@@ -30,7 +30,7 @@
 // the test itself, so it can count exactly what the page tries to send. Add --engine=webkit or --engine=firefox.
 const path = require("path");
 const fs = require("fs");
-const { root, APP, API, ENGINE, launchBrowser, contextOptions } = require("./common");
+const { root, APP, API, ENGINE, launchBrowser, contextOptions, waitForStill } = require("./common");
 
 const DEMO_URL = `${APP}?demo=1`;
 const NORMAL_URL = `${APP}?api=${encodeURIComponent(API)}`;
@@ -354,7 +354,8 @@ async function submitReport(page) {
   }));
   const axeOnStep3 = async () => {
     await page.evaluate(axeSource);
-    return page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
+    await waitForStill(page);
+    return await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
   };
   const reviewAnswers = () => page.$$eval(".review-answers li", (items) => items.map((li) => li.textContent.trim()).join(" / "));
   const storedAnswers = (title) => page.evaluate((t) => { const r = JSON.parse(localStorage.getItem("fixnow-gh-v3-reports") || "[]").find((x) => x.title === t); return r ? [r.immediateDanger, r.accessBlocked, r.worsening].map((v) => JSON.stringify(v)).join("|") : "missing"; }, title);

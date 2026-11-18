@@ -6,7 +6,7 @@
 const path = require("path");
 const fs = require("fs");
 const root = path.join(__dirname, "..", "..");
-const { passWelcome, fillReportToReview, loadPlaywright } = require("./common");
+const { passWelcome, fillReportToReview, loadPlaywright, waitForStill } = require("./common");
 const out = path.join(root, "work/qa/screenshots/pages");
 const axeSource = fs.readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 fs.mkdirSync(out, { recursive: true });
@@ -23,6 +23,7 @@ setTimeout(() => { console.error("Timed out after 10 minutes"); process.exit(1);
     const shot = async (name) => {
       await page.screenshot({ path: path.join(out, `${scheme}-${name}.png`) });
       await page.evaluate(axeSource);
+      await waitForStill(page);
       const violations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`));
       check(violations.length === 0, `${scheme}: ${name} has 0 WCAG violations ${violations.join(" | ")}`);
     };

@@ -108,4 +108,10 @@ async function fillReportToReview(page, { keepSimilarPage = false } = {}) {
   if (similarOpen && !keepSimilarPage) await page.click("#modalActions button:last-child"); // Continue with new report
 }
 
-module.exports = { root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, passPhotoStep, fillReportToReview };
+// Waits (up to 3 s) until nothing on the page is animating, so an accessibility scan never measures the contrast of
+// something halfway through a fade (a toast leaving, a view or dialog coming in).
+async function waitForStill(page) {
+  await page.waitForFunction(() => !document.getAnimations || document.getAnimations().every((a) => a.playState !== "running"), null, { timeout: 3000 }).catch(() => {});
+}
+
+module.exports = { waitForStill, root, localDataDir, API, APP, APP_URL, COLOR_SCHEME, ENGINE, THEME_LABEL, RUN_FOLDER, localSettings, loadPlaywright, launchBrowser, contextOptions, passWelcome, passPhotoStep, fillReportToReview };

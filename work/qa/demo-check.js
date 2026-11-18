@@ -7,7 +7,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { loadPlaywright, root } = require("./common");
+const { loadPlaywright, root, waitForStill } = require("./common");
 
 const site = path.join(root, "docs");
 const out = path.join(root, "work", "qa", "screenshots", "demo");
@@ -49,6 +49,7 @@ const server = http.createServer((req, res) => {
       await page.waitForFunction(() => !(document.querySelector("#toast") && document.querySelector("#toast").classList.contains("show")), null, { timeout: 5000 }).catch(() => {});
       await page.waitForTimeout(400);
       await page.evaluate(axeSource);
+      await waitForStill(page);
       const v = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } })).violations.map((x) => `${x.id}: ${x.nodes.map((n) => n.target.join(" ")).slice(0, 2).join(", ")}`));
       check(v.length === 0, `${scheme}: ${label} has 0 WCAG violations ${v.join(" | ")}`);
     };
