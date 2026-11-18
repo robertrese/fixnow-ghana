@@ -749,6 +749,7 @@ body.large-text .home-danger{margin:10px 0 0}
 .home-shortcuts > .home-tile small{display:block;color:var(--muted);font-size:.8125rem;font-weight:400;line-height:1.3}
 .hotline-number{font-weight:800;letter-spacing:-.03em}
 
+.nav-capsule{display:none}
 @media (max-width: 880px){
 /* Home: the page title stays for screen readers and focus; the hero card carries the brand row instead of the top bar */
 body[data-view="home"] .topbar{position:absolute;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -758,13 +759,18 @@ body[data-view="home"] .home-shortcuts .v2-section-title{margin-top:-6px}
 /* The menu: a floating glass bar. Solid paper where blur is not supported. */
 .content{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .nav{left:max(16px, env(safe-area-inset-left));right:max(16px, env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));height:66px;align-items:center;padding:0 6px;border:1px solid rgba(255, 255, 255, .7);border-radius:33px;background:#fffdf8;box-shadow:0 8px 28px rgba(13, 42, 34, .18)}
-.nav::before{content:"";position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px) / 5);border-radius:27px;background:rgba(13, 42, 34, .1);transform:translateX(calc(var(--tab, 0) * 100%));transition:transform .2s ease}
+/* The current-tab capsule sits behind the icon only (56 x 32 px, fully rounded), with the label underneath. The outer
+   span is one fifth of the bar wide and slides by its own width to the current tab; the pill is centred inside it.
+   Each tab lays out from the top (7 px, then the 32 px icon box, then the label), so the pill lines up with the icon
+   at every text size. */
+.nav-capsule{display:block;position:absolute;top:7px;left:6px;width:calc((100% - 12px) / 5);height:32px;pointer-events:none;transform:translateX(calc(var(--tab, 0) * 100%));transition:transform .2s ease}
+.nav-capsule i{display:block;width:56px;height:32px;margin:0 auto;border-radius:16px;background:rgba(13, 42, 34, .1)}
 body[data-view="nearby"] .nav{--tab:1}
 body[data-view="my"] .nav{--tab:3}
 body[data-view="profile"] .nav{--tab:4}
-body[data-view="track"] .nav::before, body[data-view="responder"] .nav::before{opacity:0}
-.nav button{position:relative;min-height:54px;gap:3px;padding:4px 2px;border-radius:27px;background:transparent;color:#3d4a43;font-size:.6875rem;font-weight:600}
-.nav button .nav-icon{padding:0;border-radius:0}
+body[data-view="track"] .nav-capsule, body[data-view="responder"] .nav-capsule{opacity:0}
+.nav button{position:relative;display:flex;flex-direction:column;align-items:center;align-self:stretch;justify-content:flex-start;min-height:44px;gap:2px;padding:7px 2px 0;border-radius:27px;background:transparent;color:#3d4a43;font-size:.6875rem;font-weight:600}
+.nav button .nav-icon{box-sizing:content-box;flex:0 0 auto;padding:5.5px 17.5px;border-radius:16px}
 .nav button span{white-space:nowrap}
 .nav button.active, .nav button[aria-current="page"]{color:var(--deep);font-weight:800;background:transparent}
 .nav button.active .nav-icon{background:transparent;stroke-width:2.4}
@@ -773,8 +779,14 @@ body[data-view="track"] .nav::before, body[data-view="responder"] .nav::before{o
 .nav button:hover{color:#3d4a43;background:transparent}
 .nav button.active:hover, .nav button[aria-current="page"]:hover{color:var(--deep)}
 .nav .nav-report:hover, .nav .nav-report.active{background:var(--deep);color:#fdfaf1}
-.nav .nav-report{width:54px;height:54px;min-height:54px;background:var(--deep);color:#fdfaf1;font-size:.75rem;font-weight:700}
+.nav .nav-report{align-self:center;justify-content:center;width:54px;height:54px;min-height:54px;padding:0;background:var(--deep);color:#fdfaf1;font-size:.75rem;font-weight:700}
 .toast{bottom:calc(98px + env(safe-area-inset-bottom))}
+/* Large text: a long label such as "My reports" may wrap onto two lines, so the bar grows to 74 px instead of running
+   labels into each other on narrow phones. */
+body.large-text .nav{height:74px}
+body.large-text .nav button span{white-space:normal;line-height:1.05;text-align:center}
+body.large-text .content{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
+body.large-text .toast{bottom:calc(106px + env(safe-area-inset-bottom))}
 }
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))){
 @media (max-width: 880px){
@@ -842,7 +854,7 @@ body[data-view="home"] .home-actions{max-width:520px}
 .rail .nav button.active:hover{background:#fffdf8}
 }
 @media (prefers-reduced-motion: reduce){
-.nav::before, .primary, .secondary, .danger, .ghost, .mini, .home-primary, .home-danger, .home-bell, .home-tile, .rail-call, .nav button{transition:none}
+.nav-capsule, .primary, .secondary, .danger, .ghost, .mini, .home-primary, .home-danger, .home-bell, .home-tile, .rail-call, .nav button{transition:none}
 .primary:active, .secondary:active, .danger:active, .ghost:active, .mini:active, .home-primary:active, .home-danger:active, .home-bell:active, .home-tile:active, .rail-call:active, .nav button:active{transform:none}
 }
 
@@ -933,14 +945,69 @@ body[data-view="report"] .topbar h1{font-size:1.0625rem;font-weight:800;letter-s
 .my-report-card:hover, .public-report-card:hover{box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
 }
 
+/* ==================== V4 polish: motion ====================
+   Short movements that show where things come from: views fade and rise a little when the tab changes, report steps
+   slide forward and back, cards and list items ease in, the Report submitted tick pops in, and dialogs and full pages
+   rise from the bottom and fade out when closed. Every animation lasts 150 to 250 ms and moves only transform and
+   opacity. "backwards" fill means nothing is held after an animation ends, so press feedback and layout are untouched.
+   Nothing waits for an animation: content is in place and usable at once, and focus still moves to the page title or
+   step heading straight away. All of it is off under prefers-reduced-motion. */
+@keyframes fn-view-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fn-item-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fn-step-next{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes fn-step-back{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes fn-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes fn-fade-out{from{opacity:1}to{opacity:0}}
+@keyframes fn-sheet-in{from{transform:translateY(32px)}to{transform:none}}
+@keyframes fn-sheet-out{from{transform:none}to{transform:translateY(24px)}}
+@keyframes fn-tick-pop{0%{opacity:0;transform:scale(.6)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:none}}
+@keyframes fn-tick-mark{from{opacity:0;transform:scale(.5) rotate(-12deg)}to{opacity:1;transform:none}}
+/* Views: set on <main> by setView() for 400 ms when the tab changes. The sticky top bar stays still. */
+.view-enter > section:not(.topbar){animation:fn-view-in .22s cubic-bezier(.2, .7, .3, 1) backwards}
+.view-enter :is(.home-tile, .my-report-card, .public-report-card, .profile-action){animation:fn-item-in .2s ease-out backwards}
+.view-enter :is(.home-tile, .my-report-card, .public-report-card, .profile-action):nth-child(2){animation-delay:30ms}
+.view-enter :is(.home-tile, .my-report-card, .public-report-card, .profile-action):nth-child(3){animation-delay:60ms}
+.view-enter :is(.home-tile, .my-report-card, .public-report-card, .profile-action):nth-child(n+4){animation-delay:90ms}
+/* Report steps: setWizardStep() marks the step it shows with the direction of travel. */
+.wizard-step.step-next{animation:fn-step-next .2s cubic-bezier(.2, .7, .3, 1) backwards}
+.wizard-step.step-back{animation:fn-step-back .2s cubic-bezier(.2, .7, .3, 1) backwards}
+/* A step sliding in from the side must never make the page scroll sideways. overflow-x: clip cuts it off at the edge
+   of the content area without making a scroll container, so the sticky Continue bar still works. Browsers without
+   clip (Safari before 16) get a small rise instead of the sideways slide. */
+@supports (overflow-x: clip){
+.content{overflow-x:clip}
+}
+@supports not (overflow-x: clip){
+.wizard-step.step-next, .wizard-step.step-back{animation-name:fn-view-in}
+}
+/* Report submitted: the green circle pops in, then the tick. */
+.result-icon.ok{animation:fn-tick-pop .24s cubic-bezier(.2, .8, .3, 1.2) backwards}
+.result-icon.ok svg{animation:fn-tick-mark .18s ease-out .08s backwards}
+/* Dialogs and full pages: the dim layer fades in and the sheet rises from the bottom. On close, a copy of the sheet
+   (closeModal() adds it, hidden from screen readers and unclickable) fades out while the real one is already gone. */
+.modal-backdrop.show{animation:fn-fade-in .18s ease-out backwards}
+/* A full page does not fade in over the screen below (the two would show through each other): its layer is solid at
+   once and the page rises into it. */
+.modal-backdrop.show.is-page{animation:none;background:var(--soft)}
+.modal-backdrop.show .modal{animation:fn-sheet-in .24s cubic-bezier(.2, .8, .3, 1) backwards}
+.modal-backdrop.modal-ghost.show{pointer-events:none;animation:fn-fade-out .18s ease-in forwards}
+.modal-backdrop.modal-ghost.show .modal{animation:fn-sheet-out .18s ease-in forwards}
+@media (prefers-reduced-motion: reduce){
+.view-enter > section:not(.topbar), .view-enter :is(.home-tile, .my-report-card, .public-report-card, .profile-action), .wizard-step.step-next, .wizard-step.step-back, .result-icon.ok, .result-icon.ok svg, .modal-backdrop.show, .modal-backdrop.show .modal{animation:none}
+.modal-backdrop.modal-ghost{display:none}
+}
+
 /* Public demo (demo mode only). The banner is fixed to the top and kept short; its measured height (--demo-banner-h,
    set by the page script and updated when it changes, for example with Large text) is reserved on every view: the page,
    the sticky topbar, the laptop sidebar, the welcome steps, dialogs and full-screen pages all start below it.
    The banner holds the iPhone notch space, so the surfaces below it drop their own. */
-.demo-banner{position:fixed;top:0;right:0;left:0;z-index:80;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;padding:calc(4px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 4px calc(16px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.9rem;font-weight:400;line-height:1.35;text-align:left;border-bottom:1px solid rgba(255,253,248,.3)}
-.demo-banner span{flex:1 1 auto;min-width:0;margin:4px 12px 4px 0}
+/* One slim line, even on a 320 px phone with Large text: no button (Reset demo lives in Profile). If a browser ever
+   needs a second line, its measured height still keeps every view clear. */
+.demo-banner{position:fixed;top:0;right:0;left:0;z-index:80;display:block;padding:calc(5px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left));background:#0d2a22;color:#fffdf8;font-size:.8125rem;font-weight:400;line-height:1.3;text-align:center;border-bottom:1px solid rgba(255,253,248,.3)}
 .demo-banner b{color:inherit;font-weight:700}
-.demo-banner button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px;border-radius:999px;border:1.5px solid rgba(255,253,248,.7);background:transparent;color:#fffdf8;font:inherit;font-weight:700;white-space:nowrap}
+/* Profile in the demo: Reset demo */
+.profile-demo{display:grid}
+.profile-demo[hidden]{display:none}
 html.demo-mode{scroll-padding-top:var(--demo-banner-h, 0px)}
 html.demo-mode body{padding-top:var(--demo-banner-h, 0px)}
 html.demo-mode body .welcome-screen, html.demo-mode body .modal-backdrop{top:var(--demo-banner-h, 0px)}
@@ -979,7 +1046,7 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 [data-theme="dark"] .welcome-intro .welcome-actions .primary, [data-theme="dark"] .home-primary, [data-theme="dark"] .home-primary b, [data-theme="dark"] .report-stepper li.current::before{color:#0d2a22}
 @media (min-width: 881px){[data-theme="dark"] .rail .nav button.active, [data-theme="dark"] .rail .nav button.active code{color:#0d2a22}}
 /* Older components with hard-coded white or pale backgrounds */
-[data-theme="dark"] :is(.skip-link, .demo-banner button, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .action-log, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] :is(.skip-link, .danger, .ghost, .preview, .tag, .route-box, .guided-panel, .helper-panel, .examples-panel, .action-log, .seg, .seg button, .my-report-tools, .map-state, .honest-state, .check, .report-detail-summary){background:var(--panel);color:var(--ink);border-color:var(--line)}
 
 [data-theme="dark"] :is(.guided-step, .example-card, .example-icon, .empty, .location-status, .map-unavailable, .profile-avatar, .meter, .num, .bar){background:var(--raised);color:var(--ink);border-color:var(--line)}
 [data-theme="dark"] .notice{background:#363322;color:#f3c95a;border-color:#5a5330}
@@ -1029,7 +1096,6 @@ html.demo-mode body[data-view="report"] .report-aside{top:calc(24px + var(--demo
 body.map-unavailable [data-focus-public]{display:none}
 #intake > .panel-head{display:none}
 [data-theme="dark"] .demo-banner{border-bottom:1px solid var(--line)}
-[data-theme="dark"] .demo-banner button{background:transparent;color:#fffdf8;border-color:rgba(255,253,248,.7)}
 [data-theme="dark"] .honest-state a.primary{background:#fcd116;color:#0d2a22}
 /* V4 "modern" in dark: no shadows for depth (borders and lighter surfaces instead); the glass menu is a dark translucent
    surface with the mint accent on the current tab; the hero and the side menu stay deep green. */
@@ -1041,7 +1107,7 @@ body.map-unavailable [data-focus-public]{display:none}
 [data-theme="dark"] .no-photo-btn[aria-pressed="true"]{background:#97d1a6;border-color:#97d1a6;color:#0d2a22}
 @media (max-width: 880px){
 [data-theme="dark"] .nav{border-color:rgba(255, 255, 255, .12);background:#1f2720;box-shadow:0 8px 28px rgba(0, 0, 0, .4)}
-[data-theme="dark"] .nav::before{background:rgba(151, 209, 166, .16)}
+[data-theme="dark"] .nav-capsule i{background:rgba(151, 209, 166, .16)}
 [data-theme="dark"] .nav button, [data-theme="dark"] .nav button:hover{color:#b3beb6}
 [data-theme="dark"] .nav button.active, [data-theme="dark"] .nav button[aria-current="page"], [data-theme="dark"] .nav button.active:hover{color:#97d1a6}
 [data-theme="dark"] .nav button.active .nav-icon{background:transparent;color:#97d1a6}

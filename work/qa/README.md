@@ -26,7 +26,7 @@ npm run qa:engines     # the same layout check, WCAG scan, walkthrough and staff
 npm run qa:all         # both of the above
 npm run qa:journey     # the public demo's complete journey on docs/: sample Nearby and filters, similar report,
                        # the seven simulated steps (confirm and reopen), labels, sample offices, WCAG, nothing leaves the page
-npm run qa:outcomes    # what a visitor sees: demo banner never covers a heading (320, 390, 1280 px, Large text), My reports
+npm run qa:outcomes    # what a visitor sees (also: motion timing, focus and reduced motion, section 11): demo banner never covers a heading (320, 390, 1280 px, Large text), My reports
                        # search, badge and demo reports, no demo report ever sent, no raw errors, every filter, plain photo words
 ```
 
@@ -64,11 +64,13 @@ node work/qa/android-theme-check.js work/qa/screenshots/android11
 node work/qa/android-back-check.js
 node work/qa/android-shared-smoke-check.js
 node work/qa/android-dark-check.js
+node work/qa/android-motion-check.js
 ```
 
 - `android-insets-check.js`: nothing under the status or navigation bar, no extra gap, no double padding, and the keyboard never covers the step 3 description, the step 5 contact field or staff sign-in, in gesture and 3-button navigation.
 - `android-theme-check.js`: dark mode follows the phone, also when it changes while the app is open; the in-app Light and Dark choices override it; the area below the tab bar matches the page.
 - `android-dark-check.js`: dark mode on every main screen, Nearby in map view, a full page, the call dialogs and the staff page, with axe-core's colour-contrast rule run inside the WebView itself; also fails if the page still has `:is()` or `:where()` rules, which WebView 83 drops.
+- `android-motion-check.js`: the motion in the installed app (views, tiles, report steps, dialogs, the Report submitted tick): each animation really runs, is declared as 150 to 250 ms and ends about on time; focus moves at once; a closed dialog gives the page back at once. It runs as the phone is set and with the opposite reduce-motion preference set for the page only (the test emulators have system animations off, which the app honours: nothing moves). On WebView 83, which lacks `overflow-x: clip`, report steps rise in instead of sliding sideways. It also screenshots the menu bar on the four tabs (`screenshots/android-motion`) and checks the capsule sits behind each icon. No server needed.
 - `android-back-check.js`: the phone's Back button or gesture closes a full-screen page and stays in the app.
 - `android-shared-smoke-check.js`: the web code the app shares with the browser, in the installed app: a report sends and is found by its title and description; with the server unreachable (the adb route removed) the report is saved, labelled Not sent yet and counted in the badge, then sends when the server is back; every type and status can be filtered; no raw errors. Run it before handing out an updated APK.
 - If an emulator will not start (for example after a sudden power-off), start it with `-read-only`.

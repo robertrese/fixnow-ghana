@@ -50,7 +50,7 @@ It starts after the visitor sends a report in the demo. The "Demo report saved" 
 
 The last step offers **Restart** and **Report another problem**.
 
-- **Restart** is always one tap away: in the step bar, and on the "Reset demo" button in the banner (which already resets the demo data).
+- **Restart** is always one tap away: in the step bar, and on the "Reset demo" row in Profile (which resets the demo data; the banner is one slim line with no button since November 2026).
 - **Two minutes:** seven short steps, at most about 40 words each, and one tap per step.
 
 ## Nearby with sample reports

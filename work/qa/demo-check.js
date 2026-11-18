@@ -61,7 +61,7 @@ const server = http.createServer((req, res) => {
     for (const id of ["#consentPrivacy", "#consentTerms", "#consentEmergency"]) await page.check(id);
     await page.click("#welcomeAcceptBtn");
     await page.waitForTimeout(800);
-    check(await page.isVisible("#demoBanner") && /Nothing you enter leaves this page/.test(await page.textContent("#demoBanner")), `${scheme}: the Demo banner is shown`);
+    check(await page.isVisible("#demoBanner") && /Demo with sample data. Nothing is sent./.test(await page.textContent("#demoBanner")), `${scheme}: the Demo banner is shown`);
     await shot("1-home"); await axe("home");
 
     await page.click(".home-danger");
