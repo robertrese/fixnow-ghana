@@ -10,7 +10,7 @@ Read `design/v2-handoff/CLAUDE-CODE-HANDOFF.md` for the full history, decisions 
 
 - `outputs/fixnow-ghana.html`: the whole web app. It is a single-page PWA (HTML, CSS and JS in one file, about 0.5 MB) with a `body[data-view]` view system.
 - `outputs/staff.html`, `staff.js`, `staff.css`: the staff area (moderator review queue, responder cases and case pages, admin routing, staff accounts and audit log). It is a separate page so resident pages never load staff code. Contact details and exact locations appear only on a case page, from `GET /api/reports/:id/case`.
-- `outputs/service-worker.js`: the offline cache. Bump `CACHE_NAME` whenever a cached file changes.
+- `outputs/service-worker.js`: the offline cache. Bump `CACHE_NAME` whenever a cached file changes. Offline, a page opens its own cached copy, and the app's folder address (`./`) opens the cached `fixnow-ghana.html`; nothing else is turned into the app. Only files that exist go in its list: the demo build adds the demo's `index.html` start page to the demo's list only. Checked by `work/qa/offline-check.js`.
 - `outputs/map-foundation.js`, `outputs/emergency-contacts.js`: the map layer, and the emergency numbers (single source of truth).
 - `outputs/fonts/`: bundled typefaces with their OFL licences. `outputs/illustrations/`: SVG artwork.
 - `outputs/*.test.js`: front-end policy and phase tests (mostly static guards on the HTML).
@@ -32,6 +32,7 @@ npm run qa               # layout check + WCAG scan + walkthrough screenshots, i
 npm run gallery          # rebuilds design/screens (every resident and staff screen, phone and laptop, light and dark) on fresh seeded data
 npm run qa:dark          # the same three checks in dark mode only; screenshots go to work/qa/screenshots/dark
 npm run qa:outcomes      # resident outcome checks (part of npm run qa): demo banner, My reports search and badge, demo reports never sent, no raw errors, filters, plain words, motion
+npm run qa:offline       # offline reopening and saving with service workers on (part of npm run qa; also in qa:webkit and qa:firefox): every entry address of the demo (served under /fixnow-ghana/) and the normal app opens offline, demo reports stay Demo only, normal reports with a photo send once after reconnecting
 npm run qa:journey       # the public demo's complete journey, end to end, on docs/ (run npm run build:demo first)
 ```
 

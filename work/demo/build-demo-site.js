@@ -76,11 +76,14 @@ app = replaceOnce(app, `</head>`, `  <link rel="stylesheet" href="demo-journey.c
 app = replaceOnce(app, `</body>`, `  <script src="demo-journey.js"></script>\n</body>`, "fixnow-ghana.html");
 fs.writeFileSync(path.join(site, "fixnow-ghana.html"), app);
 
-// The site's offline cache also keeps the demo files, and its name changes whenever they change.
+// The site's offline cache also keeps the demo files and the start page (index.html, written below; it exists only
+// in this site, so only this site's list names it), and its name changes whenever the demo files change. Offline,
+// the site's address ./ opens the cached app through the service worker, and ./index.html opens its cached copy,
+// which hands over to the cached app.
 const demoHash = require("crypto").createHash("sha256").update(DEMO_FILES.map((file) => fs.readFileSync(path.join(site, file), "utf8")).join("\n")).digest("hex").slice(0, 10);
 let worker = fs.readFileSync(path.join(site, "service-worker.js"), "utf8");
 worker = worker.replace(/const CACHE_NAME = "([^"]+)";/, (match, name) => `const CACHE_NAME = "${name}-demo-${demoHash}";`);
-worker = replaceOnce(worker, `  "./fixnow-ghana.html",\n`, `  "./fixnow-ghana.html",\n  "./demo-journey.js",\n  "./demo-journey.css",\n`, "service-worker.js");
+worker = replaceOnce(worker, `  "./fixnow-ghana.html",\n`, `  "./fixnow-ghana.html",\n  "./index.html",\n  "./demo-journey.js",\n  "./demo-journey.css",\n`, "service-worker.js");
 fs.writeFileSync(path.join(site, "service-worker.js"), worker);
 
 // The staff page: demo too (it explains that sign-in needs a real server), and it may connect only to its own site.

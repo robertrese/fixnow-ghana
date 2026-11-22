@@ -1,6 +1,7 @@
-const CACHE_NAME = "fixnow-ghana-static-v62-demo-abc9b483c9";
+const CACHE_NAME = "fixnow-ghana-static-v63-demo-abc9b483c9";
 const ASSETS = [
   "./fixnow-ghana.html",
+  "./index.html",
   "./demo-journey.js",
   "./demo-journey.css",
   "./emergency-contacts.js",
@@ -34,6 +35,20 @@ const ASSETS = [
   "./fonts/inter-latin-wght-normal.woff2"
 ];
 
+// The app's own page. Offline, the address of the app's folder ("./", which a web server answers with the app or
+// with a start page that opens it) opens this cached page too, so the app reopens from a saved link or a Home Screen
+// icon to that address. Every other page (staff, legal, the demo's start page where it exists) opens only its own
+// cached copy, and a page that was never cached still fails: nothing else is turned into the app.
+const APP_PAGE = "./fixnow-ghana.html";
+
+function offlinePage(url) {
+  return caches.match(`${url.origin}${url.pathname}`).then((cached) => {
+    if (cached) return cached;
+    if (url.pathname === new URL("./", self.registration.scope).pathname) return caches.match(new URL(APP_PAGE, self.registration.scope).href);
+    return undefined;
+  }).then((response) => response || Response.error());
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
@@ -62,7 +77,7 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(`${url.origin}${url.pathname}`))
+        .catch(() => offlinePage(url))
     );
     return;
   }
