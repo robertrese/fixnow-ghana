@@ -955,8 +955,10 @@ body[data-view="report"] .topbar h1{font-size:1.0625rem;font-weight:800;letter-s
 body:not([data-view="responder"]) .content, body[data-view="profile"] .content{width:100%;max-width:1648px;margin-left:0;margin-right:0;padding-left:20px;padding-right:28px}
 /* Text blocks: about 70 characters, wherever they sit */
 .content p, .content .hint, .content .step-help, .content .honest-state, .content .track-privacy, .content .intake-notice, .content .location-status, .content .consent-line{max-width:70ch}
-/* Home: the hotlines keep a 340 px column beside the problem tiles, which add columns as the screen widens */
-.home-shortcuts{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+/* Home: there are always six problem tiles, so they sit 3 across (two even rows), or 2 across (three even rows) where
+   3 would be too narrow; never 4 or 5, which would leave a half-empty row. (Six across in one row would need about
+   1500 px beside the hotlines, more than any screen gives the tiles.) */
+.home-shortcuts{grid-template-columns:repeat(3, minmax(0, 1fr))}
 .home-shortcuts > .v2-section-title, .home-shortcuts > .section-head{grid-column:1 / -1}
 /* Report lists and Nearby: more columns as the screen widens */
 .my-report-list{grid-template-columns:repeat(auto-fill, minmax(420px, 1fr))}
@@ -967,12 +969,22 @@ body[data-view="report"] .panel#intake{max-width:960px}
 .quick-type-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
 }
 @media (min-width: 1100px){
-body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 340px}
+/* The hotlines column is wide enough for every service name on one line: 400 px, and 440 px on wide screens and with
+   Large text (measured with "Ghana National Fire Service" and "National Ambulance Service"). */
+body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 400px}
+body.large-text[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 440px}
 /* Profile: the account, emergency and data rows on the left, the accessibility and language settings beside them */
 body[data-view="profile"] .content{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);column-gap:28px;align-content:start}
 body[data-view="profile"] .content > *{grid-column:1 / -1}
 body[data-view="profile"] .content > .profile-panel{grid-column:1}
 body[data-view="profile"] .content > .assist{grid-column:2;align-self:start}
+}
+
+@media (min-width: 1600px){
+body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 440px}
+}
+@media (min-width: 881px) and (max-width: 1049px), (min-width: 1100px) and (max-width: 1399px){
+.home-shortcuts{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
 
 /* ==================== V4 polish: motion ====================
