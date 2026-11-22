@@ -24,6 +24,9 @@ npm run qa:seed        # once per fresh local-data folder: 4 moderated demo repo
 npm run qa             # Chromium, light and dark, plus the older-browser check
 npm run qa:engines     # the same layout check, WCAG scan, walkthrough and staff check in WebKit and Firefox, light and dark
 npm run qa:all         # both of the above
+npm run qa:offline     # offline reopening and saving, service workers on: the demo (docs/, served under /fixnow-ghana/) and the
+                       # normal app open offline from every entry address; demo reports stay Demo only; a normal report with a photo
+                       # survives reopening, stays Not sent yet, and sends once (one report on the server) after reconnecting
 npm run qa:journey     # the public demo's complete journey on docs/: sample Nearby and filters, similar report,
                        # the seven simulated steps (confirm and reopen), labels, sample offices, WCAG, nothing leaves the page
 npm run qa:outcomes    # what a visitor sees (also: motion timing, focus and reduced motion, section 11): demo banner never covers a heading (320, 390, 1280 px, Large text), My reports
@@ -33,6 +36,7 @@ npm run qa:outcomes    # what a visitor sees (also: motion timing, focus and red
 - `overflow-check.js` fails if any screen scrolls sideways at 320 px, or at 320 or 390 px with Large text, or if a visible text field uses text under 16 px (iPhone zooms in on those).
 - `a11y-scan.js` fails on any axe-core WCAG 2.1 A/AA violation at 320, 390 or 1280 px. Automated checks miss some problems, so also try a keyboard and a screen reader (TalkBack on Android, VoiceOver on iPhone).
 - `walkthrough.js` screenshots every main screen on a phone and a laptop, and fails if the page logs an error.
+- `offline-check.js` runs its own servers on ports 4186 (docs/ under /fixnow-ghana/), 4187 (outputs/ at the root) and 4188 (a pass-through to the local API that can be switched off and can lose the server's answers). Each test uses a fresh browser context with service workers on, waits until the worker controls the page and every file in its offline list is cached, then cuts the connection. In Chromium the context is also set offline; in WebKit, Playwright's offline switch stops the service worker answering at all (a real iPhone does not do that), so there and in Firefox only the servers are cut and the page gets the online and offline events. If an engine has no working service worker it prints SKIP. `--site=` and `--outputs=` point it at another build, for example an older one, and `--only=entry,demo,normal` runs part of it.
 - `staff-check.js` signs in as every demo staff role (moderator, assembly, NADMO, utility, admin) on `staff.html` at 390 px, 320 px and laptop size, opens every staff tab, the review page with its Verify, Reject, Escalate and Hide dialogs, a case page, the update dialog and a private photo, and fails on WCAG violations, sideways scrolling, targets under 44 px, page errors, contact details or exact coordinates in a list, or a review queue that is not urgent-first. Screenshots go to `work/qa/screenshots/staff/`.
 - `old-browser-check.js` removes `crypto.randomUUID` before the page loads (as on iOS 15.0 to 15.3 and older Android browsers) and checks that the app still starts and saves a report.
 

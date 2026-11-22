@@ -47,6 +47,8 @@ for (const file of ["staff.html", "staff.js", "staff-boot.js", "staff.css"]) ass
 for (const file of ["./staff.html", "./staff.js", "./staff.css"]) assert(serviceWorker.includes(`"${file}"`), `${file} must be cached for offline use`);
 assert(serviceWorker.includes('url.pathname.startsWith("/api/")'), "API responses must bypass the service worker cache");
 assert(serviceWorker.includes('event.request.mode === "navigate"'), "page navigations must check the network for current application code");
-assert(serviceWorker.indexOf("fetch(event.request)") < serviceWorker.indexOf(".catch(() => caches.match", serviceWorker.indexOf('event.request.mode === "navigate"')), "HTML must use network-first update behavior with an offline fallback");
+// The fallback (offlinePage) looks up the page's own cached copy, and for the app's folder address the cached app page.
+const navigateAt = serviceWorker.indexOf('event.request.mode === "navigate"');
+assert(navigateAt > 0 && serviceWorker.indexOf("fetch(event.request)", navigateAt) < serviceWorker.indexOf(".catch(() => offlinePage(url))", navigateAt) && /function offlinePage\(url\) \{\n  return caches\.match\(`\$\{url\.origin\}\$\{url\.pathname\}`\)/.test(serviceWorker), "HTML must use network-first update behavior with an offline fallback");
 
 console.log("Staff browser policy test passed");

@@ -443,4 +443,17 @@ assert(html.includes('ghost.addEventListener("animationend", (event) => { if (ev
 // Focus still moves at once: nothing in the motion code delays it.
 assert(!/setTimeout\([^)]*(focus|focusWizardHeading)/.test(html.slice(html.indexOf("function reducedMotion()"), html.indexOf("function announceView("))), "focus never waits for an animation");
 
+// Offline reopening (bug of November 2026: after an online visit the demo's address and index.html did not open
+// offline). The browser test is work/qa/offline-check.js, part of npm run qa in every engine.
+const offlineList = (file) => { const s = fs.readFileSync(file, "utf8"); const block = s.slice(s.indexOf("const ASSETS = ["), s.indexOf("];", s.indexOf("const ASSETS = ["))); return [...block.matchAll(/"\.\/([^"]+)"/g)].map((m) => m[1]); };
+for (const [dir, label] of [[__dirname, "outputs"], [path.join(root, "docs"), "docs"]]) {
+  const missing = offlineList(path.join(dir, "service-worker.js")).filter((file) => !fs.existsSync(path.join(dir, file)));
+  assert(missing.length === 0, `every file in the ${label} offline list exists (${missing.join(", ")})`);
+}
+assert(!offlineList(path.join(__dirname, "service-worker.js")).includes("index.html") && offlineList(path.join(root, "docs", "service-worker.js")).includes("index.html"), "only the demo, which has an index.html start page, keeps it offline");
+assert(worker.includes('const APP_PAGE = "./fixnow-ghana.html";') && worker.includes(".catch(() => offlinePage(url))") && worker.includes('if (url.pathname === new URL("./", self.registration.scope).pathname) return caches.match(new URL(APP_PAGE, self.registration.scope).href);'), "offline, the app's folder address opens the cached app page");
+assert(!/caches\.match\(new URL\(APP_PAGE/.test(worker.replace('if (url.pathname === new URL("./", self.registration.scope).pathname) return caches.match(new URL(APP_PAGE, self.registration.scope).href);', "")), "no other address is turned into the app: staff, legal and uncached pages open only their own cached copy");
+const qaScripts = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).scripts;
+assert(qaScripts.qa.includes("npm run qa:offline") && qaScripts["qa:offline"] === "node work/qa/offline-check.js" && qaScripts["qa:webkit"].includes("offline-check.js --engine=webkit") && qaScripts["qa:firefox"].includes("offline-check.js --engine=firefox"), "the offline test runs in npm run qa, and in WebKit and Firefox");
+
 console.log("V2 design and safety guard test passed");
