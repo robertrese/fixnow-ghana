@@ -190,6 +190,8 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
         await staff.waitForTimeout(700);
       };
       const signOut = async () => { await staff.click(isPhone ? ".s-topbar [data-sign-out]" : ".s-side-head [data-sign-out]"); await staff.waitForSelector("#signInView:not([hidden])"); };
+      // On the laptop (1280 px) a report opens beside the list, so there is no page to close; on the phone it has its own page.
+      const closeStaffPage = async () => { if (await staff.evaluate(() => !document.querySelector("#staffPage").hidden)) await staff.click("#pageBack"); };
       await staff.goto(STAFF_URL, { waitUntil: "load" });
       await sshot("30-staff-sign-in", "Staff: Sign in");
       await signIn("moderator", "moderator123");
@@ -203,7 +205,7 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
       await staff.click('[data-act="reject"]');
       await sshot("34-staff-reject", "Staff: Reject with a reason", "", { full: false });
       await staff.click("#dialogActions button:last-child");
-      await staff.click("#pageBack");
+      await closeStaffPage();
       await staff.click('[data-tab="cases"]');
       await staff.waitForTimeout(800);
       await sshot("35-staff-all-cases", "Staff: All cases (moderator)", "Shows which verified cases no office can see yet.");
@@ -216,7 +218,7 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
       await staff.click('[data-act="update"]');
       await sshot("38-staff-update", "Staff: Post an update", "Public update and internal note kept apart.", { full: false });
       await staff.click("#dialogActions button:last-child");
-      await staff.click("#pageBack");
+      await closeStaffPage();
       await signOut();
       await signIn("admin", localSettings().adminPassword);
       await staff.click('[data-tab="routing"]');
@@ -267,7 +269,7 @@ function screen(id, group, label, note) { if (!screens.some((s) => s.id === id))
 <body>
 <main>
 <h1>FixNow Ghana screens</h1>
-<p>Every resident and staff screen, on a phone (390 px) and a laptop (1280 px), in light and dark. All content is demo data from the local test server; no real reports, people or places are shown. Labels are the Figma page names, or "Staff: ..." for staff screens.</p>
+<p>Every resident and staff screen, on a phone (390 px) and a laptop (1280 px), in light and dark. On the laptop, staff reports open beside the list. All content is demo data from the local test server; no real reports, people or places are shown. Labels are the Figma page names, or "Staff: ..." for staff screens.</p>
 <div class="filters" role="group" aria-label="Show">
   <button type="button" data-toggle="phone" aria-pressed="true">Phone</button>
   <button type="button" data-toggle="laptop" aria-pressed="true">Laptop</button>

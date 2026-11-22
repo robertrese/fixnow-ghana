@@ -119,14 +119,30 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
         const first = await page.textContent("[data-open] h3");
         if (first !== "Live wire hanging over the footpath") fail(`${label}: the immediate-danger report should be first in the review queue, found "${first}"`);
         if (!/Waiting /.test(await page.textContent("[data-open]"))) fail(`${label}: review items should say how long they have been waiting`);
-        await page.click("[data-open]");
+        // From 1100 px the list and the chosen report sit side by side (list rows without the reference number; arrow
+        // keys move through the list, Enter opens the report beside it and focus moves to its heading). Below that, a
+        // report opens on its own page.
+        const split = await page.evaluate(() => Boolean(document.querySelector("#splitList")));
+        if (split !== (width >= 1100)) fail(`${label}: the list and details should be side by side from 1100 px only`);
+        if (split) {
+          if (await page.$$eval("#splitList [data-open]", (rows) => rows.some((row) => /Reference/.test(row.textContent)))) fail(`${label}: side-by-side list rows should leave the reference number to the details`);
+          if (await page.evaluate(() => !document.querySelector("#splitBody .s-split-empty"))) fail(`${label}: nothing should open by itself beside the list`);
+          await page.focus("#splitList [data-open]");
+          await page.keyboard.press("ArrowDown");
+          await page.keyboard.press("ArrowUp");
+          if (await page.evaluate(() => [...document.querySelectorAll("#splitList [data-open]")].indexOf(document.activeElement)) !== 0) fail(`${label}: the arrow keys should move through the list`);
+          await page.keyboard.press("Enter");
+        } else await page.click("[data-open]");
         await page.waitForSelector("#pageTitle:not(:empty)");
+        await page.waitForFunction(() => document.querySelector("#pageTitle").textContent !== "Loading case");
         await page.waitForTimeout(500);
-        if (!/Demo contact 024/.test(await page.textContent("#pageBody"))) fail(`${label}: moderators should see contact details on the review page`);
-        if (!/Sample Water and Power Desk/.test(await page.textContent("#pageBody"))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
+        const bodySel = split ? "#splitBody" : "#pageBody";
+        if (split && await page.evaluate(() => document.activeElement !== document.querySelector("#splitBody #pageTitle") || !document.querySelector("#staffPage").hidden)) fail(`${label}: Enter should open the report beside the list and move focus to its heading`);
+        if (!/Demo contact 024/.test(await page.textContent(bodySel))) fail(`${label}: moderators should see contact details on the review page`);
+        if (!/Sample Water and Power Desk/.test(await page.textContent(bodySel))) fail(`${label}: the review page should show the office the live wire report will be routed to`);
         // The live wire report answered Yes to immediate danger and skipped the other two questions: a skipped
         // question is shown as "Not answered", never as "No".
-        const facts = await page.$$eval("#pageBody dl div", (rows) => Object.fromEntries(rows.map((row) => [row.querySelector("dt").textContent.trim(), row.querySelector("dd").textContent.trim()])));
+        const facts = await page.$$eval(`${bodySel} dl div`, (rows) => Object.fromEntries(rows.map((row) => [row.querySelector("dt").textContent.trim(), row.querySelector("dd").textContent.trim()])));
         if (facts["Anyone in immediate danger"] !== "Yes" || facts["Road or access blocked"] !== "Not answered" || facts["Getting worse"] !== "Not answered") fail(`${label}: skipped yes/no questions should show "Not answered" on the case page, found ${facts["Anyone in immediate danger"]} / ${facts["Road or access blocked"]} / ${facts["Getting worse"]}`);
         await check("review page", "2-review-page");
         for (const [act, name] of [["verify", "3-verify-dialog"], ["reject", "4-reject-dialog"], ["escalate-review", "5-escalate-dialog"], ["hide", "6-hide-dialog"]]) {
@@ -139,9 +155,11 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
           await check(`${act} dialog`, name);
           await closeDialog();
         }
-        await page.goBack();
-        await page.waitForTimeout(400);
-        if (!(await page.evaluate(() => document.querySelector("#staffPage").hidden))) fail(`${label}: browser Back should close the review page`);
+        if (!split) {
+          await page.goBack();
+          await page.waitForTimeout(400);
+          if (!(await page.evaluate(() => document.querySelector("#staffPage").hidden))) fail(`${label}: browser Back should close the review page`);
+        }
       }
 
       // Case page (every role that has cases in its area).
@@ -170,8 +188,11 @@ const devices = [["phone", 390, 844], ["small", 320, 640], ["laptop", 1280, 800]
           await check("photo dialog", "9-photo-dialog");
           await closeDialog();
         }
-        await page.click("#pageBack");
-        await page.waitForTimeout(400);
+        // Side by side, the case stays open beside the list; a full page closes with Back.
+        if (await page.evaluate(() => !document.querySelector("#staffPage").hidden)) {
+          await page.click("#pageBack");
+          await page.waitForTimeout(400);
+        } else if (width < 1100) fail(`${label}: below 1100 px a case should open on its own page`);
       } else if (!NOT_MINE[username]) fail(`${label}: moderators and admins should see the demo cases`);
 
       // Sign out works for everyone and leaves nothing private behind: no token, no account, no unsent updates,
