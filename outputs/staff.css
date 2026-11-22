@@ -290,3 +290,16 @@ input,select,textarea{border-radius:16px}
   [data-theme="dark"] .s-tablist button{color:#dfe6e1}
   [data-theme="dark"] .s-tablist button[aria-current="page"]{background:#fffdf8;color:#0d2a22}
 }
+
+/* V4 polish, wide screens (900 px and wider): the content starts right after the floating side menu, with a 20 px gap
+   (the menu sits 14 px from the screen edge), and fills the width up to 1600 px with a 28 px gutter on the right,
+   never centred. Paragraphs stay at most about 70 characters wide; lists add columns (each card at least 380 px)
+   instead of stretching. The case page starts after the menu the same way. Phones and tablets are unchanged. */
+@media (min-width:900px){
+  .s-shell{grid-template-columns:258px minmax(0,1fr)}
+  .s-main{width:100%;max-width:1648px;padding:28px 28px 48px 20px}
+  .s-main p, .s-page p{max-width:70ch}
+  .s-list.two{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+  .s-page{left:258px;padding:28px 28px 48px 20px}
+  .s-page-inner{max-width:1600px;margin:0}
+}

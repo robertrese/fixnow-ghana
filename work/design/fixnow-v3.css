@@ -572,7 +572,6 @@ body[data-view="home"] .home-panel{background-size:260px auto}
 }
 /* ---------- Laptop: the rail and wider content ---------- */
 @media (min-width: 881px){
-body:not([data-view="responder"]) .content{max-width:1180px}
 .rail{overflow-y:auto;overscroll-behavior:contain;background:var(--nav)}
 .rail::before{content:"";display:block;flex:0 0 auto;height:12px;margin:-22px -16px 4px;background:var(--kente) repeat-x;background-size:72px 12px}
 .rail .brand b{color:#fdfaf1;font-family:var(--font-display);font-size:1.25rem}
@@ -585,7 +584,6 @@ body:not([data-view="responder"]) .content{max-width:1180px}
 .rail .nav button.active code{background:rgba(13, 42, 34, .14);color:var(--ink)}
 .rail .nav .nav-report:not(.active){box-shadow:inset 0 0 0 1.5px rgba(252, 209, 22, .6);background:transparent;color:#fdfaf1}
 .nearby-panel > .citizen-band-head, .my-panel > .citizen-band-head, .profile-panel > .citizen-band-head{display:none}
-body[data-view="profile"] .content{max-width:880px}
 .topbar h1{font-size:2.25rem;font-weight:800;letter-spacing:-.025em}
 .home-actions{grid-template-columns:1fr 1fr}
 .track-search{grid-template-columns:1fr 1fr auto;align-items:end}
@@ -943,6 +941,38 @@ body[data-view="report"] .topbar h1{font-size:1.0625rem;font-weight:800;letter-s
 .quick-type:hover{box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
 .quick-type.active:hover, .quick-type[aria-pressed="true"]:hover{box-shadow:inset 0 0 0 2px var(--deep), 0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
 .my-report-card:hover, .public-report-card:hover{box-shadow:0 1px 2px rgba(13, 42, 34, .08), 0 10px 24px rgba(13, 42, 34, .12)}
+}
+
+/* ==================== V4 polish: wide screens ====================
+   Laptops and desktops (881 px and wider). The content starts right after the floating side menu, with a 20 px gap
+   (the menu sits 14 px from the screen edge), and fills the width up to 1600 px with a 28 px gutter on the right; it is
+   never centred, so external monitors and zoomed-out browsers have no empty band between the menu and the content.
+   Text blocks (paragraphs, notices, form explanations) stay at most about 70 characters wide so they remain easy to
+   read; grids, cards and the Home hero use the full width. Wide grids add columns instead of stretching their cards,
+   and every card stays at least 240 px wide. Phones and tablets are unchanged. */
+@media (min-width: 881px){
+.app{grid-template-columns:258px minmax(0, 1fr)}
+body:not([data-view="responder"]) .content, body[data-view="profile"] .content{width:100%;max-width:1648px;margin-left:0;margin-right:0;padding-left:20px;padding-right:28px}
+/* Text blocks: about 70 characters, wherever they sit */
+.content p, .content .hint, .content .step-help, .content .honest-state, .content .track-privacy, .content .intake-notice, .content .location-status, .content .consent-line{max-width:70ch}
+/* Home: the hotlines keep a 340 px column beside the problem tiles, which add columns as the screen widens */
+.home-shortcuts{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+.home-shortcuts > .v2-section-title, .home-shortcuts > .section-head{grid-column:1 / -1}
+/* Report lists and Nearby: more columns as the screen widens */
+.my-report-list{grid-template-columns:repeat(auto-fill, minmax(420px, 1fr))}
+.nearby-sheet, .nearby-panel[data-mode="map"] .nearby-sheet{grid-template-columns:repeat(auto-fill, minmax(320px, 1fr))}
+/* The report form: tiles add columns; fields and their explanations stay a comfortable width */
+body[data-view="report"] .workspace{grid-template-columns:minmax(0, 960px) 320px;justify-content:start}
+body[data-view="report"] .panel#intake{max-width:960px}
+.quick-type-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+}
+@media (min-width: 1100px){
+body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 340px}
+/* Profile: the account, emergency and data rows on the left, the accessibility and language settings beside them */
+body[data-view="profile"] .content{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);column-gap:28px;align-content:start}
+body[data-view="profile"] .content > *{grid-column:1 / -1}
+body[data-view="profile"] .content > .profile-panel{grid-column:1}
+body[data-view="profile"] .content > .assist{grid-column:2;align-self:start}
 }
 
 /* ==================== V4 polish: motion ====================

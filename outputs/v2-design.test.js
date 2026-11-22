@@ -456,4 +456,16 @@ assert(!/caches\.match\(new URL\(APP_PAGE/.test(worker.replace('if (url.pathname
 const qaScripts = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).scripts;
 assert(qaScripts.qa.includes("npm run qa:offline") && qaScripts["qa:offline"] === "node work/qa/offline-check.js" && qaScripts["qa:webkit"].includes("offline-check.js --engine=webkit") && qaScripts["qa:firefox"].includes("offline-check.js --engine=firefox"), "the offline test runs in npm run qa, and in WebKit and Firefox");
 
+// Wide screens (owner's brief of 22 November 2026): on laptops and desktops the content starts right after the side
+// menu (20 px gap) and fills up to 1600 px with a 28 px right gutter, never centred; text blocks stay about 70
+// characters wide; grids add columns with each card at least 240 px; phones and tablets are unchanged.
+const wideBlock = v4Source.slice(v4Source.indexOf("/* ==================== V4 polish: wide screens"), v4Source.indexOf("/* ==================== V4 polish: motion"));
+assert(wideBlock.length > 500 && wideBlock.indexOf("@media (min-width: 881px){") > 0, "the wide-screen rules sit in their own section, for laptops and wider only");
+assert(html.includes(".app{grid-template-columns:258px minmax(0, 1fr)}") && html.includes('body:not([data-view="responder"]) .content, body[data-view="profile"] .content{width:100%;max-width:1648px;margin-left:0;margin-right:0;padding-left:20px;padding-right:28px}'), "resident content starts 20 px after the side menu and fills up to 1600 px, not centred");
+assert(!v4Source.includes("max-width:1180px") && !v4Source.includes('body[data-view="profile"] .content{max-width:880px}'), "the old 1180 px (and 880 px Profile) caps are gone");
+assert(html.includes(".content p, .content .hint, .content .step-help, .content .honest-state, .content .track-privacy, .content .intake-notice, .content .location-status, .content .consent-line{max-width:70ch}"), "text blocks stay about 70 characters wide");
+assert(html.includes(".home-shortcuts{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}") && html.includes(".quick-type-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}") && html.includes(".my-report-list{grid-template-columns:repeat(auto-fill, minmax(420px, 1fr))}"), "wide grids add columns, each card at least 240 px");
+const staffWide = fs.readFileSync(path.join(__dirname, "staff.css"), "utf8");
+assert(staffWide.includes(".s-shell{grid-template-columns:258px minmax(0,1fr)}") && staffWide.includes(".s-main{width:100%;max-width:1648px;padding:28px 28px 48px 20px}") && staffWide.includes(".s-main p, .s-page p{max-width:70ch}") && staffWide.includes(".s-list.two{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}") && staffWide.includes(".s-page-inner{max-width:1600px;margin:0}"), "staff pages and case pages start after the side menu, fill up to 1600 px, and keep text about 70 characters wide");
+
 console.log("V2 design and safety guard test passed");
