@@ -272,6 +272,56 @@
     return navigator.onLine ? "" : '<div class="s-offline"><b>You are offline.</b> Lists show what the server sent last time you were online. Updates you post are kept on this phone and sent when you are back online.</div>';
   }
 
+  // ---------- list and details side by side (1100 px and wider) ----------
+  // On wide screens the review queue and the cases list sit on the left and the chosen report opens beside them, like
+  // an email app, with the same contents and actions as the case page. Nothing opens by itself: every opening is the
+  // staff member's choice, and is audited by the server as before. Below 1100 px (phones, tablets, small laptops) a
+  // report opens on its own page, as before. Arrow keys move through the list, Home and End jump to its ends, and
+  // Enter opens the focused report; focus then moves to the report's heading.
+  const splitQuery = window.matchMedia ? window.matchMedia("(min-width: 1100px)") : null;
+  function splitMode() { return Boolean(splitQuery && splitQuery.matches); }
+  function splitHtml(listHtml) {
+    return '<p class="hint s-split-hint" id="splitHint">Arrow keys move through the list. Enter opens a report beside it.</p>' +
+      '<div class="s-split"><div class="s-list s-split-list" id="splitList" aria-describedby="splitHint">' + listHtml + "</div>" +
+      '<section class="s-split-detail" id="splitDetail" aria-label="Chosen report"><div id="splitBody"><div class="s-split-empty"><h2>Choose a report</h2><p>It opens here, beside the list. Opening a report is recorded in the audit log.</p></div></div></section></div>';
+  }
+  function bindSplitList(view) {
+    const list = $("#splitList", view);
+    if (!list) return;
+    list.addEventListener("keydown", (event) => {
+      const rows = $$("[data-open]", list);
+      const index = rows.indexOf(document.activeElement);
+      if (index < 0) return;
+      const next = { ArrowDown: Math.min(rows.length - 1, index + 1), ArrowUp: Math.max(0, index - 1), Home: 0, End: rows.length - 1 }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      rows[next].focus();
+    });
+  }
+  function markChosen(id) {
+    $$("#splitList [data-open]").forEach((row) => {
+      const chosen = row.dataset.open === id;
+      row.classList.toggle("is-chosen", chosen);
+      if (chosen) row.setAttribute("aria-current", "true"); else row.removeAttribute("aria-current");
+    });
+  }
+  if (splitQuery) {
+    // Crossing 1100 px (a window resized, a tablet turned) redraws the list in the right form.
+    // It waits until the width has settled, and redraws only when the form really has to change, so an open report is
+    // never thrown away for nothing (a window being dragged, or a screenshot tool resizing for a moment).
+    let widthTimer = 0;
+    const applyWidth = () => {
+      if (!session.token || (currentTab !== "review" && currentTab !== "cases")) return;
+      const shown = $("#splitList") ? true : $("#staffView .s-list") ? false : null;
+      if (shown === null || shown === splitMode()) return;
+      if (pageOpen) closePage(false);
+      showTab(currentTab, false);
+    };
+    const onWidthChange = () => { clearTimeout(widthTimer); widthTimer = setTimeout(applyWidth, 250); };
+    if (splitQuery.addEventListener) splitQuery.addEventListener("change", onWidthChange);
+    else if (splitQuery.addListener) splitQuery.addListener(onWidthChange);
+  }
+
   // ---------- moderator review queue ----------
   async function renderReview(view) {
     const data = await api("/api/reports?queue=review");
@@ -280,11 +330,15 @@
     const oldest = reports.length ? reports.reduce((a, b) => (String(a.createdAt) < String(b.createdAt) ? a : b)) : null;
     view.innerHTML = offlineNote() + '<div class="s-head"><h1 tabindex="-1">Waiting for review</h1><p>New reports stay private until a moderator verifies them. Reports with immediate danger or Critical severity are at the top, then the ones waiting longest.</p></div>' +
       '<div class="s-stats"><div class="s-stat"><b>' + reports.length + '</b><span>waiting</span></div><div class="s-stat' + (urgent ? " is-urgent" : "") + '"><b>' + urgent + '</b><span>urgent</span></div><div class="s-stat"><b>' + (oldest ? esc(shortWait(oldest.createdAt)) : "None") + '</b><span>longest wait</span></div></div>' +
-      (reports.length ? '<div class="s-list two">' + reports.map((report) => itemHtml(report, "review")).join("") + "</div>" : '<div class="s-empty"><h2>Nothing is waiting</h2><p>Every report has been verified, rejected or hidden. New reports appear here as they arrive.</p></div>');
+      (!reports.length ? '<div class="s-empty"><h2>Nothing is waiting</h2><p>Every report has been verified, rejected or hidden. New reports appear here as they arrive.</p></div>'
+        : splitMode() ? splitHtml(reports.map((report) => itemHtml(report, "review", true)).join(""))
+        : '<div class="s-list two">' + reports.map((report) => itemHtml(report, "review")).join("") + "</div>");
     bindItems(view);
+    bindSplitList(view);
   }
 
-  function itemHtml(report, kind) {
+  // compact: a row in the side-by-side list, without the long reference number (it is in the details).
+  function itemHtml(report, kind, compact) {
     const operations = report.operations || {};
     const assignee = operations.assignment && operations.assignment.assignee;
     const pending = outbox().some((item) => item.reportId === report.id && item.actorId === myId());
@@ -300,7 +354,7 @@
       ? "<span>" + esc(report.type || "") + "</span><span>" + esc(waited(report.createdAt)) + "</span>"
       : "<span>" + esc(assignee ? "Assigned to " + (assignee.name || assignee.username) : "Not assigned") + "</span>" + (operations.slaDueAt ? "<span>" + esc((operations.overdue ? "Was due " : "Due ") + when(operations.slaDueAt)) + "</span>" : "");
     return '<button type="button" class="s-item' + (isUrgent(report) ? " is-urgent" : "") + '" data-open="' + esc(report.id) + '" data-kind="' + kind + '">' +
-      '<span class="tags">' + tags.join("") + "</span><h3>" + esc(titleOf(report)) + '</h3><span class="where">' + esc(placeOf(report)) + '</span><span class="meta">' + meta + '</span><span class="ref">Reference ' + esc(report.id) + "</span></button>";
+      '<span class="tags">' + tags.join("") + "</span><h3>" + esc(titleOf(report)) + '</h3><span class="where">' + esc(placeOf(report)) + '</span><span class="meta">' + meta + "</span>" + (compact ? "" : '<span class="ref">Reference ' + esc(report.id) + "</span>") + "</button>";
   }
 
   function bindItems(root) {
@@ -331,8 +385,11 @@
       '<label>Problem type<select id="caseCategory"><option value="">All types</option>' + categories.map((c) => "<option" + (c === category ? " selected" : "") + ">" + c + "</option>").join("") + "</select></label>" +
       '<label>Status<select id="caseStatus"><option value="">All statuses</option>' + statuses.map((s) => "<option" + (s === status ? " selected" : "") + ">" + s + "</option>").join("") + "</select></label></div>" +
       '<p class="hint" role="status" id="casesCount">' + esc(plural(shown.length, "case")) + " shown</p>" +
-      (shown.length ? '<div class="s-list two">' + shown.map((report) => itemHtml(report, "cases")).join("") + "</div>" : '<div class="s-empty"><h2>No cases here</h2><p>Try another list or filter. Only cases in your area are ever shown.</p></div>');
+      (!shown.length ? '<div class="s-empty"><h2>No cases here</h2><p>Try another list or filter. Only cases in your area are ever shown.</p></div>'
+        : splitMode() ? splitHtml(shown.map((report) => itemHtml(report, "cases", true)).join(""))
+        : '<div class="s-list two">' + shown.map((report) => itemHtml(report, "cases")).join("") + "</div>");
     bindItems(view);
+    bindSplitList(view);
     $$("[data-queue]", view).forEach((button) => button.addEventListener("click", () => { casesQueue = button.dataset.queue; reloadCases(view, "[data-queue=\"" + casesQueue + "\"]"); }));
     $("#caseCategory").addEventListener("change", (event) => { view.dataset.category = event.target.value; reloadCases(view, "#caseCategory"); });
     $("#caseStatus").addEventListener("change", (event) => { view.dataset.status = event.target.value; reloadCases(view, "#caseStatus"); });
@@ -375,12 +432,23 @@
   };
 
   async function openCase(id, kind, trigger) {
-    openPageShell(trigger);
-    const body = $("#pageBody");
+    // Side by side on wide screens: the report opens in the details panel beside the list (same contents, same
+    // actions, the same audited request). Otherwise on its own page, as before.
+    const split = splitMode() && $("#splitBody") && $$("#splitList [data-open]").some((row) => row.dataset.open === id);
+    let body;
+    if (split) {
+      $("#pageBody").innerHTML = ""; // no second copy of the headings' ids
+      markChosen(id);
+      body = $("#splitBody");
+      $("#splitDetail").scrollTop = 0;
+    } else {
+      openPageShell(trigger);
+      body = $("#pageBody");
+    }
     body.innerHTML = '<h1 id="pageTitle" tabindex="-1">Loading case</h1>';
     try {
       const data = await api("/api/reports/" + encodeURIComponent(id) + "/case");
-      renderCasePage(data.report, kind);
+      renderCasePage(data.report, kind, body);
     } catch (error) {
       body.innerHTML = '<h1 id="pageTitle" tabindex="-1">Could not open this case</h1><p class="s-note">' + esc(error.message) + (error.network ? " Case pages need a connection, because exact locations and contact details are never kept on the phone." : "") + "</p>";
     }
@@ -427,8 +495,8 @@
       (entry.privateNote ? '<div class="internal">Internal note, staff only: ' + esc(entry.privateNote) + "</div>" : "") + "</li>").join("") + "</ol></section>";
   }
 
-  function renderCasePage(report, kind) {
-    const body = $("#pageBody");
+  function renderCasePage(report, kind, target) {
+    const body = target || $("#pageBody");
     const operations = report.operations || {};
     const assignee = operations.assignment && operations.assignment.assignee;
     const review = kind === "review" && report.awaitingReview && canModerate();

@@ -2830,7 +2830,7 @@ body[data-view="report"] .topbar h1{font-size:1.0625rem;font-weight:800;letter-s
 @media (min-width: 881px){.app{grid-template-columns:258px minmax(0, 1fr)}
 body:not([data-view="responder"]) .content, body[data-view="profile"] .content{width:100%;max-width:1648px;margin-left:0;margin-right:0;padding-left:20px;padding-right:28px}
 .content p, .content .hint, .content .step-help, .content .honest-state, .content .track-privacy, .content .intake-notice, .content .location-status, .content .consent-line{max-width:70ch}
-.home-shortcuts{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
+.home-shortcuts{grid-template-columns:repeat(3, minmax(0, 1fr))}
 .home-shortcuts > .v2-section-title, .home-shortcuts > .section-head{grid-column:1 / -1}
 .my-report-list{grid-template-columns:repeat(auto-fill, minmax(420px, 1fr))}
 .nearby-sheet, .nearby-panel[data-mode="map"] .nearby-sheet{grid-template-columns:repeat(auto-fill, minmax(320px, 1fr))}
@@ -2838,11 +2838,16 @@ body[data-view="report"] .workspace{grid-template-columns:minmax(0, 960px) 320px
 body[data-view="report"] .panel#intake{max-width:960px}
 .quick-type-grid{grid-template-columns:repeat(auto-fill, minmax(240px, 1fr))}
 }
-@media (min-width: 1100px){body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 340px}
+@media (min-width: 1100px){body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 400px}
+body.large-text[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 440px}
 body[data-view="profile"] .content{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);column-gap:28px;align-content:start}
 body[data-view="profile"] .content > *{grid-column:1 / -1}
 body[data-view="profile"] .content > .profile-panel{grid-column:1}
 body[data-view="profile"] .content > .assist{grid-column:2;align-self:start}
+}
+@media (min-width: 1600px){body[data-view="home"] .content{grid-template-columns:minmax(0, 1fr) 440px}
+}
+@media (min-width: 881px) and (max-width: 1049px), (min-width: 1100px) and (max-width: 1399px){.home-shortcuts{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
 @keyframes fn-view-in{from{opacity:0;transform:translateY(8px)}
 to{opacity:1;transform:none}
